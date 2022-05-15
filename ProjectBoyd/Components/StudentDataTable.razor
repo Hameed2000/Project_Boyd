@@ -1,0 +1,340 @@
+﻿@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.AspNetCore.WebUtilities;
+@using ProjectBoyd.Models;
+@using ProjectBoyd.Data;
+@using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+@using ProjectBoyd.Models.EntityModels;
+@using ProjectBoyd.Models.ObjectModels;
+@using ProjectBoyd.Models.EntityModels.LabEntities;
+@using Microsoft.AspNetCore.Identity;
+
+@inject UserManager<ApplicationUser> userManager
+@inject ApplicationDbContext dbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
+
+<div id="body-main">
+
+    <StudentMessage>  </StudentMessage>
+
+    <!-- the main body container-->
+    <div class="nav-bar">
+        <button id="menu-toggle" class="icon-button" style="height:55px;width:55px;margin-left:15px;display:none;">
+            <span class="material-icons" style="margin:auto;font-size:30px">menu</span>
+        </button>
+
+        <div class="flex-divider"></div>
+
+    </div>
+
+
+    <!-- PAGE CONTENT GOES HERE -->
+
+    @if (sessionTeamInfo != null) {
+
+        <div class="session-panel-container active" style="max-width:700px;">
+
+            <div class="session-panel active" style="margin-bottom:0px;">
+                <!-- main panel -->
+
+                <form id="student-calibration-form" name="calibrationData" class="list-flex">
+
+                    <!-- main data holder -->
+
+                    <div id="calibration-data" class="centering-flex">
+
+                        <!-- range list -->
+
+                        <div>
+
+                            <div class="cal-list-text title" style="visibility: hidden;">Expected</div>
+
+                            <div class="cal-list-container no-bg">
+
+                                <div class="default-text list-flex cal-list">
+
+                                    <div class="cal-list-text bold">Range</div>
+
+                                    <div class="cal-list-text">0%</div>
+                                    <div class="cal-list-text">25%</div>
+                                    <div class="cal-list-text">50%</div>
+                                    <div class="cal-list-text">75%</div>
+                                    <div class="cal-list-text">100%</div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- expected list -->
+
+                        <div class="default-text">
+
+                            <div class="cal-list-text title">Expected</div>
+
+                            <div class="rounded-visible-border centering-flex item-spacer-right cal-list-container">
+
+                                <div class="list-flex default-text cal-list">
+
+                                    <div style="font-weight: bold;">PV</div>
+
+                                    @{ var x = 1; }
+                                    @for (var i = 0; i < 5; i++) {
+                                        var idStr = ("calibration-expected-pv-" + (x).ToString());
+                                        var ind = i;
+                                        <input id=@idStr class="data-table-input" placeholder="0" type="number" required min="0" value=@sessionTeamInfo.DataTableValues.ElementAt(i) @onchange="v => UpdateTableValue(v.Value, ind)">
+                                        x++;
+                                    }
+
+                                    @*<input id="calibration-expected-pv-2" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-expected-pv-3" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-expected-pv-4" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-expected-pv-5" class="data-table-input" placeholder="0" type="number" required min="0">*@
+
+                                </div>
+
+                                <div class="list-flex default-text cal-list">
+
+                                    <div class="cal-list-text bold">mA</div>
+
+                                    <div class="cal-list-text">4.000</div>
+                                    <div class="cal-list-text">8.000</div>
+                                    <div class="cal-list-text">12.00</div>
+                                    <div class="cal-list-text">16.00</div>
+                                    <div class="cal-list-text">20.00</div>
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+                        <!-- as found list -->
+
+                        <div class="default-text">
+
+                            <div class="cal-list-text title">As Found</div>
+
+                            <div class="rounded-visible-border centering-flex item-spacer-right cal-list-container">
+
+                                <div class="list-flex default-text cal-list">
+
+                                    <div style="font-weight: bold;">PV</div>
+
+                                    @{ x = 1; }
+                                    @for (var i = 5; i < 10; i++) {
+                                        var idStr = ("calibration-found-pv-" + (x).ToString());
+                                        var ind = i;
+                                        <input id=@idStr class="data-table-input" placeholder="0" type="number" required min="0" value=@sessionTeamInfo.DataTableValues.ElementAt(i) @onchange="v => UpdateTableValue(v.Value, ind)">
+                                        x++;
+                                    }
+
+                                    @*<input id="calibration-found-pv-1" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-found-pv-2" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-found-pv-3" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-found-pv-4" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-found-pv-5" class="data-table-input" placeholder="0" type="number" required min="0">*@
+
+                                </div>
+
+                                <div class="list-flex default-text cal-list">
+
+                                    <div style="font-weight: bold;">mA</div>
+
+                                    @{ x = 1; }
+                                    @for (var i = 10; i < 15; i++) {
+                                        var idStr = ("calibration-found-ma-" + (x).ToString());
+                                        var ind = i;
+                                        <input id=@idStr class="data-table-input" placeholder="0" type="number" required min="0" value=@sessionTeamInfo.DataTableValues.ElementAt(i) @onchange="v => UpdateTableValue(v.Value, ind)">
+                                        x++;
+                                    }
+
+                                    @*<input id="calibration-found-ma-1" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-found-ma-2" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-found-ma-3" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-found-ma-4" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-found-ma-5" class="data-table-input" placeholder="0" type="number" required min="0">*@
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+                        <!-- as left list -->
+
+                        <div class="default-text">
+
+                            <div class="cal-list-text title">As Left</div>
+
+                            <div class="rounded-visible-border centering-flex item-spacer-right cal-list-container">
+
+                                <div class="list-flex default-text cal-list" style="align-items: center;margin-right:10px">
+
+                                    <div style="font-weight: bold;">PV</div>
+
+                                    @{ x = 1; }
+                                    @for (var i = 15; i < 20; i++) {
+                                        var idStr = ("calibration-left-pv-" + (x).ToString());
+                                        var ind = i;
+                                        <input id=@idStr class="data-table-input" placeholder="0" type="number" required min="0" value=@sessionTeamInfo.DataTableValues.ElementAt(i) @onchange="v => UpdateTableValue(v.Value, ind)">
+                                        x++;
+                                    }
+
+                                    @*<input id="calibration-left-pv-1" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-left-pv-2" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-left-pv-3" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-left-pv-4" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-left-pv-5" class="data-table-input" placeholder="0" type="number" required min="0">*@
+
+                                </div>
+
+                                <div class="list-flex default-text cal-list" style="align-items: center">
+
+                                    <div style="font-weight: bold;">mA</div>
+
+                                    @{ x = 1; }
+                                    @for (var i = 20; i < 25; i++) {
+                                        var idStr = ("calibration-left-ma-" + (x).ToString());
+                                        var ind = i;
+                                        <input id=@idStr class="data-table-input" placeholder="0" type="number" required min="0" value=@sessionTeamInfo.DataTableValues.ElementAt(i) @onchange="v => UpdateTableValue(v.Value, ind)">
+                                        x++;
+                                    }
+
+                                    @*<input id="calibration-left-ma-1" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-left-ma-2" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-left-ma-3" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-left-ma-4" class="data-table-input" placeholder="0" type="number" required min="0">
+                                        <input id="calibration-left-ma-5" class="data-table-input" placeholder="0" type="number" required min="0">*@
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- bottom bar -->
+
+                    <div class="rounded-visible-border centering-flex" style="width:100%;box-sizing:border-box;padding: 5px 10px;background-color:  rgba(0,0,0,0.15);">
+
+                        <div>
+
+                            <div class="default-text" style="text-align: left;font-size:1.1em">Range: @sessionTeamInfo.TagAssigned.LowRange - @sessionTeamInfo.TagAssigned.HighRange</div>
+                            <div class="default-text" style="text-align: left;font-size:1.1em">S/N: @sessionTeamInfo.TagAssigned.ServiceNumber</div>
+
+                        </div>
+
+                        <div class="flex-divider"></div>
+
+                        <div>
+                            <!-- form submit button -->
+
+                            <input id="calibration-submit" class="noselect" type="submit" value=@SubmissionText style="background-color: @SubmissionColor; color: #fff;padding: 8px 50px;transition-duration: .75s;-webkit-transition-duration: 0.75s;" @onclick="SubmitData">
+
+                        </div>
+
+                    </div>
+
+
+
+                </form>
+
+
+            </div>
+
+        </div>
+
+    }
+
+</div>
+
+
+@code {
+
+    ApplicationUser currentUser;
+    TeamEntity team;
+    SessionTeam sessionTeamInfo;
+    bool labAssigned = false;
+
+    protected override async Task OnInitializedAsync() {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        currentUser = await userManager.FindByNameAsync(user.Identity.Name);
+        team = dbContext.Teams.Where(t => t.AccountId == currentUser.Id).FirstOrDefault();
+        sessionTeamInfo = SessionInfo.SessionInfoList.GetValueOrDefault(team.SessionId).GetValueOrDefault(team.TeamId.ToString());
+
+        if (sessionTeamInfo != null && sessionTeamInfo.AwaitingApproval) {
+            SubmissionText = "Awaiting Approval";
+            SubmissionColor = "#47c661";
+            //AwaitinApprovalStyle = "max-width:700px; z-index:-1; background-color: white; transition: opacity 0.3s; -webkit-transition: opacity 0.3s; opacity:.25;border-radius:8px;";
+        }
+        else if (SubmissionText != "Fill All Values") {
+            SubmissionText = "Submit";
+            SubmissionColor = "var(--accent-color)";
+            //AwaitinApprovalStyle = "max-width:700px; transition: opacity 0.3s; -webkit-transition: opacity 0.3s;border-radius:8px;";
+        }
+
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender) {
+
+        await JSRuntime.InvokeVoidAsync("DisableFormss");
+
+        if (sessionTeamInfo != null && sessionTeamInfo.AwaitingApproval) {
+            SubmissionText = "Awaiting Approval";
+            SubmissionColor = "#47c661";
+            //AwaitinApprovalStyle = "max-width:700px; z-index:-1; background-color: white; transition: opacity 0.3s; -webkit-transition: opacity 0.3s; opacity:.25;border-radius:8px;";
+        } else if (SubmissionText != "Fill All Values") {
+            SubmissionText = "Submit";
+            SubmissionColor = "var(--accent-color)";
+            //AwaitinApprovalStyle = "max-width:700px; transition: opacity 0.3s; -webkit-transition: opacity 0.3s;border-radius:8px;";
+        }
+
+    }
+
+    public void UpdateTableValue(object val, int index) {
+        sessionTeamInfo.DataTableValues[index] = (string) val;
+    }
+
+
+    public string SubmissionText { get; set; } = "Submit";
+    public string SubmissionColor { get; set; } = "var(--accent-color)";
+    public string AwaitinApprovalStyle { get; set; } = "max-width:700px; transition: opacity 0.3s; -webkit-transition: opacity 0.3s;border-radius:8px;";
+    public async void SubmitData() {
+        if (SubmissionText.Equals("Submit") && sessionTeamInfo.AwaitingApproval == false) {
+            Console.WriteLine(sessionTeamInfo.AwaitingApproval.ToString());
+
+            if (sessionTeamInfo.DataTableValues.Where(e => e.Length == 0).FirstOrDefault() != null) {
+                SubmissionText = "Fill All Values";
+                SubmissionColor = "#CA2A2A";
+                await Task.Delay(1000);
+                SubmissionText = "Submit";
+                SubmissionColor = "var(--accent-color)";
+                StateHasChanged();
+                return;
+            }
+
+            sessionTeamInfo.AwaitingApproval = true;
+            SubmissionText = "Awaiting Approval";
+            SubmissionColor = "#47c661";
+            //AwaitinApprovalStyle = "max-width:700px; z-index:-1; background-color: white; transition: opacity 0.3s; -webkit-transition: opacity 0.3s; opacity:.25;border-radius:8px;";
+            StateHasChanged();
+
+        }
+
+    }
+
+}

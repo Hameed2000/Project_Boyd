@@ -1,0 +1,114 @@
+﻿@using ProjectBoyd.Models.ObjectModels
+@inject IJSRuntime JSRuntime
+
+    <!-- MODALS GO HERE -->
+    <div id="main-modal-container" class="basic-modal-container" style="z-index:11;">
+
+        <div id="confirmation-modal" class="basic-modal-item">
+
+            <div class="list-flex" style="width:100%;">
+
+                <!-- close button -->
+
+                <button id="confirmation-modal-close" class="icon-button" @onclick="() => CloseEvent.InvokeAsync()" style="position: absolute; top: 0px; right: 0px; padding:5px;" type="button">
+                    <span class="material-icons" style="margin:auto;font-size:25px">close</span>
+                </button>
+
+                <div class="default-text title" style="margin-bottom:15px">@title</div>
+
+                <div class="default-text" style="margin-bottom: 15px; font-size: 1.1em">@body</div>
+
+                <div id="basic-button-container" style="height:35px" class="basic-modal-button-container">
+
+                    <div id="confirmation-modal-one-option" class="centering-flex basic-modal-button-container">
+
+                        <button class="rounded-button centering-flex" @onclick="() => ButtonOneEvent.InvokeAsync()">
+
+                            <div class="default-text" style="color: inherit">@buttonOne</div>
+
+                        </button>
+
+                    </div>
+
+                    <div id="confirmation-modal-two-option" class="centering-flex basic-modal-button-container">
+
+                        <button class="rounded-button centering-flex" @onclick="() => ButtonTwoEvent.InvokeAsync()">
+
+                            <div class="default-text" style="color: inherit">@buttonTwo</div>
+
+                        </button>
+
+                        <button class="rounded-button centering-flex" @onclick="() => ButtonThreeEvent.InvokeAsync()">
+
+                            <div class="default-text" style="color: inherit">@buttonThree</div>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+@code {
+
+
+
+    [Parameter]
+    public EventCallback ButtonOneEvent { get; set; }
+
+    [Parameter]
+    public EventCallback ButtonTwoEvent { get; set; }
+
+    [Parameter]
+    public EventCallback ButtonThreeEvent { get; set; }
+
+    [Parameter]
+    public EventCallback CloseEvent { get; set; }
+        
+
+    
+
+
+
+
+
+    public string title = "";
+    public string body = "";
+    public string buttonOne = "";
+    public string buttonTwo = "";
+    public string buttonThree = "";
+
+
+
+    public async void Show(bool TwoButtons, string Title, string Body, string ButtonOne, string ButtonTwo, string ButtonThree) {
+
+        title = Title;
+        body = Body;
+        buttonOne = ButtonOne;
+        buttonTwo = ButtonTwo;
+        buttonThree = ButtonThree;
+
+        await JSRuntime.InvokeVoidAsync("ConfirmationShow", TwoButtons);
+
+        StateHasChanged();
+
+    }
+
+    public async void Hide() {
+
+        await JSRuntime.InvokeVoidAsync("ConfirmationHide");
+
+        StateHasChanged();
+
+    }
+
+
+}
+
+

@@ -1,0 +1,61 @@
+﻿.text-input-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#pword-options {
+    width: 100%;
+    padding-left: 20px;
+    padding-top: 2px;
+    display: flex;
+    justify-content: space-between;
+}
+
+
+#show-pword-group {
+    width: 50%;
+    display: inline-block;
+    text-align: left;
+    vertical-align: top;
+}
+
+#checkbox {
+    width: 18px;
+    height: 18px;
+    background-color: transparent;
+    border: solid 3px #ABABAB;
+    border-radius: 2px;
+    display: inline-block;
+    vertical-align: middle;
+    transition-duration: .2s;
+    transition-timing-function: linear;
+}
+
+#checkbox-label {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    word-spacing: 1px;
+    color: #ABABAB;
+    margin-left: 3px;
+    margin-bottom: 0px;
+    vertical-align: middle;
+    user-select: none;
+}
+
+#forgot-pword-group {
+}
+
+#forgot-pword {
+    margin-top: 2px;
+    padding-right: 21px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    word-spacing: 1px;
+    color: #d43c33;
+}

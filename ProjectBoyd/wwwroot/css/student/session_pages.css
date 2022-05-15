@@ -1,0 +1,145 @@
+/* animations */    
+@keyframes session-panel-tween-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+        left: 25%;
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        left: 0;
+    }
+}
+
+@keyframes session-panel-tween-out {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+        left: 0;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.8);
+        left: -25%;
+    }
+}
+
+
+/* panel stuff */
+
+    /* panel container */
+        .session-panel-container {
+
+            margin: auto;
+
+            max-width: 400px;
+
+            z-index: 3;
+
+            width: 100%;
+
+            display: none;
+
+
+        }
+
+        .session-panel-container.active {
+
+            display: flex;
+
+        }
+
+        .session-panel-container > * {
+
+            margin-bottom: 15px;
+
+        }
+
+    /* panel */
+
+        .session-image-panel {
+            width: 100%;
+            max-width: 700px;
+            z-index: 3;
+            margin: auto;
+            height: auto;
+            display: block;
+            position: relative;
+            border: 1px solid var(--hover-color);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        .session-panel {
+
+            width: 100%;
+
+            z-index: inherit;
+
+            background-color: var(--body-color);
+
+            padding: 15px 10px;
+
+            position: relative;
+            box-sizing: border-box;
+
+            box-shadow: rgba(0, 0, 0, 0.2) 5px 5px 10px;
+
+            overflow: clip auto;
+
+            border-radius: 8px;
+
+            display: none;
+
+            border: 1px solid var(--hover-color);
+
+            max-height: calc(100% - 120px);
+
+            align-items: center;
+            justify-content: flex-start;
+            flex-direction: column;
+
+        }
+
+        .session-panel.active {
+
+            display: flex;
+
+            animation: session-panel-tween-in 0.25s cubic-bezier(.4,0,.6,1) both;
+
+        }
+
+        .session-panel.tween-out {
+
+            animation: session-panel-tween-out 0.25s cubic-bezier(.4,0,.6,1) both;
+
+        }
+
+        .session-panel > * {
+
+            margin-bottom: 15px;
+
+            width: 100%;
+
+        }
+
+        .session-panel > *:last-child {
+
+            margin-bottom: 0px
+
+        }
+
+/* list entries */
+.session-list-entry-buttons > * {
+    padding: 5px;
+}
+
+.session-list-entry {
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+    

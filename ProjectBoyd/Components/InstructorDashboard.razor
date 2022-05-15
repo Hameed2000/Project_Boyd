@@ -1,0 +1,494 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Identity;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.AspNetCore.WebUtilities;
+@using ProjectBoyd.Models;
+@using ProjectBoyd.Data;
+@using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+@using ProjectBoyd.Models.EntityModels;
+@using ProjectBoyd.Models.ObjectModels;
+
+@inject UserManager<ApplicationUser> userManager
+@inject RoleManager<IdentityRole> roleManager
+@inject ApplicationDbContext dbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
+
+<div id="body-main">
+
+    <!-- MODALS GO HERE -->
+    <!-- dashboard modal -->
+
+    @if (AssignLabComponent || SendMessageComponent) {
+        <div id="dashboard-modal-container" class="basic-modal-container active">
+
+            
+                
+            @if (AssignLabComponent) {
+                <AssignLabComp HideAssignLab="AssignLabHide" SessionInfo="sessionInfo">  </AssignLabComp>
+            } else if (SendMessageComponent) {
+                <InstructorSendMessage HideSendMessage="SendMessageHide">  </InstructorSendMessage>
+            }
+
+        </div>
+
+    }
+
+    <div class="list-flex dashboard-body-flex"> 
+        <!-- the main body container-->
+
+        <!-- CHANGE 'page-title' DEPENDING ON THE ACTIVE SECTION-->
+        <div class="nav-bar">
+            <button id="menu-toggle" class="icon-button" style="height:55px;width:55px;margin-left:15px;display:none;">
+                <span class="material-icons" style="margin:auto;font-size:30px">menu</span>
+            </button>
+
+            <div id="page-title" class="default-text" style="text-align:left; font-size:1.9em; font-weight:bold; margin-left:15px">Dashboard</div>
+
+            <div class="flex-divider"></div>
+
+        </div>
+                
+                
+        <!-- PAGE CONTENT GOES HERE -->
+
+        <!-- CLASS Dashboard ADD 'active' CLASS TO MAKE VISIBLE-->
+
+        @if (DashboardView == "Class") {
+
+            <div class="dashboard-container class active">
+                    
+                <DashboardNavigation @ref="NavRef" ClassroomDashboard="ClassroomDashboard" MainDashboard="InstructorDash" ShowAssignLab="AssignLabShow" ShowSendMessage="SendMessageShow" Page="@DashboardView" Session="@session"> </DashboardNavigation>
+
+                <BasicStatsDashboard @ref="StatsRef" Session="session" SessionInfo="sessionInfo"> </BasicStatsDashboard>
+
+                <div class="dashboard-grid-item class-item-3 full-item" >
+
+                    <div class="dashboard-text title dashboard-panel-title">Help Queue</div>
+
+                    <div class="class-dashboard-help-queue-container list-flex">
+
+                        <div class="class-dashboard-help-queue-item centering-flex">
+
+                            <div class="dashboard-text bold">Team 6</div>
+
+                            <div class="flex-divider"></div>
+
+                            <div class="class-dashboard-help-queue-item-buttons item-spacer-right">
+
+                                <button class="icon-button" title="Accept">
+                                    <span class="material-icons">done</span>
+                                </button>
+
+                                <button class="icon-button" title="Deny">
+                                    <span class="material-icons">delete</span>
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+                <div class="dashboard-grid-item class-item-4 full-item">
+                    <!-- teams panel -->
+
+                    <div class="dashboard-text title dashboard-panel-title">Class Teams</div>
+
+                    <div id="class-dashboard-teams-container" class="centering-flex">
+
+                        @foreach(var team in teamList) {
+
+                            <div class="class-dashboard-teams-item">
+
+                            <!-- CHANGE THE ICON TO 'close' WHEN the 'more info menu' IS OPENED-->
+                            <!-- ALSO APPLY "filter: blur(2px)" TO 'class-dashboard-item-info' WHEN MORE-INFO IS OPENED -->
+
+                            <button class="default-text icon-button class-dasboard-item-more-info-button">
+                                <span class="material-icons">more_horiz</span>
+                            </button>
+
+                            <div class="class-dashboard-item-info list-flex">
+
+                                <img class="avatar-icon" src ="https://www.iconbunny.com/icons/media/catalog/product/3/4/3423.12-beaker-icon-iconbunny.jpg">
+
+                                <div class="dashboard-text bold title class-dashboard-teams-team-text">@team.TeamName</div>
+                                <div class="dashboard-text sub class-dashboard-teams-students-text">
+                                    @{string studentsComp = "";}
+                                    @foreach(var student in team.Students) {
+                                            studentsComp = studentsComp + " " + student.FirstName;
+                                    }
+
+                                    @studentsComp
+                                </div>
+
+                                <div class="flex-divider"></div>
+
+
+
+                                <div class="dashboard-text bold class-dashboard-teams-progress-text" style="color:var(--accent-color)"> @team.sessionTeam.Status </div>
+
+                            </div>
+
+                            <div class="class-dashboard-item-more-info list-flex">
+
+                                <div class="dashboard-text bold class-dashboard-teams-approval-text" style="color:var(--dashboard-accent-color-1)">Approval Request</div>
+
+                                <div class="flex-divider"></div>
+
+                                <!-- ADD 'active' TO THESE TO MAKE THEM VISIBLE DEPENDING ON THE SITUATION-->
+                                <div class="centering-flex item-spacer-right class-dashboard-teams-more-info-buttons results">
+                                        
+                                    <button class="rounded-button" style="color:var(--accent-color)">View Results</button>
+                                        
+                                </div>
+
+                                <div class="centering-flex item-spacer-right class-dashboard-teams-more-info-buttons approval">
+                                        
+                                    <button class="rounded-button" style="color:var(--content-color)">Approve</button>
+                                    <button class="rounded-button" style="color:var(--error-color)">Reject</button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        }
+
+                    </div>
+
+                </div>
+            </div>
+
+
+        } else {
+        <!-- MAIN Dashboard-->
+
+            <div class="dashboard-container main active">
+
+            <DashboardNavigation ClassroomDashboard="ClassroomDashboard" MainDashboard="InstructorDash" ShowAssignLab="AssignLabShow" ShowSendMessage="SendMessageShow" Page="@DashboardView" Session="session"> </DashboardNavigation>
+
+             <BasicStatsDashboard Session="session" SessionInfo="sessionInfo"> </BasicStatsDashboard>
+
+
+            <div class="dashboard-grid-item item-3">
+
+                <!-- instructor stats -->
+
+                <div class="centering-flex dashboard-item-3-panel-container">
+
+                    <div class="centering-flex dashboard-item-3-panel" style="border-color:var(--dashboard-accent-color-2);">
+                        <!-- classes taught -->
+
+                        <div class="dashboard-item-3-panel-icon centering-flex" style="background-color: var(--dashboard-accent-color-2);">
+                                    
+                            <span class="material-icons">school</span>
+
+                        </div>
+
+                        <div class="dashboard-item-3-panel-body">
+
+                            <div class="dashboard-text title">0</div>
+                            <div class="dashboard-text sub">Classes Taught</div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="centering-flex dashboard-item-3-panel" style="border-color:var(--dashboard-accent-color-3);">
+                        <!-- rating out of 5 stars -->
+
+                        <div class="dashboard-item-3-panel-icon centering-flex" style="background-color: var(--dashboard-accent-color-3);">
+                                    
+                            <span class="material-icons">star</span>
+
+                        </div>
+
+                        <div class="dashboard-item-3-panel-body">
+
+                            <div class="dashboard-text title">0/5</div>
+                            <div class="dashboard-text sub">Student Ranking</div>
+                                    
+                        </div>
+
+                    </div>
+
+                    <div class="centering-flex dashboard-item-3-panel" style="border-color:var(--dashboard-accent-color-1);">
+                        <!-- technicians prepared -->
+
+                        <div class="dashboard-item-3-panel-icon centering-flex" style="background-color: var(--dashboard-accent-color-1);">
+                                    
+                            <span class="material-icons">groups</span>
+
+                        </div>
+
+                        <div class="dashboard-item-3-panel-body">
+
+                            <div class="dashboard-text title">0</div>
+                            <div class="dashboard-text sub">Technicians Prepared</div>
+                                    
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div id="dashboard-item-4-classes-taught" class="dashboard-grid-item item-4">
+                <!-- graph -->
+
+                <canvas id="dashboard-classes-taught-graph" height="406"></canvas>
+                        
+                <!-- GRAPH JS, PUT THIS SOMEWHERE ELSE/INTEGRATE IT WITH YOUR CODE-->
+                        
+
+            </div>
+
+            <div id="dashboard-item-4-general-stats" class="dashboard-grid-item item-5">
+                <!-- general stats -->
+
+                <div class="dashboard-item-4-stats-panel-container list-flex">
+
+                    <div class="dashboard-item-4-stats-panel">
+
+                        <div id="dashboard-avg-score" class="circular-progress">
+
+                            <div class="circular-progress-half mask" style="z-index: 3;background-color: var(--bg-color);"></div>
+                            <div class="circular-progress-half half1" style="z-index: 4;"></div>
+                            <div class="circular-progress-half half2" style="z-index:2;"></div>
+                            <div class="circular-progress-middle centering-flex" style="z-index:5">
+                                    
+                                <div class="dashboard-text circular-progress-title">0%</div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="dashboard-text sub bold">Students Average Score</div>
+
+
+                    </div>
+                    <div class="dashboard-item-4-stats-panel">
+
+                        <div id="dashboard-avg-classes" class="circular-progress">
+
+                            <div class="circular-progress-half mask" style="z-index: 3;background-color: var(--bg-color);"></div>
+                            <div class="circular-progress-half half1" style="z-index: 4;"></div>
+                            <div class="circular-progress-half half2" style="z-index:2;"></div>
+                            <div class="circular-progress-middle centering-flex" style="z-index:5">
+                                        
+                                <div class="dashboard-text circular-progress-title">0/5</div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="dashboard-text sub bold">Average Monthly Classes</div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div id="dashboard-item-4-leaderboard" class="rounded-visible-border dashboard-grid-item item-6 full-item">
+                <!-- leaderboard -->
+
+                <div class="dashboard-text title dashboard-panel-title">Instructor Leaderboard</div>
+
+                <table id="dashboard-leaderboard" class="dashboard-leaderboard-main">
+
+                    <tr>
+                        <th class="dashboard-text bold">Rank</th>
+                        <th class="dashboard-text bold">Instructor</th>
+                        <th class="dashboard-text bold">Score</th>
+                    </tr>
+
+                        <tr>
+
+                            <td class="dashboard-text">1</td>
+                            <td class="dashboard-text">Lisa Haworth</td>
+                            <td class="dashboard-text">99%</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td class="dashboard-text">2</td>
+                            <td class="dashboard-text">Stuart Detter</td>
+                            <td class="dashboard-text">97%</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td class="dashboard-text">3</td>
+                            <td class="dashboard-text">Allen Pangilinan</td>
+                            <td class="dashboard-text">93%</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td class="dashboard-text">4</td>
+                            <td class="dashboard-text">Jerald Agarin</td>
+                            <td class="dashboard-text">87%</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td class="dashboard-text">5</td>
+                            <td class="dashboard-text">Arianee Tanyag</td>
+                            <td class="dashboard-text">86%</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td class="dashboard-text">6</td>
+                            <td class="dashboard-text">Senn Alonzo</td>
+                            <td class="dashboard-text">81%</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td class="dashboard-text">7</td>
+                            <td class="dashboard-text">Paul De Leon</td>
+                            <td class="dashboard-text">76%</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td class="dashboard-text">8</td>
+                            <td class="dashboard-text">Luna Marianne</td>
+                            <td class="dashboard-text">73%</td>
+
+                        </tr>
+
+
+                </table>
+
+            </div>
+
+        </div>
+
+        }
+    </div>   
+</div>
+
+
+
+@code {
+
+    DashboardNavigation NavRef;
+    BasicStatsDashboard StatsRef;
+
+    string DashboardView = "Main";
+
+    ApplicationUser currentUser;
+    InstructorEntity instructor;
+    Dictionary<string, SessionTeam> sessionInfo;
+    SessionEntity session;
+    List<TeamEntity> teamList = new List<TeamEntity>();
+
+    public async void StateHasChangedWrapper(Object? source, System.Timers.ElapsedEventArgs e) {
+
+        await InvokeAsync(() => {
+            StateHasChanged();
+        });
+
+        return;
+    }
+
+    protected override async Task OnInitializedAsync() {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        currentUser = await userManager.FindByNameAsync(user.Identity.Name);
+        instructor = dbContext.Instructors.Where(i => i.UserId == currentUser.Id).FirstOrDefault();
+        sessionInfo = SessionInfo.SessionInfoList.GetValueOrDefault(instructor.SessionId.ToString());
+        session = dbContext.Sessions.Where(s => s.SessionId == instructor.SessionId).FirstOrDefault();
+
+        System.Timers.Timer timer = new System.Timers.Timer();
+        timer.Interval = 5000;
+        timer.Elapsed += StateHasChangedWrapper;
+        timer.AutoReset = true;
+        timer.Enabled = true;
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+
+        //if (firstRender) {
+
+        await JSRuntime.InvokeVoidAsync("LoadChart");
+        await JSRuntime.InvokeVoidAsync("DisableFormss");
+
+        sessionInfo = SessionInfo.SessionInfoList.GetValueOrDefault(instructor.SessionId.ToString());
+        if (sessionInfo == null && DashboardView == "Class") {
+            DashboardView = "Main";
+            session = null;
+        }
+
+        if (sessionInfo != null) {
+            foreach (KeyValuePair<string, SessionTeam> entry in sessionInfo) {
+                TeamEntity team = dbContext.Teams.FirstOrDefault(t => t.TeamId.ToString() == entry.Key);
+                if (team != null && !teamList.Contains(team)) {
+                    team.sessionTeam = entry.Value;
+                    teamList.Add(team);
+                }
+            }
+        }
+
+        //}
+
+    }
+
+    public void ClassroomDashboard() {
+
+        DashboardView = "Class";
+        StateHasChanged();
+        //await JSRuntime.InvokeVoidAsync("SwitchClassroomDash");
+
+    }
+
+    public void InstructorDash() {
+
+        DashboardView = "Main";
+        StateHasChanged();
+        //await JSRuntime.InvokeVoidAsync("SwitchInstructorDash");
+
+    }
+
+    bool AssignLabComponent = false;
+    public void AssignLabShow() {
+        AssignLabComponent = true;
+    }
+
+    public void AssignLabHide() {
+        AssignLabComponent = false;
+        StateHasChanged();
+    }
+
+
+    bool SendMessageComponent = false;
+
+    public void SendMessageShow() {
+        SendMessageComponent = true;
+    }
+    public void SendMessageHide() {
+        SendMessageComponent = false;
+    }
+
+
+}

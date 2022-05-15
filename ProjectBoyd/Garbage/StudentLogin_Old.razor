@@ -1,0 +1,93 @@
+﻿<!-- TO-DO List
+
+Change drop-down to custom component
+Fix the problem where if you autofill the fields the text/border doesn't turn green
+
+-->
+
+
+<link rel="stylesheet" href="/css/login/studentlogin.css" />
+<link rel="stylesheet" href="/css/login/loginmain.css" />
+
+
+<div class="con">
+
+    <div id="header-container">
+        <img id="emr-logo" src="/Assets/Images/Corp_RGB_White.png" class="img-fluid" />
+        <h3> @viewModel.pageInstructionText </h3>
+        <p id=@viewModel.hint.id style=@viewModel.hint.style> @viewModel.hint.text </p>
+    </div>
+
+    <div class="container" id="body-container">
+        <form>
+
+            @if (viewModel.pageDisplay == 1) {
+
+                <div id="select-class">
+                    <p id="dropdown-label" style=@viewModel.classSelect.secondaryStyle> Class </p>
+                    <label for="classes">  </label>
+                    <select id=@viewModel.classSelect.id name=@viewModel.classSelect.fieldInfo style=@viewModel.classSelect.style @bind="viewModel.classSelect.classSelected" @onclick="@(e=>viewModel.classSelect.selectInputClicked(false))" @onfocusout="@(e =>viewModel.classSelect.selectInputClicked(true))">
+                        <option value=""> ABC Company </option>
+                        @foreach (string option in viewModel.classSelect.options) {
+                            <option value=option> @option </option>
+                        }
+                    </select>
+                </div>
+
+                <span class="form-button-right" id="form-button-sclass">
+                    <button class="form-button" type="button" @onclick="viewModel.nextButton"> Next </button>
+                </span>
+
+            }
+            else if (viewModel.pageDisplay == 2) {
+
+                <div class="all-text-container">
+
+                    @foreach (KeyValuePair<string, TextInput1> info in viewModel.membersInputList) {
+                        <div class="text-input-container" style=@info.Value.style>
+                            <p class="input-label" style=@info.Value.secondaryStyle> @info.Value.fieldInfo </p>
+                            <input type="text" class="text-input" id=@info.Value.id name=@info.Value.id @bind="info.Value.text" placeholder=@info.Value.placeHolder @onfocusin="info.Value.textInputClicked" @onfocusout="info.Value.textInputClicked" />
+                        </div>
+                    }
+
+                </div>
+
+                <div id="form-button-container">
+
+                    <span class="form-button-left">
+                        <button class="form-button" type="button" @onclick="viewModel.addMemberButton"> Add member </button>
+                    </span>
+
+                    <span class="form-button-right">
+                        <button class="form-button" type="button" @onclick="viewModel.joinSessionButton"> Join Session </button>
+                    </span>
+
+                </div>
+            }
+            else if (viewModel.pageDisplay == 3) {
+
+                <Spinner> </Spinner>
+
+            }
+
+        </form>
+
+    </div>
+
+</div>
+
+
+@code {
+
+    StudentLoginViewModel viewModel = new StudentLoginViewModel();
+
+    protected override void OnInitialized() {
+
+        viewModel.StateHasChangedDelegate = StateHasChanged;
+        //Session newSeshTest = new Session();
+        //newSeshTest.generateJoinCode();
+
+    }
+
+}
+

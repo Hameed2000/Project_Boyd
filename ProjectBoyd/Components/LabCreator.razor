@@ -1,0 +1,1157 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Identity;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.AspNetCore.WebUtilities;
+@using ProjectBoyd.Models;
+@using ProjectBoyd.Models.ObjectModels;
+@using ProjectBoyd.Models.EntityModels;
+@using ProjectBoyd.Data;
+@using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+@using ProjectBoyd.Models.EntityModels.LabEntities;
+@using System;
+@using ProjectBoyd.Services;
+@using System.IO;
+@using System.Drawing;
+@using ProjectBoyd.Models.EntityModels.LabEntities;
+@using Microsoft.EntityFrameworkCore;
+@using System.Linq;
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ApplicationDbContext dbContext
+@inject IJSRuntime JSRuntime
+
+
+
+
+
+<div id="body-main">
+
+    @* @if (TagsConfirmationBool) {*@
+    <Confirmation @ref="ConfirmationComponent" ButtonOneEvent="@TagsConfirmationCancel" ButtonTwoEvent="@HandleImageUploadOverRide" ButtonThreeEvent="@TagsConfirmationCancel" CloseEvent="@TagsConfirmationCancel"> </Confirmation>
+    @*}*@
+    @* @if (LabsConfirmationBool) {*@
+    @*    <Confirmation @ref="DeleteConfirmationComponent" ButtonOneEvent="@DeleteLabCancel" ButtonTwoEvent="@DeleteLabConfirmed" ButtonThreeEvent="@DeleteLabCancel" CloseEvent="@DeleteLabCancel"> </Confirmation>      }
+    *@    @*}*@
+
+    <div id="create-lab-modal-container" class="basic-modal-container">
+
+        <div id="create-lab-equipment-modal" class="basic-modal-item">
+
+            <form id="create-lab-equipment-modal-form" name="create-lab-equipment" class="centering-flex lab-form">
+
+                <div class="default-text title">@ModalHeading</div>
+
+                <div></div>
+
+                <div>
+                    <!-- CUSTOM NAME INPUT FIELD -->
+                    <div class="default-text form-title">@ModalText</div>
+
+                    <input id="create-lab-equipment-tool-name" @bind="CustomName" placeholder=@ModalPlaceHolder name="toolName" type="text" normal required>
+
+                    <div class="default-text form-error"></div>
+
+                </div>
+
+                <div></div>
+
+                <div>
+
+                    <input type="submit" id="create-lab-equipment-tool-create" value="Create" class="noselect rounded-button lab-form-next-button" @onclick="AddCustomInput">
+                    <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <div id="create-lab-upload-image" class="basic-modal-item">
+
+            <form id="create-lab-equipment-modal-form" name="create-lab-equipment" class="centering-flex lab-form">
+
+                <div class="default-text title">Upload Image</div>
+
+                <div></div>
+
+                <div>
+
+                    <div class="default-text form-title">Configuration Sheet</div>
+
+                    @*<input accept="image/png, image/jpg" id="create-lab-upload-image-image" name="uploadedImage" type="file" normal required>*@
+                    <InputFile id="image-picker" OnChange="(e) => HandleImageUpload(e, false)" accept="image/png, image/jpg" />
+
+                    <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>
+
+                </div>
+
+                <div class="create-lab-upload-image-preview-container active">
+
+                    <img id="create-lab-upload-image-preview" class="create-lab-upload-image-preview rounded-visible-border" src=@CDFImagePath>
+
+                </div>
+
+                <div></div>
+
+                <div>
+
+                    @*<input type="submit" id="create-lab-upload-image-submit" value="Upload" class="noselect rounded-button lab-form-next-button" @onclick="UploadImage">
+                        <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>*@
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <div id="create-lab-tag-creator" class="basic-modal-item">
+
+            <form id="create-lab-equipment-modal-form" name="create-lab-equipment" class="centering-flex lab-form">
+
+                <div class="default-text title">Create Tag</div>
+
+                <div></div>
+
+                <div>
+                    <!-- EQUIPMENT NAME INPUT FIELD -->
+                    <div class="default-text form-title">Tag Name</div>
+
+                    <input id="create-lab-tag-creator-name" @bind="TagName" placeholder="Tag Name" name="tagName" type="text" normal required>
+
+                    <div class="default-text form-error"></div>
+
+                </div>
+                <div>
+                    <!-- RANGE INPUT FIELD -->
+                    <div class="default-text form-title">Range Value 4 mA</div>
+
+                    <input id="create-lab-tag-creator-range-1" @bind="TagLowRange" placeholder="0" name="range1" type="text" normal required>
+
+                    <div class="default-text form-error"></div>
+
+                </div>
+                <div>
+                    <!-- RANGE INPUT FIELD -->
+                    <div class="default-text form-title">Range Value 20 mA</div>
+
+                    <input id="create-lab-tag-creator-range-2" @bind="TagHighRange" placeholder="0" name="range2" type="text" normal required>
+
+                    <div class="default-text form-error"></div>
+
+                </div>
+                <div>
+                    <!-- RANGE INPUT FIELD -->
+                    <div class="default-text form-title">Serial Number</div>
+
+                    <input id="create-lab-tag-creator-serial-number" @bind="TagServiceNumber" placeholder="0000" name="serialNumber" type="text" normal required>
+
+                    <div class="default-text form-error"></div>
+
+                </div>
+
+                <div></div>
+
+                <div>
+
+                    <input type="submit" id="create-lab-tag-creator-create" value="Create" class="noselect rounded-button lab-form-next-button" @onclick="UploadImage">
+                    <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <div id="create-lab-icon-selector" class="basic-modal-item">
+
+            <div class="centering-flex lab-form">
+
+                <div class="default-text title">Select a Lab Icon</div>
+
+                <div></div>
+
+                <div id="create-lab-icon-selector-container" class="rounded-visible-border">
+
+                    @foreach (var path in labIconPaths) {
+
+                        <button class="create-lab-icon-selector-icon" @onclick="() => LabIconSelected(path)" title="template">
+
+                            <img src=@path>
+
+                        </button>
+
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- the main body container-->
+    <div class="nav-bar">
+
+        <button id="menu-toggle" class="icon-button" style="height:55px;width:55px;margin-left:15px;display:none;">
+            <span class="material-icons" style="margin:auto;font-size:30px">menu</span>
+        </button>
+
+        <div class="flex-divider"></div>
+
+    </div>
+
+
+    <!-- PAGE CONTENT GOES HERE -->
+
+    @if (pageDisplay == 1) {
+
+        <div id="main-panel-container" class="panel-container active">
+
+            <div class="basic-panel active">
+
+                <div class="default-text title">Create and Modify Labs</div>
+
+                <div class="lab-item-list rounded-visible-border">
+
+                    <div class="lab-list-item lab-list-empty">
+
+                        <!-- appears when the list is empty -->
+                        <div class="default-text lab-list-item-text">No Labs Found</div>
+
+                    </div>
+
+                    @foreach (var module in ModulesList) {
+
+                        <div class="lab-list-item centering-flex">
+
+                            <div class="default-text lab-list-item-text">@module.LabName</div>
+
+                            <div class="flex-divider"></div>
+
+                            <div class="centering-flex item-spacer-right lab-list-item-icon-buttons">
+
+                                <button class="icon-button" title="Edit Lab" @onclick="() => EditLab(module)">
+                                    <span class="material-icons">edit</span>
+                                </button>
+
+                                <button class="icon-button" title="Delete Lab" @onclick="() => DeleteLab(module)">
+                                    <span class="material-icons">delete</span>
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    }
+
+
+                </div>
+
+                <div></div>
+
+                <button id="create-lab-button" class="centering-flex item-spacer-right rounded-button" @onclick="Next">
+
+                    <div class="default-text lab-list-item-text">Create Lab</div>
+                    <span class="material-icons noselect">add_circle_outline</span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    }
+
+    else {
+
+        <form id="create-lab-form" name="createLab">
+
+            <div id="create-lab-panel-container" class="panel-container active">
+
+                @if (pageDisplay == 2) {
+
+                    <div id="create-lab-panel-1" class="basic-panel active">
+
+                        <div class="default-text title">Basic Information</div>
+                        <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>
+
+
+                        <div>
+                            <!-- SESSION NAME INPUT FIELD -->
+                            <div class="default-text form-title">Lab Name</div>
+
+                            <input id="labName" placeholder="Lab Name" @bind="LabName" name="labName" type="text" normal required>
+
+                            <div class="default-text form-error"></div>
+
+                        </div>
+
+                        <div>
+                            <!-- SESSION NAME INPUT FIELD -->
+                            <div class="default-text form-title">Lab Icon</div>
+
+                            <!-- USE THE 'create-lab-icon-selector' MODAL FOR THE 'Select an Icon' BUTTON-->
+                            <button type="button" id="create-lab-panel-1-icon-button" class="noselect create-lab-image-submission" @onclick="DisplayLabIconSelector">
+
+                                <div class="create-lab-icon-empty rounded-dashed-border">
+
+                                    <span class="material-icons">add</span>
+                                    <span class="lab-list-item-text">Select an Icon</span>
+
+                                </div>
+
+                                <img src=@IconPath id="create-lab-panel-1-icon" class="rounded-visible-border create-lab-image-submission-icon" style="display:@IconSelectedDisplay;">
+
+
+                            </button>
+
+                            <div class="default-text form-error"></div>
+
+                        </div>
+
+                        <div>
+                            <!-- SESSION NAME INPUT FIELD -->
+                            <div class="default-text form-title">Lab Description</div>
+
+                            <textarea id="labDescription" placeholder="Lab Description" @bind="LabDescription" name="labDescription" rows="3" spellcheck="true" required></textarea>
+
+                            <div class="default-text form-error"></div>
+
+                        </div>
+
+                        <div>
+
+                            <button type="button" id="create-lab-panel-1-next" class="noselect rounded-button lab-form-next-button" @onclick="BasicInfoNextPage">Next</button>
+                            <div class="default-text form-error"></div>
+
+                        </div>
+
+                    </div>
+
+                }
+                else if (pageDisplay == 3) {
+
+                    <div id="create-lab-panel-2" class="basic-panel active">
+
+                        <div class="default-text title">Equipment Checklist</div>
+                        <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>
+
+                        <!-- previous page button -->
+                        <span class="previous-page-button-float">
+
+                            <button class="icon-button" title="Previous Panel" @onclick="Prev">
+                                <span class="material-icons">arrow_back</span>
+                            </button>
+
+                        </span>
+
+                        <div class="lab-item-list rounded-visible-border">
+
+                            <div class="lab-list-item lab-list-empty">
+
+                                <!-- appears when the list is empty -->
+                                <div class="default-text lab-list-item-text">No Equipment Added</div>
+
+                            </div>
+
+                            @foreach (var tool in ToolsList) {
+
+                                <div class="lab-list-item centering-flex">
+
+                                    <div class="default-text lab-list-item-text">@tool</div>
+
+                                    <div class="flex-divider"></div>
+
+                                    <div class="centering-flex lab-list-item-icon-buttons">
+
+                                        <button class="icon-button" @onclick="() => RemoveTool(tool)" title="Delete Equipment">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            }
+
+                        </div>
+
+                        <!-- USE THE 'create-lab-equipment-modal' MODAL FOR THE 'Add Equipment' BUTTON-->
+                        <div class="centering-flex item-spacer-right">
+
+                            <button type="button" id="create-lab-add-equipment" class="noselect rounded-button lab-form-next-button" @onclick="ShowCustomEquipmentModal">Add Custom</button>
+                            <button type="button" id="create-lab-panel-2-next" class="noselect rounded-button lab-form-next-button" @onclick="EquipmentNextPage">Next</button>
+
+                        </div>
+
+                    </div>
+
+                }
+                else if (pageDisplay == 4) {
+
+                    <div id="create-lab-panel-3" class="basic-panel active">
+
+                        <div class="default-text title">Add Tags</div>
+                        <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>
+
+                        <!-- previous page button -->
+                        <span class="previous-page-button-float">
+
+                            <button class="icon-button" title="Previous Panel" @onclick="Prev">
+                                <span class="material-icons">arrow_back</span>
+                            </button>
+
+                        </span>
+
+                        <div>
+                            <!-- IMAGE INPUT FIELD -->
+                            <!-- USE THE 'create-lab-upload-image' MODAL FOR THE 'Upload Image' BUTTON -->
+                            <div class="default-text form-title">Configuration Sheet Image</div>
+
+                            <div class="centering-flex">
+
+                                <button type="button" id="create-lab-panel-3-sheet-img-button" class="noselect create-lab-image-submission">
+                                    @* @onclick="ShowUploadImageModal"*@
+
+                                    <div class="create-lab-icon-empty rounded-dashed-border">
+
+                                        <span class="material-icons">add</span>
+                                        <span class="lab-list-item-text">Upload Image</span>
+
+                                    </div>
+
+                                    <img src=@CDFImagePath id="create-lab-panel-3-sheet-img" class="rounded-visible-border create-lab-image-submission-icon">
+
+
+                                </button>
+
+                                <div class="flex-divider"></div>
+
+                            </div>
+
+
+                            <div class="default-text form-error"></div>
+
+                        </div>
+
+                        <div class="default-text form-title">Tags</div>
+                        <div id="create-lab-panel-3-tag-list" class="lab-item-list rounded-visible-border">
+
+                            <div class="lab-list-item lab-list-empty">
+
+                                <!-- appears when the list is empty -->
+                                <div class="default-text lab-list-item-text">No Tags Added</div>
+
+                            </div>
+
+
+                            @foreach (var tag in TagsList) {
+
+                                <div class="lab-list-item centering-flex">
+
+                                    <div class="default-text lab-list-item-text">@tag.TagName</div>
+
+                                    <div class="flex-divider"></div>
+
+                                    <div class="centering-flex item-spacer-right lab-list-item-icon-buttons">
+
+                                        <button class="icon-button" title="Edit Tag" @onclick="()=> EditTag(tag)">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+
+                                        <button class="icon-button" title="Delete Tag" @onclick="()=> DeleteTag(tag)">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            }
+
+                        </div>
+
+
+
+                        <div></div>
+
+                        <!-- USE THE 'create-lab-tag-creator' MODAL FOR THE 'Create Tag' BUTTON-->
+                        <div class="centering-flex item-spacer-right">
+
+                            <button type="button" id="create-lab-add-equipment" class="noselect rounded-button lab-form-next-button" @onclick="CreateTagButton">Create Tag</button>
+                            <button type="button" id="create-lab-panel-2-next" class="noselect rounded-button lab-form-next-button" @onclick="TagsNextPage">Next</button>
+
+                        </div>
+
+                    </div>
+
+                }
+                else if (pageDisplay == 5) {
+
+                    <div id="create-lab-panel-4" class="basic-panel active">
+
+                        <div class="default-text title">Work Order</div>
+                        <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>
+
+                        <!-- previous page button -->
+                        <span class="previous-page-button-float">
+
+                            <button class="icon-button" title="Previous Panel" @onclick="Prev">
+                                <span class="material-icons">arrow_back</span>
+                            </button>
+
+                        </span>
+
+                        <div>
+                            <!-- DESCRIPTION INPUT FIELD -->
+                            <div class="default-text form-title">Description</div>
+
+                            <textarea id="tagPanelDescription" @bind="WorkOrderDescription" placeholder="Work Order Description" name="tagPanelDescription" rows="3" spellcheck="true" title="Description" required></textarea>
+
+                            <div class="default-text form-error"></div>
+
+                        </div>
+
+                        <div class="default-text form-title">Select Tasks In Order</div>
+                        <div class="lab-item-list rounded-visible-border">
+
+                            <div class="lab-list-item lab-list-empty">
+
+                                <!-- appears when the list is empty -->
+                                <div class="default-text lab-list-item-text">No Tasks Added</div>
+
+                            </div>
+
+                            @foreach (var task in TasksList) {
+
+                                <div class="lab-list-item centering-flex">
+
+                                    <div class="default-text lab-list-item-text">@task</div>
+
+                                    <div class="flex-divider"></div>
+
+                                    <div class="centering-flex lab-list-item-icon-buttons">
+
+                                        @*<button class="icon-button" @onclick="()=> ToggleTaskCheckBox(task)" title="Check">
+                                                <!-- icon for filled is 'check_box' -->
+                                                <span id=@task class="material-icons">check_box_outline_blank</span>
+                                            </button>*@
+
+                                        <button class="icon-button" title="Delete Equipment">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            }
+
+                        </div>
+
+                        <!-- USE THE 'create-lab-equipment-modal' MODAL FOR THE 'Add Task' BUTTON, JUST CHANGE TEXT-->
+                        <div class="centering-flex item-spacer-right">
+
+                            <button type="button" id="create-lab-add-equipment" class="noselect rounded-button lab-form-next-button" @onclick="ShowAddTaskModal">Add Task</button>
+                            <button type="button" id="create-lab-panel-2-next" class="noselect rounded-button lab-form-next-button" @onclick="WorkOrderNext">Next</button>
+
+                        </div>
+
+                    </div>
+
+                }
+                else if (pageDisplay == 6) {
+
+                    <div id="create-lab-panel-5" class="basic-panel active">
+
+                        <div class="default-text title">Tips</div>
+                        <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>
+
+                        <!-- previous page button -->
+                        <span class="previous-page-button-float">
+
+                            <button class="icon-button" title="Previous Panel" @onclick="Prev">
+                                <span class="material-icons">arrow_back</span>
+                            </button>
+
+                        </span>
+
+                        <div class="lab-item-list rounded-visible-border">
+
+                            <div class="lab-list-item lab-list-empty">
+
+                                <!-- appears when the list is empty -->
+                                <div class="default-text lab-list-item-text">No Tips Added</div>
+
+                            </div>
+
+                            @foreach (var tip in TipsList) {
+
+                                <div class="lab-list-item centering-flex">
+
+                                    <div class="default-text lab-list-item-text">@tip</div>
+
+                                    <div class="flex-divider"></div>
+
+                                    <div class="centering-flex lab-list-item-icon-buttons">
+
+                                        @*<button class="icon-button" title="Check">
+                                                <!-- icon for filled is 'check_box' -->
+                                                <span class="material-icons">edit</span>
+                                            </button> *@
+
+                                        <button class="icon-button" title="Delete Equipment" @onclick="()=> DeleteTip(tip)">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            }
+
+                        </div>
+
+                        <!-- USE THE 'create-lab-equipment-modal' MODAL FOR THE 'Add Tip' BUTTON, JUST CHANGE TEXT-->
+                        <div class="centering-flex item-spacer-right">
+
+                            <button type="button" id="create-lab-add-equipment" class="noselect rounded-button lab-form-next-button" @onclick="ShowAddTipModal">Add Tip</button>
+                            <button type="button" id="create-lab-panel-2-next" class="noselect rounded-button lab-form-next-button" @onclick="TipsNext">Create Module</button>
+
+                        </div>
+
+                    </div>
+
+                }
+
+            </div>
+
+        </form>
+
+    }
+
+</div>
+
+
+@code {
+
+    int pageDisplay = 1;
+
+    public void Next() {
+        pageDisplay++;
+    }
+
+    public void Prev() {
+        pageDisplay--;
+    }
+
+    //Add Custom Input Modal
+    public string CustomName { get; set; } = "";
+    public string ModalText { get; set; } = "";
+    public string ModalHeading { get; set; } = "";
+    public string ModalPlaceHolder { get; set; } = "";
+
+    public void AddCustomInput() {
+        if (CustomName.Length <= 1) {
+            Warning = "Missing Field";
+            return;
+        }
+        if (ModalHeading == "Add Equipment") {
+            ToolsList.Add(CustomName);
+            HideCustomEquipmentModal();
+        }
+        else if (ModalHeading == "Add Task") {
+            TasksList.Add(CustomName);
+            HideCustomEquipmentModal();
+        }
+        else if (ModalHeading == "Add Tip") {
+            TipsList.Add(CustomName);
+            HideCustomEquipmentModal();
+        }
+        Warning = "";
+        CustomName = "";
+    }
+
+
+
+    // Initializing Methods
+
+    public List<ModuleEntity> ModulesList { get; set; } = new List<ModuleEntity>();
+
+    protected override async Task OnInitializedAsync() {
+
+        ModulesList = dbContext.Modules.Include(m => m.WorkOrder).Include(m => m.Tags).Include(m => m.Tips).ToList<ModuleEntity>();
+
+        await base.OnInitializedAsync();
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+
+        //if (firstRender) {
+
+        await JSRuntime.InvokeVoidAsync("DisableForms");
+
+        //}
+
+    }
+
+
+
+    ModuleEntity moduleEdit;
+
+    public void EditLab(ModuleEntity module) {
+        moduleEdit = module;
+
+        LabName = module.LabName;
+        LabDescription = module.LabDescription;
+        IconPath = module.LabIconAddress;
+        IconSelectedDisplay = "Inerhit";
+        Warning = "";
+        ToolsList = module.WorkOrder.Equipment.Split(", ").ToList();
+        ToolsList.Remove("");
+        TagsList = module.Tags;
+        WorkOrderDescription = module.WorkOrder.Description;
+        TasksList = module.WorkOrder.Tasks.Split(", ").ToList();
+        TasksList.Remove("");
+        TipsList = new List<string>();
+        foreach (var tip in module.Tips) {
+            TipsList.Add(tip.TipText);
+        }
+
+        pageDisplay++;
+    }
+
+    public bool LabsConfirmationBool = false;
+    public Confirmation DeleteConfirmationComponent;
+    public ModuleEntity LabDelete;
+    public void DeleteLab(ModuleEntity module) {
+        LabDelete = module;
+        DeleteLabConfirmed();
+        @* StateHasChanged();
+        LabsConfirmationBool = true;
+        await Task.Delay(10);
+        DeleteConfirmationComponent.Show(true, "Delete Lab Module?", "Do you want to permanently delete this lab module", " ", "Delete", "Cancel");
+        *@
+    }
+
+    public async void DeleteLabConfirmed() {
+        dbContext.Modules.Remove(LabDelete);
+        await dbContext.SaveChangesAsync();
+        LabDelete = null;
+        ModulesList = dbContext.Modules.Include(m => m.WorkOrder).Include(m => m.Tags).Include(m => m.Tips).ToList<ModuleEntity>();
+        StateHasChanged();
+        //DeleteLabCancel();
+        //DeleteConfirmationComponent.Hide();
+    }
+
+    public void DeleteLabCancel() {
+        DeleteConfirmationComponent.Hide();
+        LabsConfirmationBool = false;
+        Console.WriteLine(LabsConfirmationBool.ToString());
+        Console.WriteLine("IKHFSAJHF");
+    }
+
+
+    // Basic Information Panel
+
+    public string LabName { get; set; } = "";
+    public string LabDescription { get; set; } = "";
+    public string IconPath { get; set; } = "";
+    public string IconSelectedDisplay = "None";
+    public string Warning { get; set; } = "";
+
+    List<string> labIconPaths = new List<string> { "/Assets/Images/eme_icons/controller.png", "/Assets/Images/eme_icons/corrosion.png", "/Assets/Images/eme_icons/density.png",
+    "/Assets/Images/eme_icons/flame.png", "/Assets/Images/eme_icons/flow.png", "/Assets/Images/eme_icons/gas.png", "/Assets/Images/eme_icons/hygene.png", "/Assets/Images/eme_icons/pressure.png",
+    "/Assets/Images/eme_icons/tank.png", "/Assets/Images/eme_icons/temperature.png", "/Assets/Images/eme_icons/water.png", "/Assets/Images/eme_icons/water_tank.png", "/Assets/Images/eme_icons/wireless.png"};
+
+    public async void DisplayLabIconSelector() {
+        await JSRuntime.InvokeVoidAsync("DisplayLabIconSelector");
+    }
+
+    public async void HideLabIconSelector() {
+        await JSRuntime.InvokeVoidAsync("HideLabIconSelector");
+    }
+
+    public void LabIconSelected(string path) {
+        IconPath = path;
+        IconSelectedDisplay = "Inherit";
+        HideLabIconSelector();
+    }
+
+    public void BasicInfoNextPage() {
+        if (LabName.Length <= 1 || LabDescription.Length <= 1 || IconPath.Length <= 1) {
+            Warning = "Please fill all fields";
+        }
+        else {
+            Warning = "";
+            pageDisplay++;
+
+        }
+    }
+
+
+
+
+    // Equipment Checklist Panel
+
+    List<string> ToolsList = new List<string> { "Crescent Wrench", "Multi-Head Screwdriver", "RTW", "Fiange", "Fittings", "RTD Cables", "Ice Bath", "Dry Block", "Pump(s)" };
+
+
+    public void RemoveTool(string tool) {
+        ToolsList.Remove(tool);
+    }
+
+    public async void ShowCustomEquipmentModal() {
+        Warning = "";
+        ModalText = "Equipment Name";
+        ModalHeading = "Add Equipment";
+        ModalPlaceHolder = ModalText;
+        await JSRuntime.InvokeVoidAsync("ShowCustomEquipmentModal");
+    }
+
+    public async void HideCustomEquipmentModal() {
+        Warning = "";
+        await JSRuntime.InvokeVoidAsync("HideCustomEquipmentModal");
+    }
+
+    public void EquipmentNextPage() {
+        if (ToolsList.Count > 0) {
+            pageDisplay++;
+            Warning = "";
+        }
+        else {
+            Warning = "Add Tools";
+        }
+    }
+
+
+
+
+    // Tags Panel
+
+    public IBrowserFile CDFImage { get; set; }
+    public string CDFImagePath { get; set; } = "";
+
+    public async void ShowUploadImageModal() {
+        Warning = "";
+        await JSRuntime.InvokeVoidAsync("ShowUploadImageModal");
+    }
+
+    public async void HideUploadImageModal() {
+        Warning = "";
+        await JSRuntime.InvokeVoidAsync("HideUploadImageModal");
+    }
+
+
+    private List<IBrowserFile> loadedFiles = new();
+    private long maxFileSize = 1024 * 15;
+    public Confirmation ConfirmationComponent;
+    public bool TagsConfirmationBool = false;
+    //public bool showTagsConfirmation = false;
+    public async Task HandleImageUpload(InputFileChangeEventArgs e, bool overRide) {
+
+        var file = e.File;
+
+        Console.WriteLine(file.ContentType);
+        var path = @"C:\Users\e1340902\source\repos\ProjectBoyd\ProjectBoyd\wwwroot\Assets\Images\cds_imgs\" + file.Name;
+        var temp = @"/Assets/Images/cds_imgs/" + file.Name;
+
+        try {
+
+            if (!overRide && dbContext.Tags.Where(t => t.CDSImageAddress == path).FirstOrDefault() != null) {
+                Warning = "File Name is Already in Use";
+                overRideFile = e;
+                TagsConfirmationBool = true;
+                StateHasChanged();
+                ConfirmationComponent.Show(true, "Override Existing File", "Would you like to replace the existing file with the same name as the one you are uploading?", "", "Replace File", "Cancel");
+                return;
+            }
+
+            await using FileStream fs = new(path, FileMode.Create);
+            await file.OpenReadStream().CopyToAsync(fs);
+
+        }
+        catch (Exception en) {
+            Warning = "Image Upload Failed";
+            return;
+        }
+
+        if (overRideFile != null) {
+            TagsConfirmationCancel();
+        }
+
+        Warning = "";
+        await Task.Delay(1000);
+        CDFImagePath = temp;
+        StateHasChanged();
+    }
+
+    InputFileChangeEventArgs overRideFile;
+    public async void HandleImageUploadOverRide() {
+        await HandleImageUpload(overRideFile, true);
+    }
+
+    public void TagsConfirmationCancel() {
+        overRideFile = null;
+        //ConfirmationComponent.Hide();
+        TagsConfirmationBool = false;
+    }
+
+    public void UploadImage() {
+        if (CDFImagePath.Length <= 1) {
+            Warning = "Image Upload Failed";
+            return;
+        }
+        Warning = "";
+        CreateTag();
+        HideUploadImageModal();
+    }
+
+    public ICollection<TagEntity> TagsList { get; set; } = new List<TagEntity>();
+
+    public void DeleteTag(TagEntity tag) {
+        TagsList.Remove(tag);
+    }
+
+    public bool editTagClicked = false;
+    public TagEntity tagBeingEdited = null;
+    public void EditTag(TagEntity tag) {
+        editTagClicked = true;
+        tagBeingEdited = tag;
+        TagName = tag.TagName;
+        TagLowRange = tag.LowRange;
+        TagHighRange = tag.HighRange;
+        TagServiceNumber = tag.ServiceNumber;
+        CDFImagePath = tag.CDSImageAddress;
+
+        ShowUploadImageModal();
+        ShowCreateTagModal();
+
+    }
+
+    public string TagName { get; set; } = "";
+    public int TagLowRange { get; set; }
+    public int TagHighRange { get; set; }
+    public string TagServiceNumber { get; set; } = "";
+
+    public void CreateTag() {
+
+        if (TagName.Length <= 1 || TagLowRange >= TagHighRange || TagHighRange <= 0 || TagServiceNumber.Length <= 1 || CDFImagePath.Length <= 1) {
+            Warning = "One or more of your fields are incorrect";
+            return;
+        }
+
+        Warning = "";
+
+        if (editTagClicked == true) {
+
+            tagBeingEdited.TagName = TagName;
+            tagBeingEdited.LowRange = TagLowRange;
+            tagBeingEdited.HighRange = TagHighRange;
+            tagBeingEdited.ServiceNumber = TagServiceNumber;
+            tagBeingEdited.CDSImageAddress = CDFImagePath;
+
+        }
+        else {
+
+            TagEntity newTag = new TagEntity();
+            newTag.TagName = TagName;
+            newTag.LowRange = TagLowRange;
+            newTag.HighRange = TagHighRange;
+            newTag.ServiceNumber = TagServiceNumber;
+            newTag.CDSImageAddress = CDFImagePath;
+            TagsList.Add(newTag);
+
+        }
+
+        HideCreateTagModal();
+
+        TagName = "";
+        TagLowRange = 0;
+        TagHighRange = 0;
+        TagServiceNumber = "";
+        CDFImagePath = "";
+
+    }
+
+    public void CreateTagButton() {
+        editTagClicked = false;
+        ShowUploadImageModal();
+        ShowCreateTagModal();
+    }
+
+    public async void ShowCreateTagModal() {
+        Warning = "";
+        await JSRuntime.InvokeVoidAsync("ShowCreateTagModal");
+    }
+
+    public async void HideCreateTagModal() {
+        Warning = "";
+        await JSRuntime.InvokeVoidAsync("HideCreateTagModal");
+    }
+
+    public void TagsNextPage() {
+
+        if (TagsList.Count == 0) {
+            Warning = "Create Tags";
+        }
+        else {
+            Warning = "";
+            pageDisplay++;
+        }
+
+    }
+
+
+
+
+    // Work Order Panel
+
+    List<string> TasksList = new List<string> {
+        "Install/Startup", "Repair and Replace", "Calibration", "Verify", "Diagnose", "Verify on DeltaV", "Confirm Connection", "HART Mapping", "Tri-Loop Configuration"
+    };
+
+    public string WorkOrderDescription { get; set; } = "";
+
+    public void DeleteTask(string task) {
+        TasksList.Remove(task);
+        StateHasChanged();
+    }
+
+    public async void ShowAddTaskModal() {
+        ModalText = "Task Name";
+        ModalHeading = "Add Task";
+        ModalPlaceHolder = ModalText;
+        CustomName = "";
+        await JSRuntime.InvokeVoidAsync("ShowAddTaskModal");
+    }
+
+    public void WorkOrderNext() {
+        if (WorkOrderDescription.Length <= 1 || TasksList.Count <= 0) {
+            Warning = "Missing Fields";
+            return;
+        }
+        Warning = "";
+        pageDisplay++;
+    }
+
+
+    // Tips
+
+    List<string> TipsList = new List<string>();
+
+    public void DeleteTip(string tip) {
+        TipsList.Remove(tip);
+    }
+
+    public async void ShowAddTipModal() {
+        ModalText = "Tips Name";
+        ModalHeading = "Add Tip";
+        ModalPlaceHolder = ModalText;
+        CustomName = "";
+        await JSRuntime.InvokeVoidAsync("ShowAddTipsModal");
+    }
+
+    public async void HideAddTipsModal() {
+        await JSRuntime.InvokeVoidAsync("HideAddTipsModal");
+    }
+
+
+    public void TipsNext() {
+        if (TipsList.Count <= 0) {
+            Warning = "Missing Field";
+            return;
+        }
+        Warning = "";
+        CreateLabModule();
+    }
+
+
+
+
+    // Create Lab Module and Enter into DB
+    public async void CreateLabModule() {
+
+        // Create Entities and Enter Into DB
+        ModuleEntity lab;// = new ModuleEntity();
+        if (moduleEdit != null) {
+            lab = moduleEdit;
+        }
+        else {
+            lab = new ModuleEntity();
+        }
+
+        lab.LabName = LabName;
+        lab.LabIconAddress = IconPath;
+        lab.LabDescription = LabDescription;
+
+        WorkOrderEntity workOrder = new WorkOrderEntity();
+        workOrder.Lab = lab;
+        workOrder.Description = WorkOrderDescription;
+
+        string equipmentListString = "";
+        foreach (string e in ToolsList) {
+            equipmentListString = equipmentListString + ", " + e;
+        }
+
+        string tasksListString = "";
+        foreach (string t in TasksList) {
+            tasksListString = tasksListString + ", " + t;
+        }
+
+        workOrder.Equipment = equipmentListString;
+        workOrder.Tasks = tasksListString;
+        lab.WorkOrder = workOrder;
+
+        lab.Tags = TagsList;
+
+        ICollection<TipsEntity> tipsListEnt = new List<TipsEntity>();
+        foreach (string t in TipsList) {
+            TipsEntity tip = new TipsEntity();
+            tip.TipText = t;
+            tipsListEnt.Add(tip);
+        }
+
+        lab.Tips = tipsListEnt;
+
+        if (moduleEdit != null) {
+            dbContext.Modules.Update(lab);
+        }
+        else {
+            dbContext.Modules.Add(lab);
+        }
+
+        await dbContext.SaveChangesAsync();
+        moduleEdit = null;
+
+        // Reset Values and go back to first page
+        LabName = "";
+        LabDescription = "";
+        IconPath = "";
+        IconSelectedDisplay = "None";
+        Warning = "";
+        ToolsList = new List<string> { "Crescent Wrench", "Multi-Head Screwdriver", "RTW", "Fiange", "Fittings", "RTD Cables", "Ice Bath", "Dry Block", "Pump(s)" };
+        TasksList = new List<string> {
+            "Install/Startup", "Repair and Replace", "Calibration", "Verify", "Diagnose", "Verify on DeltaV", "Confirm Connection", "HART Mapping", "Tri-Loop Configuration"
+        };
+        WorkOrderDescription = "";
+        TagsList = new List<TagEntity>();
+        TagName = "";
+        TagLowRange = 0;
+        TagHighRange = 0;
+        TagServiceNumber = "";
+        CDFImagePath = "";
+        TipsList = new List<string>();
+
+        pageDisplay = 1;
+        ModulesList = dbContext.Modules.Include(m => m.WorkOrder).Include(m => m.Tags).Include(m => m.Tips).ToList<ModuleEntity>();
+        StateHasChanged();
+    }
+
+
+}

@@ -1,0 +1,68 @@
+﻿@using ProjectBoyd.Models.EntityModels;
+@using ProjectBoyd.Models.ObjectModels;
+
+
+<div class="dashboard-grid-item item-2">
+
+    <!-- at-a-glance class info -->
+
+    @if (Session == null) {
+
+        <div class="dashboard-item-2-inactive-class centering-flex active">
+
+            <!-- no active class warning -->
+
+            <div class="dashboard-text title">No Active Class</div>
+
+        </div>
+
+    }
+    else {
+
+        <div id="dashboard-item-2-class-info" class="centering-flex active">
+
+            <div class="list-flex dashboard-class-info">
+
+                <div class="dashboard-class-info-stat centering-flex" style="border-color: var(--dashboard-accent-color-3);">
+                    <div class="dashboard-text bold">36</div>
+                </div>
+
+                <div class="dashboard-text sub bold dashboard-class-info-stat-text">Session Length</div>
+
+            </div>
+            <div class="list-flex dashboard-class-info">
+
+                <div class="dashboard-class-info-stat centering-flex" style="border-color: var(--dashboard-accent-color-2);">
+                    <div class="dashboard-text bold">8</div>
+                </div>
+
+                <div class="dashboard-text sub bold dashboard-class-info-stat-text">Total Students</div>
+
+            </div>
+            <div class="list-flex dashboard-class-info">
+
+                <div class="dashboard-class-info-stat centering-flex" style="border-color: var(--dashboard-accent-color-1);">
+                    <div class="dashboard-text bold">3</div>
+                </div>
+
+                <div class="dashboard-text sub bold dashboard-class-info-stat-text">Need Help</div>
+
+            </div>
+
+        </div>
+
+    }
+
+
+</div>
+
+
+@code {
+
+    [Parameter]
+    public SessionEntity Session { get; set; }
+
+    [Parameter]
+    public Dictionary<string, SessionTeam> SessionInfo { get; set; }
+
+}

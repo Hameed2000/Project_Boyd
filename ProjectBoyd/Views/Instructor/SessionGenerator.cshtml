@@ -1,0 +1,10 @@
+﻿@{
+    ViewData["Title"] = "Session Generator";
+    string page = "SessionGenerator";
+}
+
+<link rel="stylesheet" href="~/css/sessiongenerator.css">
+
+<partial name="_SideBar" model="page" />
+
+<component type="typeof(SessionGenerator)" render-mode="ServerPrerendered" />

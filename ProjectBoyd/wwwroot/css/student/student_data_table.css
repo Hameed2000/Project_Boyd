@@ -1,0 +1,70 @@
+﻿/* calibration form */
+#student-calibration-form > * {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+    #student-calibration-form > *:last-child {
+        margin-bottom: 0px;
+    }
+
+
+/* calibration lists */
+
+.cal-list-container {
+    padding: 5px;
+    background-color: rgba(0,0,0,0.15);
+    height: 230px;
+}
+
+    .cal-list-container.no-bg {
+        background: none;
+    }
+
+.cal-list {
+    max-width: 100px;
+    padding: 0px 8px;
+    align-items: center;
+    height: 100%;
+    justify-content: space-between;
+}
+
+    .cal-list > * {
+        margin-bottom: 5px;
+    }
+
+        .cal-list > *:last-child {
+            margin-bottom: 0px;
+        }
+
+/* list text */
+.cal-list-text {
+    font-size: 1.1em;
+    padding: 2px 0px;
+}
+
+    .cal-list-text.bold {
+        font-weight: bold;
+    }
+
+    .cal-list-text.title {
+        font-weight: bold;
+        margin-bottom: 5px
+    }
+
+
+/* custom input boxes */
+.data-table-input {
+    border: 1px solid var(--hover-color) !important;
+    border-radius: 5px;
+    padding: 2px 5px;
+    width: 100%;
+    background-color: var(--bg-color) !important;
+    font-size: 1.1em;
+}
+
+/* misc */
+
+#calibration-data > * {
+    margin: 5px;
+}

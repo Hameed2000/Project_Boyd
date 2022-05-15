@@ -1,0 +1,167 @@
+﻿@page
+@model ExternalLoginModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<link rel="stylesheet" href="~/css/login/login.css" />
+
+<!--
+<h1>@ViewData["Title"]</h1>
+
+
+<h4 id="external-login-title">Associate your @Model.ProviderDisplayName account.</h4>
+<hr />
+
+<p id="external-login-description" class="text-info">
+    You've successfully authenticated with <strong>@Model.ProviderDisplayName</strong>.
+    Please enter an email address for this site below and click the Register button to finish
+    logging in.
+</p>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Input.Email"></label>
+                <input asp-for="Input.Email" class="form-control" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.Username"></label>
+                <input asp-for="Input.Username" class="form-control" />
+                <span asp-validation-for="Input.Username" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.RoleRequested"></label>
+                <input asp-for="Input.RoleRequested" class="form-control" />
+                <span asp-validation-for="Input.RoleRequested" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+    </div>
+</div>
+
+-->
+
+
+
+
+<div id="body-main" class="full-width">
+
+    <!-- MODALS GO HERE -->
+    <!-- the main body container-->
+    <!-- PAGE CONTENT GOES HERE -->
+
+    <div class="login-page-bg-mask"></div> <!-- dims out the bg slightly -->
+
+    <div class="login-page-body centering-flex">
+
+        <div class="login-page-container">
+
+            <div id="panel-2" class="login-page-container-item active">
+                <!-- email/username/role panel -->
+
+                <img src="~/Assets/Images/Corp_RGB_White.png" class="brand-logo">
+
+                <div></div>
+
+                <div>
+                    <div class="default-text" style="font-size: 1.2em">Register your Microsoft Account.</div>
+                </div>
+
+                <div></div>
+
+                <form id="account-register-form" name="registerAccount" class="centering-flex" style="flex-direction: column;" asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div>
+
+                        <div class="login-input-container" inputType="text">
+
+                            <label class="default-text login-input-label" asp-for="Input.Email">Email</label>
+
+                            <input id="register-form-email" class="login-input" asp-for="Input.Email" placeholder="youremail@emerson.com" name="email" type="email" required>
+
+                        </div>
+
+                        <div class="default-text form-error"><span asp-validation-for="Input.Email" class="text-danger"></span></div>
+
+                    </div>
+
+                    <div>
+
+                        <div class="login-input-container" inputType="text">
+
+                            <label class="default-text login-input-label" asp-for="Input.Username">Username</label>
+
+                            <input id="register-form-username" class="login-input" asp-for="Input.Username" placeholder=" " name="username" type="text" required>
+
+                        </div>
+
+                        <div class="default-text form-error"><span asp-validation-for="Input.Username" class="text-danger"></span></div>
+
+                    </div>
+
+
+
+                    <div>
+                        <div class="login-input-container" inputType="list">
+
+                            <label class="default-text login-input-label" asp-for="Input.RoleRequested">Role Request</label>
+
+                            <select id="register-form-role" name="RoleRequested" class="login-input" asp-for="Input.RoleRequested" asp-items="Model.Input.RolesList" required>
+
+                                <!--<option value="">None</option>
+                                <option value="Instructor">Instructor</option>
+                                <option value="Admin">Admin</option>
+                                -->
+
+                            </select>
+
+                            <span class="material-icons centering-flex noselect" style="height:100%;position:absolute;top:0px;right:0px;padding:16px;font-size:30px">expand_more</span>
+
+                        </div>
+
+                        <div class="default-text form-error"> <span asp-validation-for="Input.RoleRequested" class="text-danger"></span> </div>
+                    </div>
+
+                    <div></div>
+
+                    <div>
+
+                        <button id="register-form-submit" class="noselect" type="submit" value="Register" style="background-color: var(--accent-color); color: #fff;"> Register </button>
+                        <div class="default-text form-error"></div>
+
+                    </div>
+
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<script src="~/js/login.js"></script>

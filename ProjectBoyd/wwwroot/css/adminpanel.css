@@ -1,0 +1,54 @@
+﻿/* the main admin panel css page */
+
+
+
+/* buttons */
+button.categoryButton {
+    flex: 50%;
+    border-radius: inherit;
+    font-size: 1.1em;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+}
+
+    button.categoryButton:hover {
+        filter: brightness(0.9)
+    }
+
+#selected-category-indicator {
+    position: absolute;
+    pointer-events: none; /* allows mouse input to pass through this */
+
+    width: 50%;
+    height: 100%;
+    left: 0%;
+    bottom: 0%;
+    border-radius: 5px;
+    border-bottom: 5px solid var(--accent-color)
+}
+
+#adminPanel-templatesHolder {
+    height: auto;
+    width: 100%;
+    padding-top: 5px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: flex-start;
+    margin-bottom: 15px;
+}
+
+#adminPanel-noEntriesMessage:only-child {
+    display: block !important;
+}
+
+/* the member card */
+.adminPanel-member {
+    width: max(300px, 20%);
+    height: 170px;
+    margin: 8px;
+    padding: 10px;
+    background-color: var(--bg-color);
+    box-sizing: border-box;
+}

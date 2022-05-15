@@ -1,0 +1,86 @@
+﻿<div id="dashboard-send-message-modal" class="basic-modal-item active">
+
+    <form id="dashboard-send-message-modal-form" name="send-message" class="centering-flex modal-form">
+
+        <div class="default-text title">Send Message</div>
+
+        <div></div>
+
+        <div>
+            <!-- MESSAGE INPUT FIELD -->
+            <div class="default-text form-title">Message</div>
+
+            <textarea id="dashboard-send-message-modal-message" placeholder="A message." name="message" type="text" normal required></textarea>
+
+            <div class="default-text form-error"></div>
+
+        </div>
+
+        <div>
+            <!-- Select Teams  -->
+
+            <div class="default-text centering-flex">
+
+                <div class="dashboard-text bold">Select Team(s) to Message</div>
+
+                <div class="flex-divider"></div>
+
+                <div class="class-dashboard-help-queue-item-buttons item-spacer-right">
+
+                    <button type="button" class="icon-button" title="Select All">
+                        <span class="material-icons">select_all</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- STORE SELECTED VALUES IN THIS INPUT -->
+            <input id="dashboard-assign-lab-modal-selected-teams" name="selectedTeams" type="hidden" required>
+
+            <!-- WHEN A CHECK BOX IS SELECTED BY THE USER, CHANGE THE ICON TO 'check_box'-->
+
+            <div class="rounded-visible-border form-list">
+
+                <div class="class-dashboard-help-queue-item centering-flex">
+
+                    <div class="dashboard-text bold">Team Name</div>
+
+                    <div class="flex-divider"></div>
+
+                    <div class="class-dashboard-help-queue-item-buttons item-spacer-right">
+
+                        <button type="button" class="icon-button" title="Select">
+                            <span class="material-icons">check_box_outline_blank</span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="default-text form-error"></div>
+
+        </div>
+
+        <div>
+
+            <input type="submit" id="create-lab-equipment-tool-create" value="Send Message" class="noselect rounded-button dashboard-form-next-button" @onclick="HideSendMessage">
+            <div class="default-text form-error"></div>
+
+        </div>
+
+    </form>
+
+
+</div>
+
+
+@code {
+
+    [Parameter]
+    public EventCallback HideSendMessage { get; set; }
+
+
+}

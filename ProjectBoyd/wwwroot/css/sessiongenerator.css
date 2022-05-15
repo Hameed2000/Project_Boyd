@@ -1,0 +1,121 @@
+﻿/* buttons */
+/* end session button */
+#active-session-end-button {
+    background-color: #CA2A2A;
+    color: #fff;
+}
+
+
+#create-session-button {
+    border-radius: 5px;
+    width: 100%;
+    padding: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    transition-duration: var(--transition-duration,0.15s);
+    transition-timing-function: cubic-bezier(.4,0,.6,1);
+    text-align: center;
+    box-sizing: border-box;
+    align-items: flex-start;
+    white-space: pre;
+    display: inline-block;
+    text-shadow: 0px;
+    text-indent: 0px;
+}
+
+#create-session-form{
+    margin-top: 0em;
+}
+
+.session-generator-content {
+    max-width: 400px;
+    padding: 0 15px 0 15px;
+    margin: auto;
+}
+
+.session-generator-item {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    float: left;
+    display: none;
+}
+
+    .session-generator-item.active {
+        display: block;
+    }
+
+    .session-generator-item > div {
+        width: 100%;
+        height: auto;
+        box-sizing: border-box;
+        padding: 10px;
+    }
+
+        .session-generator-item > div > * {
+            margin-bottom: 10px;
+        }
+
+            .session-generator-item > div > *:last-child {
+                margin-bottom: 0px;
+            }
+
+/* form stuff */
+#create-session-form > * {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+#create-session-form > *:last-child {
+    margin-bottom: 0px;
+}
+
+.form-instructor-entry {
+    border: 1px solid rgba(0,0,0,0.2);
+    background-color: var(--hover-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 5px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+    .form-instructor-entry:first-child > button {
+        display: none;
+    }
+
+
+
+    .form-instructor-entry:first-child > .material-icons {
+        display: block !important;
+    }
+
+    .form-instructor-entry:last-child {
+        margin-bottom: 0px;
+    }
+
+/* active session list stuff */
+
+.active-session-entry {
+    border: 1px solid rgba(0,0,0,0.2);
+    background-color: var(--hover-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 5px 10px 5px 10px;
+    width: 100%;
+    text-align: left;
+}
+
+.active-session-list > * {
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+    .active-session-list > *:last-child {
+        margin-bottom: 0px;
+    }
+
+@media screen and (max-width: 900px) {
+}

@@ -1,0 +1,87 @@
+﻿@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.AspNetCore.WebUtilities;
+@using ProjectBoyd.Models;
+@using ProjectBoyd.Data;
+@using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+@using ProjectBoyd.Models.EntityModels;
+@using ProjectBoyd.Models.ObjectModels;
+@using ProjectBoyd.Models.EntityModels.LabEntities;
+@using Microsoft.AspNetCore.Identity;
+
+@inject UserManager<ApplicationUser> userManager
+@inject ApplicationDbContext dbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined">
+
+
+@if (sessionTeamInfo != null && sessionTeamInfo.Message.Length > 0) {
+
+    <div id="student-modal-container" class="basic-modal-container active">
+
+        <div id="student-instructor-message-modal" class="basic-modal-item active">
+
+            <div class="modal-form active">
+
+                <div class="default-text title">Message From Instructor</div>
+
+                <div></div>
+
+                <img id="student-instructor-message-modal-icon" class="avatar-icon" src="https://tr.rbxcdn.com/8df083e060887d214f1df6f9c992bc8d/150/150/AvatarHeadshot/Png" style="width:80px;">
+
+                <div id="student-instructor-message-modal-text" class="rounded-visible-border default-text form-list" style="text-align: left;">
+
+                    @sessionTeamInfo.Message
+
+                </div>
+
+                <div></div>
+
+                <div>
+
+                    <button id="student-instructor-message-modal-text" class="rounded-button centering-flex" @onclick="CloseMessage" style="background-color: var(--accent-color);width:100%;">
+
+                        <div class="default-text bold" style="color:white;">Close</div>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+        }
+
+
+
+
+@code {
+
+    ApplicationUser currentUser;
+    TeamEntity team;
+    SessionTeam sessionTeamInfo;
+
+    protected override async Task OnInitializedAsync() {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        currentUser = await userManager.FindByNameAsync(user.Identity.Name);
+        team = dbContext.Teams.Where(t => t.AccountId == currentUser.Id).FirstOrDefault();
+        sessionTeamInfo = SessionInfo.SessionInfoList.GetValueOrDefault(team.SessionId).GetValueOrDefault(team.TeamId.ToString());
+        sessionTeamInfo.StateHasChangedDelegate = StateHasChanged;
+
+    }
+
+    public void CloseMessage() {
+        sessionTeamInfo.Message = "";
+        StateHasChanged();
+    }
+
+}

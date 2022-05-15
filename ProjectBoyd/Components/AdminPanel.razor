@@ -1,0 +1,287 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Identity;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.AspNetCore.WebUtilities;
+@using ProjectBoyd.Models;
+@using ProjectBoyd.Data;
+@using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+@using ProjectBoyd.Models.EntityModels;
+@using ProjectBoyd.Models.ObjectModels;
+
+@inject UserManager<ApplicationUser> userManager
+@inject RoleManager<IdentityRole> roleManager
+@inject ApplicationDbContext dbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@if (pageModel != null) {
+
+<div id="body-main">
+
+    <Confirmation @ref="pageModel.ConfirmationComponent" ButtonOneEvent="@pageModel.Cancel" ButtonTwoEvent="@pageModel.MemberDeletion" ButtonThreeEvent="@pageModel.Cancel" CloseEvent="@pageModel.Cancel"> </Confirmation>
+
+    <div class="nav-bar">
+        <button id="menu-toggle" class="icon-button" style="height:55px;width:55px;margin-left:15px;display:none;">
+            <span class="material-icons" style="margin:auto;font-size:30px">menu</span>
+        </button>
+
+        <div id="page-title" class="default-text" style="text-align:left; font-size:1.9em; font-weight:bold; margin-left:15px">Admin Panel</div>
+
+        <div class="flex-divider"></div>
+
+    </div>
+
+    <!-- the main body container-->
+
+    <div style="max-width:1050px;margin:auto;padding: 0 15px 0 15px">
+
+
+        <div class="rounded-container" style="width:100%;height:75%; padding:0px">
+            <!-- the main admin panel container-->
+
+            <div style="width:100%;height:40px;border-radius:8px;margin-bottom:15px" class="centering-flex rounded-visible-border">
+                <!-- the category button container -->
+
+                <button id="adminPanel-button-membersCategory" class="categoryButton" @onclick="() => pageModel.ToggleDisplay(1)" style="border-radius: 8px 0px 0px 8px; height:100%">
+                    Members
+                </button>
+                <button id="adminPanel-button-membersCategory" class="categoryButton" @onclick="() => pageModel.ToggleDisplay(2)" style="border-radius: 0px 8px 8px 0px; height:100%">
+                    Requests
+                </button>
+
+                <!-- selected indicator -->
+
+                <span id="selected-category-indicator" class="default-easing" style=@pageModel.selectionLineLeftCSS></span>
+
+            </div>
+
+            <div id="adminPanel-templatesHolder">
+                <!-- the main template holder-->
+
+                <div id="adminPanel-noEntriesMessage" class="adminPanel-member rounded-visible-border centering-flex" style="height: 55px;background-color:var(--bg-color);display:none">
+                    <!-- no entries message -->
+
+                    <div class="default-text" style="font-weight: bold;font-size:1.3em">No Entries</div>
+
+
+                </div>
+
+                @if (pageModel.display == "Members")
+                {
+
+                    @foreach (var member in pageModel.memberElementList)
+                    {
+
+                        <div class="adminPanel-member rounded-visible-border">
+                            <!-- the admin panel member template-->
+
+                            <div class="adminPanel-member-information centering-flex" style="height:calc(45% - 10px);margin-bottom:10px">
+                                <!-- the member information -->
+
+                                <img class="avatar-icon" src="https://tr.rbxcdn.com/8df083e060887d214f1df6f9c992bc8d/150/150/AvatarHeadshot/Png" style="width: 25%;aspect-ratio: 1 / 1;">
+
+                                <div style="height:100%;width:75%;margin-left:10px">
+                                    <!-- username and email -->
+
+                                    <div class="default-text" style="font-weight:bold; text-align: left;font-size:1.1em">@member.user.UserName</div>
+                                    <div class="default-text" style="font-size:0.8em; text-align: left;">@member.user.Email</div>
+
+                                </div>
+
+
+                            </div>
+
+                            @if (member.user != currentUser)
+                            {
+
+                                <div class="adminPanel-member-dropDown rounded-visible-border noselect" @onmouseover="() => member.ToggleDropDown(true)" @onmouseout="() => member.ToggleDropDown(false)" style="position:relative; z-index: 5; height:calc(30% - 10px); font-weight: bold; background-color: #fff; margin-bottom:10px">
+
+                                    <button class="centering-flex" style="height:100%;width:100%;padding:5px 10px 5px 10px;border-radius:inherit;background-color:#fff;color:#313131">
+                                        @member.role
+
+                                        <div class="flex-divider"></div>
+
+                                        <span class="material-icons" style="right:5px;font-size:2em">
+                                            arrow_drop_down
+                                        </span>
+                                    </button>
+
+                                    <div class="rounded-visible-border" style="display:@member.dropdownDisplay; border-top-left-radius: 0px; border-top-right-radius: 0px; z-index:4;background-color:#fff; box-sizing: border-box;">
+                                        <!-- dropdown list -->
+
+                                        <button class="dropdown-entry default-text" @onclick="() => member.RemoveAdmin(userManager)" style="height:30px"> Instructor </button>
+                                        <button class="dropdown-entry default-text" @onclick="() => member.AddAdmin(userManager)" style="height:30px"> Admin </button>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="adminPanel-member-buttons centering-flex" style="height:25%; font-weight:bold; justify-content: flex-end;">
+
+                                    <!-- member tab buttons -->
+                                    <button class="rounded-button default-text" @onclick="() => pageModel.DeleteClicked(member)" style="height:100%;width:50%;background-color:#CA2A2A;color:white;margin:5px">
+                                        Delete
+                                    </button>
+
+                                    <!-- requests tab buttons -->
+                                    <button class="rounded-button default-text" style="display:none;height:100%;width:50%;background-color:#46C661;color:white;margin:5px">
+                                        Accept
+                                    </button>
+                                    <button class="rounded-button default-text" style="display:none;height:100%;width:50%;background-color:#CA2A2A;color:white;margin:5px">
+                                        Reject
+                                    </button>
+
+                                </div>
+
+                            }
+
+                        </div>
+
+                    }
+
+                }
+                else
+                {
+
+                    @foreach (var member in pageModel.requestElementList)
+                    {
+
+                        <div class="adminPanel-member rounded-visible-border">
+                            <!-- the admin panel member template-->
+
+                            <div class="adminPanel-member-information centering-flex" style="height:calc(45% - 10px);margin-bottom:10px">
+                                <!-- the member information -->
+
+                                <img class="avatar-icon" src="https://tr.rbxcdn.com/8df083e060887d214f1df6f9c992bc8d/150/150/AvatarHeadshot/Png" style="width: 25%;aspect-ratio: 1 / 1;">
+
+                                <div style="height:100%;width:75%;margin-left:10px">
+                                    <!-- username and email -->
+
+                                    <div class="default-text" style="font-weight:bold; text-align: left;font-size:1.1em">@member.user.UserName</div>
+                                    <div class="default-text" style="font-size:0.8em; text-align: left;">@member.user.Email</div>
+
+                                </div>
+
+
+                            </div>
+
+                            @if (member.user != currentUser)
+                            {
+
+                                <div class="adminPanel-member-dropDown rounded-visible-border noselect" @onmouseover="() => member.ToggleDropDown(true)" @onmouseout="() => member.ToggleDropDown(false)" style="position:relative; z-index: 5; height:calc(30% - 10px); font-weight: bold; background-color: #fff; margin-bottom:10px">
+
+                                    <button class="centering-flex" style="height:100%;width:100%;padding:5px 10px 5px 10px;border-radius:inherit;background-color:#fff;color:#313131">
+                                        @member.role
+
+                                        <div class="flex-divider"></div>
+
+                                        <span class="material-icons" style="right:5px;font-size:2em">
+                                            arrow_drop_down
+                                        </span>
+                                    </button>
+
+                                    <div class="rounded-visible-border" style="display:@member.dropdownDisplay; border-top-left-radius: 0px; border-top-right-radius: 0px; z-index:4;background-color:#fff; box-sizing: border-box;">
+                                        <!-- dropdown list -->
+                                        <button class="dropdown-entry default-text" @onclick="() => member.ChangeRole(1)" style="height:30px"> Instructor </button>
+                                        <button class="dropdown-entry default-text" @onclick="() => member.ChangeRole(2)" style="height:30px"> Admin </button>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="adminPanel-member-buttons centering-flex" style="height:25%; font-weight:bold; justify-content: flex-end;">
+
+                                    <!-- requests tab buttons -->
+                                    <button class="rounded-button default-text" @onclick="() => member.AcceptRequest(userManager, dbContext, pageModel.requestElementList, pageModel.memberElementList)" style="height:100%;width:50%;background-color:#46C661;color:white;margin:5px">
+                                        Accept
+                                    </button>
+                                    <button class="rounded-button default-text" @onclick="() => member.RejectRequest(userManager, pageModel.requestElementList)" style="height:100%;width:50%;background-color:#CA2A2A;color:white;margin:5px">
+                                        Reject
+                                    </button>
+
+                                </div>
+
+                            }
+
+                        </div>
+
+                    }
+
+                }
+
+            </div>
+
+            <div style="height:40px;padding-top:10px" class="centering-flex">
+
+                <button class="rounded-button default-text rounded-visible-border" id="adminPanel-lastPage-button" style="padding:5px; padding-top:10px; margin:5px;">
+                    <span class="material-icons">
+                        chevron_left
+                    </span>
+                </button>
+
+                <div class="default-text" id="adminPanel-pageNumber" style="font-size: 1.1em; margin:5px">Page 1</div>
+
+                <button class="rounded-button default-text rounded-visible-border" id="adminPanel-nextPage-button" style="padding:5px; padding-top:10px; margin:5px">
+                    <span class="material-icons">
+                        chevron_right
+                    </span>
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+
+
+</div>
+
+}
+
+
+
+@code {
+
+    AdminPanelViewModel pageModel;
+    ApplicationUser currentUser;
+
+
+    // Initialized Function
+
+    protected override async Task OnInitializedAsync() {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        currentUser = await userManager.FindByNameAsync(user.Identity.Name);
+
+        pageModel = new AdminPanelViewModel(userManager, dbContext, StateHasChanged);
+        pageModel.requestList = await pageModel.PendingUsers();
+        pageModel.adminList = await userManager.GetUsersInRoleAsync("Admin");
+        pageModel.instructorList = await userManager.GetUsersInRoleAsync("Instructor");
+
+
+        foreach (var instructor in pageModel.instructorList) {
+
+            memberItem mem = new memberItem(pageModel.adminList, instructor);
+            mem.StateHasChangedDelegate = StateHasChanged;
+            pageModel.memberElementList.Add(mem);
+
+        }
+
+        foreach (var request in pageModel.requestList) {
+
+            memberItem req = new memberItem(request);
+            req.StateHasChangedDelegate = StateHasChanged;
+            pageModel.requestElementList.Add(req);
+
+        }
+
+        await base.OnInitializedAsync();
+
+    }
+
+
+
+
+}

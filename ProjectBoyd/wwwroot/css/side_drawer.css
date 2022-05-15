@@ -1,0 +1,166 @@
+﻿#side-container {
+    /* size parameters */
+    width: 240px;
+    height: 100%;
+    left: 0px;
+    background-color: var(--side-container-color);
+    position: fixed;
+    box-shadow: rgba(0, 0, 0, 0.1) -25px 0px 9px -25px inset;
+    transition-duration: var(--transition-duration);
+    transition-timing-function: cubic-bezier(.4,0,.6,1);
+    transition-property: left;
+    z-index: 20;
+}
+
+/* side menu button */
+.side-container-button {
+    width: 100%;
+    height: 50px;
+    border-radius: 5px;
+    margin: 0 0 25px 0;
+    display: flex;
+    position: relative;
+    background: none;
+    text-decoration: none;
+    font-size: 1.1em;
+    color: var(--text-color);
+    transition-duration: .2s;
+}
+
+    .side-container-button::before, button.hover-background::before {
+        position: absolute;
+        z-index: -1;
+        width: 100%;
+        height: 100%;
+        content: "";
+        border-radius: 5px;
+        background-color: var(--text-color);
+        opacity: 0;
+        transition-property: opacity;
+        transition-duration: inherit;
+        transition-timing-function: inherit;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    .side-container-button:not(.side-container-button.selected):hover::before, button.hover-background:hover::before {
+        opacity: 0.1
+    }
+
+
+.side-container-button.selectedHelp {
+    color: #19A41C;
+}
+
+    .side-container-button.selectedHelp::before {
+        background-color: #19A41C;
+        opacity: 0.2;
+    }
+
+.side-container-button.selected {
+    color: var(--accent-color);
+    
+}
+
+    .side-container-button.selected::before {
+        background-color: var(--accent-color);
+        opacity: 0.2;
+    }
+
+/* side container children rules */
+.side-container-button > .material-icons {
+    margin: auto 20px auto 20px;
+}
+
+.side-container-button > *:last-child {
+    margin: auto;
+    flex: 100%;
+    text-align: left;
+}
+
+.side-container-button-holder {
+    height: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 10px 10px 10px;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+}
+
+/* student stuff */
+
+#side-container.student #student-session-status, #side-container.student #student-side-buttons {
+    display: inline-block
+}
+
+#side-container.student #instructor-side-buttons {
+    display: none;
+}
+
+#student-side-buttons {
+    display: none;
+}
+
+#student-session-status {
+    display: none;
+    font-weight: bold;
+    text-align: left;
+    width: 100%;
+    font-size: 0.8em;
+    color: var(--accent-color)
+}
+
+/* student session modal */
+
+.student-session-modal, .instructor-modal {
+    display: none;
+    width: 100%;
+    position: absolute;
+    height: auto;
+    z-index: 2;
+    top: 100%;
+    left: 0px;
+    padding: 10px;
+    box-sizing: border-box;
+    transition-duration: var(--transition-duration);
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(.4,0,.6,1);
+}
+
+    .student-session-modal.active, .instructor-modal.active {
+        display: inline-block;
+        animation: modal-tween-in var(--transition-duration) cubic-bezier(.4,0,.6,1) both;
+    }
+
+    .student-session-modal.tween-out, .instructor-modal.tween-out {
+        animation: modal-tween-out var(--transition-duration) cubic-bezier(.4,0,.6,1) both;
+    }
+
+.student-session-modal-container {
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid var(--hover-color);
+    box-shadow: rgba(0, 0, 0, 0.2) 5px 5px 10px;
+    background-color: var(--body-color);
+    border-radius: 8px
+}
+
+    .student-session-modal-container > * {
+        width: 100%;
+        margin-bottom: 15px;
+        font-size: 1.1em;
+        font-weight: bold;
+    }
+
+        .student-session-modal-container > * .material-icons {
+            margin-right: 10px;
+        }
+
+        .student-session-modal-container > *:last-child {
+            margin-bottom: 0px;
+        }

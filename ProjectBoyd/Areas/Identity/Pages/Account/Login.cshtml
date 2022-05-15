@@ -1,0 +1,71 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<link rel="stylesheet" href="~/css/login/login.css" />
+
+<!--
+<form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+    <div>
+        <p>
+            @foreach (var provider in Model.ExternalLogins) {
+                <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+            }
+        </p>
+    </div>
+</form>
+-->
+
+
+<div id="body-main" class="full-width">
+
+    <div class="login-page-bg-mask"></div> <!-- dims out the bg slightly -->
+
+    <div class="login-page-body centering-flex">
+
+        <div class="login-page-container">
+
+            <div id="panel-1" class="login-page-container-item active">
+                <!-- microsoft account login panel -->
+
+                <img src="~/Assets/Images/Corp_RGB_White.png" class="brand-logo">
+
+                <div></div>
+
+                <div>
+                    <div class="default-text" style="font-size: 1.2em">Sign in using your Emerson Microsoft Account.</div>
+                </div>
+
+                <div></div>
+
+                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+
+                    <div>
+                        @foreach (var provider in Model.ExternalLogins) {
+                            <button id="microsoft-login-button" class="rounded-button centering-flex default-text" type="submit" style="border: 1px solid rgba(0,0,0,0.2); background-color: #fff; color: rgb(55, 55, 55)" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+                                <img src="~/Assets/Images/microsoft_icon.png" style="height:100%;margin-right: 15px; width: 25px">
+                                <span>Sign in with Microsoft</span>
+                            </button>
+                        }
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+
+@*provider.DisplayName</button>*@

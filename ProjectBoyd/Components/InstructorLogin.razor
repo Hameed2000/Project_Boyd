@@ -1,0 +1,97 @@
+﻿<link rel="stylesheet" href="/css/login/loginmain.css" />
+<link rel="stylesheet" href="/css/login/instructorlogin.css" />
+
+
+<div class="con">
+
+    <div id="header-container">
+        <img id="emr-logo" src="/Assets/Images/Corp_RGB_White.png" class="img-fluid" />
+        <h3> @viewModel.pageInstructionText </h3>
+        <p id=@viewModel.hint.id style=@viewModel.hint.style> @viewModel.hint.text </p>
+    </div>
+
+    <div class="container" id="body-container">
+        <form>
+
+            @if (viewModel.pageDisplay == 1) {
+
+                <div class="all-text-container">
+
+                    @foreach (KeyValuePair<string, TextInput1> info in viewModel.loginInputList) {
+                        <div class="text-input-container" style="@info.Value.style">
+                            <p class="input-label" style=@info.Value.secondaryStyle> @info.Value.fieldInfo </p>
+                            <input type=@info.Value.type class="text-input" id=@info.Value.id name=@info.Value.id @bind="info.Value.text" placeholder=@info.Value.placeHolder @onfocusin="info.Value.textInputClicked" @onfocusout="info.Value.textInputClicked" />
+                        </div>
+                    }
+
+                    <div id="pword-options">
+
+                        <div id="show-pword-group" style= @onclick="showPassword">
+                            <div id="checkbox" style=@checkboxStyle> </div>
+                            <p id="checkbox-label"> Show password </p>
+                        </div>
+
+                        <div id="forgot-pword-group">
+                            <button id="forgot-pword"> Forgot password? </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div id="form-button-container">
+
+                    <span class="form-button-left">
+                        <button class="form-button" type="button"> Create Account </button>
+                    </span>
+
+                    <span class="form-button-right">
+                        <button class="form-button" type="button" @onclick="viewModel.signInButton"> Sign In </button>
+                    </span>
+
+                </div>
+
+            }
+            else if (viewModel.pageDisplay == 2) {
+
+
+            }
+            else if (viewModel.pageDisplay == 3) {
+
+                <Spinner> </Spinner>
+
+            }
+
+        </form>
+
+    </div>
+
+</div>
+
+
+@code {
+
+    InstructorLoginViewModel viewModel = new InstructorLoginViewModel();
+
+    protected override void OnInitialized() {
+
+        viewModel.StateHasChangedDelegate = StateHasChanged;
+
+    }
+
+    string checkboxStyle = "";
+
+    private void showPassword() {
+        if (viewModel.loginInputList["pword"].type.Equals("password")) {
+            viewModel.loginInputList["pword"].type = "text";
+            checkboxStyle = "border-width: 9px";
+        } else {
+            viewModel.loginInputList["pword"].type = "password";
+            checkboxStyle = "border-width: 3px";
+        }
+    }
+
+
+
+}
+

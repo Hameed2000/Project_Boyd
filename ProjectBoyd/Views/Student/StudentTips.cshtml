@@ -1,0 +1,12 @@
+﻿@{
+    ViewData["Title"] = "Lab Tips";
+    string page = "StudentTips";
+}
+
+<link rel="stylesheet" href="~/css/student/student_instructions.css" />
+<link rel="stylesheet" href="~/css/student/session_pages.css" />
+<link rel="stylesheet" href="~/css/student/tips.css" />
+
+<partial name="_SideBarStudent" model="page" />
+
+<component type="typeof(StudentTips)" render-mode="ServerPrerendered" />

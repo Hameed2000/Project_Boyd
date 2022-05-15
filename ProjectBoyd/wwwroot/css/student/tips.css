@@ -1,0 +1,25 @@
+.session-list-entry-buttons > * {
+
+    gap: 10px
+
+}
+
+.session-list-entry {
+
+    justify-content: flex-start;
+
+    align-items: flex-start;
+
+}
+
+.session-list-entry-text {
+
+    margin-right: 15px;
+
+}
+
+.form-list {
+
+    max-height: unset;
+
+}

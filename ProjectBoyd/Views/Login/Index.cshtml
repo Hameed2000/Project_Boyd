@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<link rel="stylesheet" href="~/css/login/login.css" />
+<link rel="stylesheet" href="~/css/site.css" />
+
+<div id="body-main" class="full-width">
+
+    <!-- MODALS GO HERE -->
+    <!-- PAGE CONTENT GOES HERE -->
+
+    <div class="login-page-bg-mask"></div> <!-- dims out the bg slightly -->
+
+    <div class="centering-flex login-selection-container">
+
+        <div style="margin-bottom:80px"></div>
+
+        <div class="centering-flex login-selection-content">
+
+            <img src="~/Assets/Images/Corp_RGB_White.png" class="brand-logo">
+
+            <div class="default-text title" style="font-size:1.9em;">Select your account type</div>
+
+            <div style="margin-bottom:30px"></div>
+
+            <div class="login-selection-button-container centering-flex">
+
+                <a class="login-selection-button instructor" href="/Identity/Account/Login">
+
+                    <span class="material-icons noselect">import_contacts</span>
+
+                    <span class="default-text login-selection-button-title instructor">Instructor</span>
+
+                </a>
+
+                <a class="login-selection-button student" href="/Login/StudentLogin">
+
+                    <span class="material-icons noselect">person_outline</span>
+
+                    <span class="default-text login-selection-button-title student">Student</span>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

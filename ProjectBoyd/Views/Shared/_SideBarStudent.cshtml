@@ -1,0 +1,190 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+
+    string name = Model;
+
+}
+
+<link rel="stylesheet" href="~/css/side_drawer.css" />
+
+<script src="~/js/navbar.js"></script>
+
+<component type="typeof(StudentSideBar)" render-mode="ServerPrerendered" param-PageName="name" />
+
+@*
+
+    @{
+
+
+
+    }
+
+
+
+    <link rel="stylesheet" href="~/css/side_drawer.css" />
+
+    <div id="side-container">
+        <!-- the side container -->
+
+        <div class="side-container-header centering-flex" style="margin-bottom:15px;margin-top:15px;padding:0 10px 0px 10px;">
+            <!-- the header for the side container-->
+
+            <button id="session-status" class="centering-flex hover-background noselect" style="padding: 8px; box-sizing: border-box;">
+
+                <div style="position: relative;width:45px;margin-right:12px;">
+                    <img class="avatar-icon" src="https://tr.rbxcdn.com/8df083e060887d214f1df6f9c992bc8d/150/150/AvatarHeadshot/Png" style="width:100%;">
+                    <!-- session status -->
+                    <div style="border-radius:50%;position: absolute; background-color: var(--side-container-color);width:18px;height:18px;right:0px;bottom:0px;display:flex">
+
+                        <div class="session-status" style="margin:auto;width:70%;height:70%;border-radius: 50%;background-color: #67ff67;"></div>
+
+                    </div>
+
+                </div>
+
+                <div>
+                    <div id="side-container-user-name" class="default-text" style="font-weight: bold; text-align: left; width:auto; font-size: 1em">Instructor Name</div>
+                    <div id="student-session-status" class="default-text">Session Status</div>
+                </div>
+
+            </button>
+
+            <div id="side-container-toggle-flex" class="flex-divider" style="display:none;"></div>
+
+            <button id="menu-toggle2" class="icon-button" style="height:40px;width:40px;display:none;">
+                <span class="material-icons" style="margin:auto;font-size:25px">close</span>
+            </button>
+
+            <div class="student-session-modal">
+
+                <div class="student-session-modal-container list-flex">
+
+                    <button class="rounded-button centering-flex" style="background-color: var(--content-color);color:rgb(255, 255, 255)">
+                        <span class="material-icons">file_download</span>
+                        Extract Data
+                    </button>
+                    <button class="rounded-button centering-flex" style="background-color: var(--content-color);color:rgb(255, 255, 255)">
+                        <span class="material-icons">emoji_events</span>
+                        View Badges
+                    </button>
+                    <button class="rounded-button centering-flex" style="background-color: var(--error-color);color:rgb(255, 255, 255)">
+                        <span class="material-icons">logout</span>
+                        Leave Session
+                    </button>
+
+
+                </div>
+
+            </div>
+
+            <div class="instructor-modal">
+
+                <div class="student-session-modal-container list-flex">
+
+                    <button class="rounded-button centering-flex" style="background-color: var(--error-color);color:rgb(255, 255, 255)">
+                        <span class="material-icons">logout</span>
+                        Log Out
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+
+        <div id="instructor-side-buttons" class="side-container-button-holder">
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">dashboard</span>
+                <span>Dashboard</span>
+
+            </a>
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">group_add</span>
+                <span>Create Session</span>
+
+            </a>
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">edit</span>
+                <span>Create Lab</span>
+
+            </a>
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">description</span>
+                <span>Extract Data</span>
+
+            </a>
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">book</span>
+                <span>Surveys</span>
+
+            </a>
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">badge</span>
+                <span>Roles</span>
+
+            </a>
+
+        </div>
+
+        <div id="student-side-buttons" class="side-container-button-holder">
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">assignment</span>
+                <span>Instructions</span>
+
+            </a>
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">addchart</span>
+                <span>Data Table</span>
+
+            </a>
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">gps_fixed</span>
+                <span>Calibration</span>
+
+            </a>
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">lightbulb</span>
+                <span>Tips</span>
+
+            </a>
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">help_center</span>
+                <span>Request Help</span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <div id="side-container-bg-mask" class="basic-modal-container"></div>
+
+    <script src="js/side-bar-collapse.js"></script>
+
+*@

@@ -1,0 +1,11 @@
+﻿@{
+    ViewData["Title"] = "Calibration Sheet";
+    string page = "StudentCalibrationSheet";
+}
+
+<link rel="stylesheet" href="~/css/student/student_instructions.css" />
+<link rel="stylesheet" href="~/css/student/session_pages.css" />
+
+<partial name="_SideBarStudent" model="page"/>
+
+<component type="typeof(StudentCalibrationSheet)" render-mode="ServerPrerendered" />

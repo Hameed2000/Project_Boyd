@@ -1,0 +1,524 @@
+﻿@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.AspNetCore.WebUtilities;
+@using ProjectBoyd.Models;
+@using ProjectBoyd.Data;
+@using Microsoft.AspNetCore.Identity;
+@using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+@using ProjectBoyd.Models.EntityModels;
+@using ProjectBoyd.Models.ObjectModels;
+@using System.Text.RegularExpressions;
+@using ProjectBoyd.Models.EntityModels.LabEntities;
+@using Microsoft.EntityFrameworkCore;
+@using System.Linq;
+
+@inject UserManager<ApplicationUser> userManager
+@inject SignInManager<ApplicationUser> signinManager
+@inject ApplicationDbContext dbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
+
+
+<div id="body-main" class="full-width">
+
+    <!-- MODALS GO HERE -->
+    <!-- the main body container-->
+    <!-- PAGE CONTENT GOES HERE -->
+
+    <div class="login-page-bg-mask"></div> <!-- dims out the bg slightly -->
+
+    <div class="login-page-body centering-flex">
+
+        <div class="login-page-container">
+
+            @if (pageDisplay == "1") {
+
+                <div id="panel-1" class="login-page-container-item active">
+                    <!-- class name panel -->
+
+                    <img src="/Assets/Images/Corp_RGB_White.png" class="brand-logo">
+
+                    <div>
+                        <div class="default-text" style="font-size: 1.2em">Select your class name.</div>
+                    </div>
+
+                    <div id="panel1-toast" class="login-toast default-text"></div>
+
+                    <div></div>
+
+                    <form id="student-login-class-name" name="className" class="centering-flex" style="flex-direction: column;">
+
+                        <div>
+                            <div class="login-input-container" inputType="list">
+
+                                <label class="default-text login-input-label">Class Name</label>
+
+                                <select id="student-login-class-select" @bind="sessionSelected" name="role" class="login-input" required>
+
+                                    <option value="">None</option>
+                                    @foreach (var session in sessionList) {
+
+                                        <option value="@session.SessionId"> @session.SessionName </option>
+
+                                    }
+
+                                </select>
+
+                                <span class="material-icons centering-flex noselect" style="height:100%;position:absolute;top:0px;right:0px;padding:16px;font-size:30px">expand_more</span>
+
+                            </div>
+
+                            <div class="default-text form-error active"> @sessionError </div>
+                        </div>
+
+                        <div>
+
+                            <div class="login-input-container" inputType="text">
+
+                                <label class="default-text login-input-label">Team Name</label>
+
+                                <input id="student-login-team-name" class="login-input" @bind="teamName" placeholder="" name="teamName" type="text" required>
+
+                            </div>
+
+                            <div class="default-text form-error active" style="display:inherit;"> @teamNameError </div>
+
+                        </div>
+
+                        <div></div>
+
+                        <div>
+
+                            <input id="student-login-class-name-submit" class="noselect" @onclick="PanelOneNext" type="submit" value="Next" style="background-color: var(--accent-color); color: #fff;">
+                            <div class="default-text form-error"></div>
+
+                        </div>
+
+
+                    </form>
+
+                </div>
+
+            }
+            else if (pageDisplay == "2") {
+
+                <div id="panel-2" class="login-page-container-item active">
+                    <!-- add panel -->
+
+                    <img src="/Assets/Images/Corp_RGB_White.png" class="brand-logo">
+
+                    <div>
+                        <div class="default-text" style="font-size: 1.2em">Register your team.</div>
+                    </div>
+
+                    <div id="panel2-toast" class="login-toast default-text active" style=@PanelToast2FontColor> @PanelToast2 </div>
+
+                    <div></div>
+
+                    <form id="student-login-add-member" name="addMember" class="centering-flex" style="flex-direction: column;">
+
+                        <div>
+
+                            <div class="login-input-container" inputType="text">
+
+                                <label class="default-text login-input-label">First Name</label>
+
+                                <input id="add-member-first-name" class="login-input" @bind="FirstName" placeholder="" name="firstName" type="text" required>
+
+                            </div>
+
+                            <div class="default-text form-error"></div>
+
+                        </div>
+
+                        <div>
+
+                            <div class="login-input-container" inputType="text">
+
+                                <label class="default-text login-input-label">Last Name</label>
+
+                                <input id="add-member-last-name" class="login-input" @bind="LastName" placeholder="" name="lastName" type="text" required>
+
+                            </div>
+
+                            <div class="default-text form-error"></div>
+
+                        </div>
+
+
+
+                        <div>
+                            <div class="login-input-container" inputType="text">
+
+                                <label class="default-text login-input-label">Email</label>
+
+                                <input id="add-member-email" class="login-input" @bind="Email" placeholder="" name="memberEmail" type="email" required>
+
+                            </div>
+
+                            <div class="default-text form-error"></div>
+                        </div>
+
+                        <div></div>
+
+                        <div>
+
+                            <div class="centering-flex">
+
+                                <input id="register-form-submit" class="noselect" @onclick="AddMemberButton" type="submit" value="Add Member" style="margin-right:20px;flex: 50%; background-color: var(--content-color); color: #fff;">
+
+                                <button type="button" id="add-member-join-session" class="rounded-button default-text" @onclick="PanelTwoNext" style="font-size:1.1em; flex: 50%; background-color: var(--accent-color); color: #fff;">Join Session</button>
+
+                            </div>
+
+
+                            <div class="default-text form-error"></div>
+
+                        </div>
+
+
+                    </form>
+
+                </div>
+
+                <div id="panel-2-members" class="login-page-container-item active">
+                    <!-- loading panel -->
+                    <div>
+                        <div class="default-text title" style="font-size: 1.2em">Team Members</div>
+                    </div>
+
+                    <div class="list-flex team-member-list">
+                        <!-- loading spinner -->
+
+                        <div id="team-member-list-no-entries" class="team-member-list-item" style="text-align: center;">
+                            No Members Added
+                        </div>
+
+
+
+
+
+                        @foreach (var member in memberList) {
+
+                            <div class="team-member-list-item centering-flex">
+                                <div class="default-text"> @member.firstName </div>
+
+                                <div class="flex-divider"></div>
+
+                                <div class="team-member-list-item-buttons">
+
+                                    <button class="icon-button" @onclick="() => RemoveMember(member)" title="Delete Member">
+                                        <span class="material-icons">delete</span>
+                                    </button>
+
+                                </div>
+                            </div>
+
+                        }
+
+
+
+                    </div>
+
+                </div>
+
+            }
+            else if (pageDisplay == "3") {
+
+                <div id="panel-3" class="login-page-container-item active">
+                    <!-- loading panel -->
+
+                    <img src="/Assets/Images/Corp_RGB_White.png" class="brand-logo">
+
+                    <div>
+                        <div class="default-text" style="font-size: 1.2em">Joining Session...</div>
+                    </div>
+
+                    <div id="panel3-toast" class="login-toast default-text"></div>
+
+                    <div></div>
+
+                    <div class="centering-flex">
+                        <!-- loading spinner -->
+                        <!-- insert loading spinner here -->
+                        <Spinner> </Spinner>
+                    </div>
+
+                </div>
+
+            }
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+@code {
+
+    public string sessionError = "";
+    public string teamNameError = "";
+
+    public string pageDisplay = "1";
+
+    public List<SessionEntity> sessionList = new List<SessionEntity>();
+    public string sessionSelected;
+
+    public string teamName;
+
+    protected override async Task OnInitializedAsync() {
+
+        sessionList = dbContext.Sessions.Where(s => s.Active == true).ToList<SessionEntity>();
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user != null && user.Identity.Name != null) {
+            var isInRole = user.IsInRole("Student");
+            if (isInRole == false) {
+                Console.WriteLine(user.Identity.Name);
+                NavManager.NavigateTo("/Student/StudentLogOut?userName=" + user.Identity.Name, true);
+            }
+            else {
+                var team = dbContext.Teams.FirstOrDefault(t => t.TeamName == user.Identity.Name);
+                if (team != null && team.InSession) {
+                    NavManager.NavigateTo("/Student/StudentInstructions", true);
+                }
+                else {
+                    NavManager.NavigateTo("/Student/StudentLogOut?userName=" + user.Identity.Name, true);
+                }
+            }
+        }
+
+        await base.OnInitializedAsync();
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+
+        //if (firstRender) {
+
+        await JSRuntime.InvokeVoidAsync("initialize");
+
+        //}
+
+    }
+
+
+    public class Member {
+        public string firstName { get; set; }
+        public string lastName { get; set; }
+        public string email { get; set; }
+
+        public Member(string firstName, string lastName, string email) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.email = email;
+        }
+    }
+
+    public string FirstName = "";
+    public string LastName = "";
+    public string Email = "";
+
+    public string PanelToast2 = "";
+    public string PanelToast2FontColor = "#ff6666";
+
+    List<Member> memberList = new List<Member>();
+
+    public async void AddMemberButton() {
+
+        // TO-DO: check to make sure they don't add repeated entries
+        // make models for everything
+        // add verification on email/name fields
+
+        Boolean validEntry = true;
+
+        if (FirstName == "" || LastName == "" || Email == "") {
+
+            validEntry = false;
+
+        }
+
+        foreach (var mem in memberList) {
+            if (mem.email == Email) {
+                validEntry = false;
+                break;
+            }
+        }
+
+
+        if (validEntry) {
+
+            PanelToast2 = "";
+
+            //Student entry = new Student(membersInputList["fname"].text, membersInputList["lname"].text, membersInputList["email"].text);
+            Member entry = new Member(FirstName, LastName, Email);
+
+
+            //team.addMember(entry);
+            memberList.Add(entry);
+
+            //hint.text = entry.studentEntity.FirstName + " has been added";
+            //hint.style = "color: #19A41C";
+
+            FirstName = "";
+            LastName = "";
+            Email = "";
+
+            await Task.Delay(100);
+
+            await JSRuntime.InvokeVoidAsync("updateLoginInputElements");
+
+        }
+        else {
+
+            PanelToast2 = "There are some issues with your entry";
+
+        }
+
+    }
+
+    public void RemoveMember(Member member) {
+
+        memberList.Remove(member);
+
+    }
+
+
+    public async void PanelOneNext() {
+
+        if (sessionSelected == null || sessionSelected == "") {
+            sessionError = "Select a valid session";
+            Console.WriteLine("sessionnull");
+            return;
+        }
+
+        sessionError = "";
+
+        if (teamName == null || teamName == "") {
+            teamNameError = "Enter a team name";
+            Console.WriteLine("teamnameisnull");
+            return;
+        }
+
+        bool lettersAndNumbersOnly = Regex.IsMatch(teamName, @"^[a-zA-Z0-9]+$");
+        int charCount = teamName.Length;
+        // var letterCount = Regex.Matches(teamName, @"[a-zA-Z]").Count;
+
+        if (lettersAndNumbersOnly == false || charCount > 16 || charCount == 0) {
+            teamNameError = "You must use only letters and numbers and have no more than 16 characters";
+            return;
+        }
+
+        var user = await userManager.FindByNameAsync(teamName);
+
+        if (user != null) {
+            teamNameError = "This name is in use, select a different name";
+            StateHasChanged();
+            return;
+        }
+
+        teamNameError = "";
+
+        pageDisplay = "2";
+
+        StateHasChanged();
+
+    }
+
+    public void PanelTwoNext() {
+
+        if (memberList.Count > 0) {
+            pageDisplay = "3";
+            PanelToast2 = "";
+            JoinSession();
+        }
+        else {
+            PanelToast2 = "Please add a member to join session";
+        }
+
+    }
+
+    public async void JoinSession() {
+
+        Team team = new Team(sessionSelected, teamName);
+        await dbContext.Teams.AddAsync(team.teamEntity);
+        await dbContext.SaveChangesAsync();
+
+        SessionEntity session = dbContext.Sessions.Where(s => s.SessionId.ToString() == sessionSelected).FirstOrDefault<SessionEntity>();
+        session.TeamsList = team.teamEntity.TeamId + " " + session.TeamsList;
+        await dbContext.SaveChangesAsync();
+
+        foreach (var member in memberList) {
+
+            if (dbContext.Students.Any(s => s.Email == member.email)) {
+
+                var student = dbContext.Students.FirstOrDefault(s => s.Email == member.email);
+                student.TeamIds = team.teamEntity.TeamId + " " + student.TeamIds;
+                await dbContext.SaveChangesAsync();
+                team.teamEntity.MemberIds = student.StudentId + " " + team.teamEntity.MemberIds;
+                team.teamEntity.Students.Add(student);
+
+            }
+            else {
+
+                Student student = new Student(member.firstName, member.lastName, member.email);
+                student.studentEntity.TeamIds = team.teamEntity.TeamId + " " + student.studentEntity.TeamIds;
+                await dbContext.Students.AddAsync(student.studentEntity);
+                await dbContext.SaveChangesAsync();
+                team.teamEntity.MemberIds = student.studentEntity.StudentId + " " + team.teamEntity.MemberIds;
+                team.teamEntity.Students.Add(student.studentEntity);
+
+            }
+
+        }
+
+        await dbContext.SaveChangesAsync();
+
+        var user = new ApplicationUser {
+            RoleRequest = "",
+            UserName = team.teamEntity.TeamName,
+            Email = "",
+            NormalizedEmail = "",
+            NormalizedUserName = team.teamEntity.TeamName,
+            PhoneNumber = "",
+            EmailConfirmed = true,
+            PhoneNumberConfirmed = true,
+            SecurityStamp = Guid.NewGuid().ToString("D"),
+            PasswordHash = ""
+        };
+
+        var userStore = new UserStore<ApplicationUser>(dbContext);
+        var result = await userStore.CreateAsync(user);
+
+        await userManager.AddToRoleAsync(user, "Student");
+
+        team.teamEntity.AccountId = user.Id;
+        await dbContext.SaveChangesAsync();
+
+        SessionInfo.SessionInfoList.FirstOrDefault(s => s.Key == sessionSelected).Value.Add(team.teamEntity.TeamId.ToString(), new SessionTeam());
+
+        await Task.Delay(250);
+
+        NavManager.NavigateTo("/Student/LoginInternal?userId=" + user.Id + "&sessionId=" + session.SessionId + "&teamId=" + team.teamEntity.TeamId, true);
+    
+    }
+
+}
+
+
+@*
+
+    User selects class name and team name
+    User enters all members of team
+    Keep list of all team members
+    When register is clicked and password is confirmed check if team members exist, if they don't create them
+    Create student/team entities if the account doesn't exist
+    Add them to session and redirect to student dashboard
+
+*@

@@ -1,0 +1,442 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Identity;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.AspNetCore.WebUtilities;
+@using ProjectBoyd.Models;
+@using ProjectBoyd.Data;
+@using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+@using ProjectBoyd.Models.EntityModels;
+@using ProjectBoyd.Models.ObjectModels;
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+
+@inject UserManager<ApplicationUser> userManager
+@inject RoleManager<IdentityRole> roleManager
+@inject ApplicationDbContext dbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ProtectedLocalStorage LocalStorage
+@inject IJSRuntime JSRuntime
+
+
+@if (DisplayLeaveConfirmation) {
+
+<div id="main-modal-container" class="basic-modal-container active">
+
+    <div id="confirmation-modal" class="basic-modal-item active">
+
+        <div class="list-flex" style="width:100%;">
+
+            <!-- close button -->
+
+            <button id="confirmation-modal-close" class="icon-button" style="position: absolute; top: 0px; right: 0px; padding:5px;" type="button" @onclick="HideLeaveConfirmation">
+                <span class="material-icons" style="margin:auto;font-size:25px">close</span>
+            </button>
+
+            <div class="default-text title" style="margin-bottom:15px;text-align: left;">Leave Session?</div>
+
+            <div class="default-text" style="margin-bottom: 15px; font-size: 1.1em;text-align: left;">Leaving the session now will erase your progress</div>
+
+            <div style="height:35px" class="basic-modal-button-container active">
+
+                <div id="confirmation-modal-one-option" class="centering-flex basic-modal-button-container">
+
+                    <button class="rounded-button centering-flex">
+
+                        <div class="default-text" style="color: inherit">option_text</div>
+
+                    </button>
+
+                </div>
+
+                <div id="confirmation-modal-two-option" class="centering-flex basic-modal-button-container active">
+
+                    <button class="rounded-button centering-flex" @onclick="LeaveSession">
+
+                        <div class="default-text" style="color: inherit">Leave Session</div>
+
+                    </button>
+
+                    <button class="rounded-button centering-flex" @onclick="HideLeaveConfirmation">
+
+                        <div class="default-text" style="color: inherit">Cancel</div>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+}
+
+<div id="side-container" class="student">
+    <!-- the side container -->
+
+    <div class="side-container-header centering-flex" style="margin-bottom:15px;margin-top:15px;padding:0 10px 0px 10px;">
+        <!-- the header for the side container-->
+
+        <button id="session-status" class="centering-flex hover-background noselect" style="padding: 8px; box-sizing: border-box;" @onclick="ToggleStudentOptions">
+
+            <div style="position: relative;width:45px;margin-right:12px;">
+                <img class="avatar-icon" src="https://tr.rbxcdn.com/8df083e060887d214f1df6f9c992bc8d/150/150/AvatarHeadshot/Png" style="width:100%;">
+                <!-- session status -->
+                <div style="border-radius:50%;position: absolute; background-color: var(--side-container-color);width:18px;height:18px;right:0px;bottom:0px;display:flex">
+
+                    <div class="session-status" style="margin:auto;width:70%;height:70%;border-radius: 50%;background-color: @sessionStatusColor;"></div>
+
+                </div>
+
+            </div>
+
+            <div>
+                <div id="side-container-user-name" class="default-text" style="font-weight: bold; text-align: left; width:auto; font-size: 1em">@currentUser.UserName</div>
+                <div id="student-session-status" class="default-text" style="color:@sessionStatusColor;">@sessionStatusText</div>
+            </div>
+
+        </button>
+
+        <div id="side-container-toggle-flex" class="flex-divider" style="display:none;"></div>
+
+        <button id="menu-toggle2" class="icon-button" style="height:40px;width:40px;display:none;">
+            <span class="material-icons" style="margin:auto;font-size:25px">close</span>
+        </button>
+
+        <div class=@StudentButtonOptions>
+
+            <div class="student-session-modal-container list-flex">
+
+                <button class="rounded-button centering-flex" style="background-color: var(--content-color);color:rgb(255, 255, 255)">
+                    <span class="material-icons">file_download</span>
+                    Extract Data
+                </button>
+                <button class="rounded-button centering-flex" style="background-color: var(--content-color);color:rgb(255, 255, 255)">
+                    <span class="material-icons">emoji_events</span>
+                    View Badges
+                </button>
+                <button class="rounded-button centering-flex" style="background-color: var(--error-color);color:rgb(255, 255, 255)" @onclick="LeaveSessionConfirmation">
+                    <span class="material-icons">logout</span>
+                    Leave Session
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div id="student-side-buttons" class="side-container-button-holder">
+
+        <a id="StudentInstructions-sidebar" class="side-container-button noselect" href="/Student/StudentInstructions">
+
+            <span class="material-icons">assignment</span>
+            <span>Instructions</span>
+
+        </a>
+
+        @if (sessionTeamInfo != null && sessionTeamInfo.CompletedFirstRun) {
+
+            <a id="StudentDataTable-sidebar" class="side-container-button noselect" href="/Student/StudentDataTable">
+
+                <span class="material-icons">addchart</span>
+                <span>Data Table</span>
+
+            </a>
+
+            <a id="StudentCalibrationSheet-sidebar" class="side-container-button noselect" href="/Student/StudentCalibrationSheet">
+
+                <span class="material-icons">gps_fixed</span>
+                <span>Calibration</span>
+
+            </a>
+
+            <a id="StudentTips-sidebar" class="side-container-button noselect" href="/Student/StudentTips">
+
+                <span class="material-icons">lightbulb</span>
+                <span>Tips</span>
+
+            </a>
+
+
+            <a id="Help-sidebar" class="side-container-button noselect" @onclick="RequestHelp">
+
+                <span class="material-icons">help_center</span>
+                <span>Request Help</span>
+
+            </a>
+
+        }
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public string PageName { get; set; } = "StudentInstructions";
+
+    public string sessionStatusColor { get; set; } = "#ca2a2a";
+    public string sessionStatusText { get; set; } = "";
+
+    public string RequestStyle { get; set; } = "";
+    public string RequestSelectedClass { get; set; } = "";
+
+    public ApplicationUser currentUser = new ApplicationUser();
+    TeamEntity team;
+    SessionTeam sessionTeamInfo;
+
+    protected override async Task OnInitializedAsync() {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        currentUser = await userManager.FindByNameAsync(user.Identity.Name);
+        team = dbContext.Teams.Where(t => t.AccountId == currentUser.Id).FirstOrDefault();
+        //Console.WriteLine(SessionInfo.)
+        
+        sessionTeamInfo = SessionInfo.SessionInfoList.GetValueOrDefault(team.SessionId).GetValueOrDefault(team.TeamId.ToString());
+
+        if (sessionTeamInfo.AwaitingApproval) {
+            sessionStatusText = "Awaiting Approval";
+            sessionStatusColor = "#7943b6";
+        }
+        else if (sessionTeamInfo.LabQueue.ElementAtOrDefault(0) != null) {
+            sessionStatusText = "Lab Assigned";
+            sessionStatusColor = "#ca2a2a";
+        }
+        else {
+            sessionStatusText = "Awaiting Lab";
+            sessionStatusColor = "#47c661";
+        }
+
+        await base.OnInitializedAsync();
+
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+
+        if (firstRender) {
+
+            await JSRuntime.InvokeVoidAsync("InstructorNavBarSelect", PageName + "-sidebar");
+
+            StateHasChanged();
+
+        }
+
+        if (sessionTeamInfo.AwaitingApproval) {
+            sessionStatusText = "Awaiting Approval";
+            sessionStatusColor = "#7943b6";
+        }
+        else if (sessionTeamInfo.LabQueue.ElementAtOrDefault(0) != null) {
+            sessionStatusText = "Lab Assigned";
+            sessionStatusColor = "#ca2a2a";
+        }
+        else {
+            sessionStatusText = "Awaiting Lab";
+            sessionStatusColor = "#47c661";
+        }
+
+        if (sessionTeamInfo.CompletedFirstRun) {
+            if (SessionInfo.HelpQueue[team.SessionId].Where(e => e.TeamId == team.TeamId).FirstOrDefault() != null) {
+                //RequestStyle = "background-color:#CA2A2A; color:#CA2A2A;";
+                await JSRuntime.InvokeVoidAsync("RequestHelp", true);
+            }
+            else {
+                //RequestStyle = "";
+                await JSRuntime.InvokeVoidAsync("RequestHelp", false);
+            }
+        }
+
+    }
+
+    public void RequestHelp() {
+
+        if (!SessionInfo.HelpQueue[team.SessionId].Contains(team)) {
+            SessionInfo.HelpQueue[team.SessionId].Add(team);
+            StateHasChanged();
+        }
+
+    }
+
+    public string StudentButtonOptions { get; set; } = "student-session-modal";
+    public void ToggleStudentOptions() {
+        if (StudentButtonOptions.Equals("student-session-modal active")) {
+            StudentButtonOptions = "student-session-modal";
+        }
+        else {
+            StudentButtonOptions = "student-session-modal active";
+        }
+        StateHasChanged();
+    }
+
+    public bool DisplayLeaveConfirmation { get; set; } = false;
+    public void LeaveSessionConfirmation() {
+        DisplayLeaveConfirmation = true;
+    }
+
+
+    public void HideLeaveConfirmation() {
+        DisplayLeaveConfirmation = false;
+    }
+
+    public void LeaveSession() {
+        // Leave Session
+        HideLeaveConfirmation();
+    }
+
+}
+
+@*
+
+    <div id="side-container">
+        <!-- the side container -->
+
+        <div class="side-container-header centering-flex" style="margin-bottom:15px;margin-top:15px;padding:0 10px 0px 10px;">
+            <!-- the header for the side container-->
+
+            <button id="session-status" class="centering-flex hover-background noselect" style="padding: 8px; box-sizing: border-box;">
+
+                <div style="position: relative;width:45px;margin-right:12px;">
+                    <img class="avatar-icon" src="https://tr.rbxcdn.com/8df083e060887d214f1df6f9c992bc8d/150/150/AvatarHeadshot/Png" style="width:100%;">
+                    <!-- session status -->
+                    <div style="border-radius:50%;position: absolute; background-color: var(--side-container-color);width:18px;height:18px;right:0px;bottom:0px;display:flex">
+
+                        <div class="session-status" style="margin:auto;width:70%;height:70%;border-radius: 50%;background-color: #67ff67;"></div>
+
+                    </div>
+
+                </div>
+
+                <div>
+                    <div id="side-container-user-name" class="default-text" style="font-weight: bold; text-align: left; width:auto; font-size: 1em">Instructor Name</div>
+                    <div id="student-session-status" class="default-text">Session Status</div>
+                </div>
+
+            </button>
+
+            <div id="side-container-toggle-flex" class="flex-divider" style="display:none;"></div>
+
+            <button id="menu-toggle2" class="icon-button" style="height:40px;width:40px;display:none;">
+                <span class="material-icons" style="margin:auto;font-size:25px">close</span>
+            </button>
+
+            <div class="student-session-modal">
+
+                <div class="student-session-modal-container list-flex">
+
+                    <button class="rounded-button centering-flex" style="background-color: var(--content-color);color:rgb(255, 255, 255)">
+                        <span class="material-icons">file_download</span>
+                        Extract Data
+                    </button>
+                    <button class="rounded-button centering-flex" style="background-color: var(--content-color);color:rgb(255, 255, 255)">
+                        <span class="material-icons">emoji_events</span>
+                        View Badges
+                    </button>
+                    <button class="rounded-button centering-flex" style="background-color: var(--error-color);color:rgb(255, 255, 255)">
+                        <span class="material-icons">logout</span>
+                        Leave Session
+                    </button>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+
+        <div id="instructor-side-buttons" class="side-container-button-holder">
+
+            <a id="dashboard-sidebar" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">dashboard</span>
+                <span>Dashboard</span>
+
+            </a>
+
+            <a id="sessioncreator-sidebar" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">group_add</span>
+                <span>Create Session</span>
+
+            </a>
+
+            <a id="labcreator-sidebar" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">edit</span>
+                <span>Create Lab</span>
+
+            </a>
+
+            <a id="dataextract-sidebar" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">description</span>
+                <span>Extract Data</span>
+
+            </a>
+
+            <a id="survey-sidebar" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">book</span>
+                <span>Surveys</span>
+
+            </a>
+
+            <a id="adminpanel-sidebar" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">badge</span>
+                <span>Roles</span>
+
+            </a>
+
+        </div>
+
+        <div id="student-side-buttons" class="side-container-button-holder">
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">assignment</span>
+                <span>Instructions</span>
+
+            </a>
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">addchart</span>
+                <span>Data Table</span>
+
+            </a>
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">gps_fixed</span>
+                <span>Calibration</span>
+
+            </a>
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">lightbulb</span>
+                <span>Tips</span>
+
+            </a>
+
+            <a id="" class="side-container-button noselect" href="/">
+
+                <span class="material-icons">help_center</span>
+                <span>Request Help</span>
+
+            </a>
+
+        </div>
+
+    </div> *@

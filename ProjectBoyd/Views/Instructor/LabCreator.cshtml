@@ -1,0 +1,10 @@
+﻿@{
+    ViewData["Title"] = "Lab Creator";
+    string page = "ModuleCreator";
+}
+
+<link rel="stylesheet" href="~/css/lab_creator.css" />
+<script src="~/js/labcreator.js"></script>
+<partial name="_SideBar" model="page"/>
+
+<component type="typeof(LabCreator)" render-mode="ServerPrerendered" />

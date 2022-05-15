@@ -1,0 +1,327 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Identity;
+@using System.Threading.Tasks;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.AspNetCore.WebUtilities;
+@using ProjectBoyd.Models;
+@using ProjectBoyd.Data;
+@using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+@using ProjectBoyd.Models.EntityModels;
+@using ProjectBoyd.Models.ObjectModels;
+@using ProjectBoyd.Models.EntityModels.LabEntities;
+
+@inject ApplicationDbContext dbContext
+
+
+<div id="student-assign-lab-team-info-modal" class="basic-modal-item active">
+
+    <div class="modal-form">
+
+        <span class="absolute-button-container">
+            <!-- collapse button -->
+            <button id="student-assign-lab-team-info-modal-close" class="icon-button" style="height:40px;width:40px;">
+                <span class="material-icons" style="margin:auto;font-size:25px">close</span>
+            </button>
+        </span>
+
+        <img class="avatar-icon" src="https://www.iconbunny.com/icons/media/catalog/product/3/4/3423.12-beaker-icon-iconbunny.jpg" style="max-width: 100px;">
+
+        <div class="default-text title" style="margin-bottom: 5px;">Team_Name</div>
+
+        <div>
+            <!-- Team Members -->
+            <div class="default-text form-title">Members</div>
+
+            <div class="rounded-visible-border form-list">
+
+                <div class="class-dashboard-help-queue-item centering-flex">
+
+                    <div class="dashboard-text bold">Member Name</div>
+
+                    <div class="flex-divider"></div>
+
+                </div>
+
+
+            </div>
+
+            <div class="default-text form-error"></div>
+
+        </div>
+
+        <div>
+            <!-- Team Members -->
+            <div class="default-text form-title">Assigned Labs</div>
+
+            <div class="rounded-visible-border form-list">
+
+                <div class="class-dashboard-help-queue-item centering-flex">
+
+                    <div class="dashboard-text bold">Lab Name</div>
+
+                    <div class="flex-divider"></div>
+
+                </div>
+
+            </div>
+
+            <div class="default-text form-error"></div>
+
+        </div>
+
+
+
+    </div>
+
+</div>
+
+<div id="dashboard-assign-lab-modal" class="basic-modal-item active">
+
+    <form id="dashboard-assign-lab-modal-form" name="assign-lab" class="centering-flex modal-form">
+
+        <div class="default-text title">Assign Lab</div>
+
+        <div></div>
+
+        <div>
+            <!-- Select Module  -->
+            <div class="default-text form-title">Action</div>
+
+            <!-- WHEN A CHECK BOX IS SELECTED BY THE USER, CHANGE THE ICON TO 'check_box'-->
+
+            <select id="dashboard-assign-lab-modal-action" name="assign-action" normal>
+
+                <option value="assign">Assign</option>
+                <option value="remove">Remove</option>
+
+            </select>
+                                
+            <div class="default-text form-error"></div>
+    
+        </div>
+
+        <div>
+            <!-- Select Module  -->
+            <div class="default-text form-title">Select a Lab Module</div>
+
+            <!-- STORE SELECTED VALUES IN THIS INPUT -->
+            <input id="dashboard-assign-lab-modal-selected-module" name="selectedModule" type="hidden" required>
+
+            <!-- WHEN A CHECK BOX IS SELECTED BY THE USER, CHANGE THE ICON TO 'check_box'-->
+
+            <div class="rounded-visible-border form-list">
+
+                @foreach (var module in SelectedModules) {
+
+                    <div class="class-dashboard-help-queue-item centering-flex">
+
+                        <div class="dashboard-text bold">@module.LabName</div>
+
+                        <div class="flex-divider"></div>
+
+                        <div class="class-dashboard-help-queue-item-buttons item-spacer-right">
+
+                            <button type="button" class="icon-button" title="Select" @onclick="e => UnCheck(module)">
+                                <span class="material-icons">check_box</span>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                }
+
+                @foreach (var module in UnSelectedModules) {
+
+                    <div class="class-dashboard-help-queue-item centering-flex">
+
+                        <div class="dashboard-text bold">@module.LabName</div>
+
+                        <div class="flex-divider"></div>
+
+                        <div class="class-dashboard-help-queue-item-buttons item-spacer-right">
+
+                            <button type="button" class="icon-button" title="Team Info">
+                                <span class="material-icons">info</span>
+                            </button>
+
+                            <button type="button" class="icon-button" title="Select" @onclick="e => Check(module)">
+                                <span class="material-icons">check_box_outline_blank</span>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                }
+
+
+            </div>
+
+            <div class="default-text form-error"></div>
+
+        </div>
+
+        <div>
+            <!-- Select Teams  -->
+
+            <div class="default-text centering-flex">
+
+                <div class="dashboard-text bold">Select Teams to Assign</div>
+
+                <div class="flex-divider"></div>
+
+                <div class="class-dashboard-help-queue-item-buttons item-spacer-right">
+
+                    <button type="button" class="icon-button" title="Select All" @onclick="TeamSelectAll">
+                        <span class="material-icons">select_all</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- STORE SELECTED VALUES IN THIS INPUT -->
+            <input id="dashboard-assign-lab-modal-selected-teams" name="selectedTeams" type="hidden" required>
+
+            <!-- WHEN A CHECK BOX IS SELECTED BY THE USER, CHANGE THE ICON TO 'check_box'-->
+
+            <div class="rounded-visible-border form-list">
+
+                @foreach (var team in SelectedTeams) {
+
+                    <div class="class-dashboard-help-queue-item centering-flex">
+
+                        <div class="dashboard-text bold">@team.TeamName</div>
+
+                        <div class="flex-divider"></div>
+
+                        <div class="class-dashboard-help-queue-item-buttons item-spacer-right">
+
+                            <button type="button" class="icon-button" title="Select" @onclick="t => TeamUnCheck(team)">
+                                <span class="material-icons">check_box</span>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                }
+
+                @foreach (var team in UnSelectedTeams) {
+
+                    <div class="class-dashboard-help-queue-item centering-flex">
+
+                        <div class="dashboard-text bold">@team.TeamName</div>
+
+                        <div class="flex-divider"></div>
+
+                        <div class="class-dashboard-help-queue-item-buttons item-spacer-right">
+
+                            <button type="button" class="icon-button" title="Select" @onclick="t => TeamCheck(team)">
+                                <span class="material-icons">check_box_outline_blank</span>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                }
+
+            </div>
+
+            <div class="default-text form-error"></div>
+
+        </div>
+
+        <div>
+
+            <input type="submit" id="create-lab-equipment-tool-create" value="Assign" class="noselect rounded-button dashboard-form-next-button" @onclick="Submit" >
+            <div class="default-text form-error"></div>
+
+        </div>
+
+    </form>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public EventCallback HideAssignLab { get; set; }
+
+    [Parameter]
+    public Dictionary<string, SessionTeam> SessionInfo { get; set; }
+
+    string Action = "Assign";
+
+    public List<ModuleEntity> SelectedModules = new List<ModuleEntity>();
+
+    public List<ModuleEntity> UnSelectedModules;
+
+    public List<TeamEntity> SelectedTeams = new List<TeamEntity>();
+    public List<TeamEntity> UnSelectedTeams = new List<TeamEntity>();
+
+    protected override async Task OnInitializedAsync() {
+        UnSelectedModules = dbContext.Modules.ToList();
+
+        foreach (var team in SessionInfo) {
+            TeamEntity temp = dbContext.Teams.Where(t => t.TeamId.ToString() == team.Key).FirstOrDefault();
+            UnSelectedTeams.Add(temp);
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    public void UnCheck(ModuleEntity module) {
+        if (SelectedModules.Contains(module)) {
+            SelectedModules.Remove(module);
+            UnSelectedModules.Add(module);
+            StateHasChanged();
+        }
+    }
+
+    public void Check(ModuleEntity module) {
+        if (UnSelectedModules.Contains(module)) {
+            UnSelectedModules.Remove(module);
+            SelectedModules.Add(module);
+            StateHasChanged();
+        }
+    }
+
+    public void TeamUnCheck(TeamEntity team) {
+        if (SelectedTeams.Contains(team)) {
+            SelectedTeams.Remove(team);
+            UnSelectedTeams.Add(team);
+            StateHasChanged();
+        }
+    }
+
+    public void TeamCheck(TeamEntity team) {
+        if (UnSelectedTeams.Contains(team)) {
+            UnSelectedTeams.Remove(team);
+            SelectedTeams.Add(team);
+            StateHasChanged();
+        }
+    }
+
+    public void TeamSelectAll() {
+        if (UnSelectedTeams.Count == 0) {
+            UnSelectedTeams.AddRange(SelectedTeams);
+            SelectedTeams = new List<TeamEntity>();
+        }
+        else {
+            SelectedTeams.AddRange(UnSelectedTeams);
+            UnSelectedTeams = new List<TeamEntity>();
+        }
+        StateHasChanged();
+    }
+
+
+    public async void Submit() {
+        await HideAssignLab.InvokeAsync();
+    }
+
+
+}

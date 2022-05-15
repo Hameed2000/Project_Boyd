@@ -1,0 +1,153 @@
+﻿@using ProjectBoyd.Models.EntityModels;
+@using ProjectBoyd.Models.ObjectModels;
+
+
+@{ 
+    var header = "No Active Class";
+}
+
+@if (Page == "Main") {
+    <div class="list-flex dashboard-grid-item item-1">
+        <!-- active class-->
+
+        @if (Session != null) {
+            header = "Active Class";
+        }
+        <div class="dashboard-text bold" style="margin-bottom:15px">@header</div>
+
+        @if (Session != null) {
+            <div class="rounded-visible-border dashboard-class-join-code active">
+
+                <div class="dashboard-text noselect">Join Code:</div>
+                <div class="dashboard-text title">@Session.JoinCode</div>
+
+            </div>
+        }
+
+        <div class="flex-divider"></div>
+
+        <div style="width: 100%;">
+
+            @if (Session == null) {
+
+            <div id="dashboard-class-inactive-buttons" class="centering-flex dashboard-button-container active">
+
+                <a class="rounded-button centering-flex" href="instructor/sessiongenerator" style="background-color: var(--accent-color);">
+
+                    <div class="default-text" style="color:white;">Create Session</div>
+
+                </a>
+
+            </div>
+
+            }
+            else {
+
+                <div id="dashboard-class-active-buttons" class="centering-flex dashboard-button-container active">
+
+                    <button class="rounded-button centering-flex" href="instructor/sessiongenerator" style="background-color: var(--accent-color);" @onclick="ClassroomDashboard">
+
+                        <div class="default-text" style="color:white;">Class Dashboard</div>
+
+                    </button>
+
+                    <button class="rounded-button centering-flex" style="background-color: var(--error-color);" onclick="location.href='instructor/sessiongenerator'">
+
+                        <div class="default-text" style="color:white;">End Class</div>
+
+                    </button>
+
+                </div>
+
+            }
+
+        </div>
+
+
+    </div>
+} else if(Session != null) {
+
+    <div class="list-flex dashboard-grid-item class-item-1">
+        <!-- active class-->
+
+
+        <div class="dashboard-text bold" style="margin-bottom:15px">Class in Session</div>
+
+        <div class="rounded-visible-border dashboard-class-join-code active">
+
+            <div class="dashboard-text noselect">Join Code:</div>
+            <div class="dashboard-text title">@Session.JoinCode</div>
+
+        </div>
+
+        <div class="flex-divider"></div>
+
+
+        <div style="width: 100%;">
+
+            <div id="class-dashboard-class-buttons" class="centering-flex dashboard-button-container active">
+
+                <button class="rounded-button centering-flex" href="instructor/sessiongenerator" style="background-color: var(--accent-color);" @onclick="MainDashboard">
+
+                    <div class="default-text" style="color:white;">Main Dashboard</div>
+
+                </button>
+
+                <button class="rounded-button centering-flex" style="background-color: var(--error-color);" onclick="location.href='instructor/sessiongenerator'">
+
+                    <div class="default-text" style="color:white;">End Class</div>
+
+                </button>
+
+                <button class="rounded-button centering-flex" style="background-color: var(--dashboard-accent-color-2);" @onclick="ShowAssignLab">
+
+                    <div class="default-text" style="color:white;">Assign Lab</div>
+
+                </button>
+
+                <button class="rounded-button centering-flex" style="background-color: var(--dashboard-accent-color-1);" @onclick="ShowSendMessage">
+
+                    <div class="default-text" style="color:white;">Send Message</div>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+}
+
+
+@code {
+
+    [Parameter]
+    public EventCallback ClassroomDashboard { get; set; }
+
+    [Parameter]
+    public EventCallback MainDashboard { get; set; }
+
+    [Parameter]
+    public EventCallback ShowAssignLab { get; set; }
+
+    [Parameter]
+    public EventCallback ShowSendMessage { get; set; }
+
+
+    [Parameter]
+    public string Page { get; set; }
+
+    [Parameter]
+    public SessionEntity Session { get; set; }
+
+
+    public void ChangePage(string pageName) {
+        Page = pageName;
+        Console.WriteLine(Page);
+        StateHasChanged();
+    }
+
+
+}

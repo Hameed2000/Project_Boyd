@@ -1,0 +1,11 @@
+﻿@{
+    ViewData["Title"] = "Data Table";
+    string page = "StudentDataTable";
+}
+
+<link rel="stylesheet" href="~/css/student/session_pages.css" />
+<link rel="stylesheet" href="~/css/student/student_data_table.css" />
+
+<partial name="_SideBarStudent" model="page" />
+
+<component type="typeof(StudentDataTable)" render-mode="ServerPrerendered" />

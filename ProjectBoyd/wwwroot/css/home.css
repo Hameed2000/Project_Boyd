@@ -1,0 +1,90 @@
+﻿body {
+    font-family: 'Source Sans Pro', sans-serif;
+    background-color: #202020;
+/*    background-image: linear-gradient(to bottom right, rgba(25, 98, 164, .98), silver);    
+*/    /*background-image: linear-gradient(to bottom right, #1a1a1a, rgba(25, 98, 164, .98));*/
+}
+
+#main-container {
+    position: absolute;
+    top: 150px;
+    margin: 0 auto;
+    right: 0;
+    left: 0;
+}
+
+#emr-logo {
+    max-width: min(100%, 450px) !important;
+    min-width: min(100%, 450px);
+    filter: saturate(180%) contrast(83%) brightness(110%);
+    margin: auto;
+    display: block;
+}
+
+h1 {
+    font-size: calc(1.3em + 1.1vw);
+    font-weight: 500;
+    color: white;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#button-container {
+    margin-top: 70px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.ind-btn-container > a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: calc(110px + 1vw);
+    height: calc(110px + 1vw);
+    margin: 40px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+    border-radius: 20px;
+    border: none;
+}
+
+    .ind-btn-container > a > img {
+        width: 80%;
+        height: auto;
+        vertical-align: middle;
+    }
+
+#instructor-btn, #int-information {
+    background-color: rgba(45, 112, 203, .9);
+}
+
+#student-btn, #std-information {
+    background-color: rgba(205, 206, 209, .9);
+}
+
+.btn-information {
+    position: relative;
+    margin: auto;
+    text-align: center;
+
+    width: calc(110px + 1vw);
+    padding: 5px;
+    border-radius: 10px;
+
+    color: white;
+    font-weight: 600;
+    letter-spacing: 2px;
+
+    transform: translateY(-50px);
+    transition-duration: 500ms;
+    opacity: 0;
+    z-index: -1;
+}
+
+.ind-btn-container:hover > p {
+    transform: translateY(0px);
+    opacity: 1;
+}

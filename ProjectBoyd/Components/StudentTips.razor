@@ -1,0 +1,266 @@
+﻿@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.AspNetCore.WebUtilities;
+@using ProjectBoyd.Models;
+@using ProjectBoyd.Data;
+@using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+@using ProjectBoyd.Models.EntityModels;
+@using ProjectBoyd.Models.ObjectModels;
+@using ProjectBoyd.Models.EntityModels.LabEntities;
+@using Microsoft.AspNetCore.Identity;
+
+@inject UserManager<ApplicationUser> userManager
+@inject ApplicationDbContext dbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined">
+
+
+<div id="body-main">
+
+    <StudentMessage>  </StudentMessage>
+
+    <!-- MODALS GO HERE -->
+    <div id="main-modal-container" class="basic-modal-container">
+
+        <div id="confirmation-modal" class="basic-modal-item">
+
+            <div class="list-flex" style="width:100%;">
+
+                <!-- close button -->
+
+                <button id="confirmation-modal-close" class="icon-button" style="position: absolute; top: 0px; right: 0px; padding:5px;" type="button">
+                    <span class="material-icons" style="margin:auto;font-size:25px">close</span>
+                </button>
+
+                <div class="default-text title" style="margin-bottom:15px;text-align: left;">confirmation_title</div>
+
+                <div class="default-text" style="margin-bottom: 15px; font-size: 1.1em;text-align: left;">confirmation_body</div>
+
+                <div style="height:35px" class="basic-modal-button-container active">
+
+                    <div id="confirmation-modal-one-option" class="centering-flex basic-modal-button-container">
+
+                        <button class="rounded-button centering-flex">
+
+                            <div class="default-text" style="color: inherit">option_text</div>
+
+                        </button>
+
+                    </div>
+
+                    <div id="confirmation-modal-two-option" class="centering-flex basic-modal-button-container">
+
+                        <button class="rounded-button centering-flex">
+
+                            <div class="default-text" style="color: inherit">option_text</div>
+
+                        </button>
+
+                        <button class="rounded-button centering-flex">
+
+                            <div class="default-text" style="color: inherit">option_text</div>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- the main body container-->
+    <div class="nav-bar">
+        <button id="menu-toggle" class="icon-button" style="height:55px;width:55px;margin-left:15px;display:none;">
+            <span class="material-icons" style="margin:auto;font-size:30px">menu</span>
+        </button>
+
+        <div class="flex-divider"></div>
+
+    </div>
+
+
+    @if (sessionTeamInfo != null) {
+
+        <!-- PAGE CONTENT GOES HERE -->
+
+        <div class="session-panel-container active" style="max-width: 600px;">
+
+            <div class="session-panel active">
+                <!-- main panel -->
+
+                <div class="default-text title">Module Tips</div>
+
+                <div class="rounded-visible-border form-list">
+
+                    <div class="session-list-entry centering-flex">
+
+                        <div class="session-list-entry-text default-text bold">Having a hard time finding your device? Use the schematics in the classroom on the wall!</div>
+
+                        <div class="flex-divider"></div>
+
+
+                        @foreach (var tip in sessionTeamInfo.TipsLiked) {
+
+
+                            <div class="item-spacer-right session-list-entry-buttons">
+
+                                <!-- When a user clicks thumbs up/down, change 'material-icons-outlined' to 'material-icons' for the button they clicked-->
+                                <button type="button" class="icon-button centering-flex" title="Select" @onclick="t => LikeTip(tip)">
+
+                                    <span class="material-icons">thumb_up</span>
+
+                                    <span class="default-text bold">@tip.ThumbsUp</span>
+
+                                </button>
+
+                                <button type="button" class="icon-button centering-flex" title="Select" @onclick="t => DislikeTip(tip)">
+
+                                    <span class="material-icons-outlined">thumb_down</span>
+
+                                    <span class="default-text bold">@tip.ThumbsDown</span>
+
+                                </button>
+
+                            </div>
+
+                        }
+
+                        @foreach (var tip in sessionTeamInfo.TipsDisliked) {
+
+
+                            <div class="item-spacer-right session-list-entry-buttons">
+
+                                <!-- When a user clicks thumbs up/down, change 'material-icons-outlined' to 'material-icons' for the button they clicked-->
+                                <button type="button" class="icon-button centering-flex" title="Select" @onclick="t => LikeTip(tip)">
+
+                                    <span class="material-icons-outlined">thumb_up</span>
+
+                                    <span class="default-text bold">@tip.ThumbsUp</span>
+
+                                </button>
+
+                                <button type="button" class="icon-button centering-flex" title="Select" @onclick="t => DislikeTip(tip)">
+
+                                    <span class="material-icons">thumb_down</span>
+
+                                    <span class="default-text bold">@tip.ThumbsDown</span>
+
+                                </button>
+
+                            </div>
+
+                        }
+
+                        @foreach (var tip in RemainderTips) {
+
+
+                            <div class="item-spacer-right session-list-entry-buttons">
+
+                                <!-- When a user clicks thumbs up/down, change 'material-icons-outlined' to 'material-icons' for the button they clicked-->
+                                <button type="button" class="icon-button centering-flex" title="Select" @onclick="t => LikeTip(tip)">
+
+                                    <span class="material-icons-outlined">thumb_up</span>
+
+                                    <span class="default-text bold">@tip.ThumbsUp</span>
+
+                                </button>
+
+                                <button type="button" class="icon-button centering-flex" title="Select" @onclick="t => DislikeTip(tip)">
+
+                                    <span class="material-icons-outlined">thumb_down</span>
+
+                                    <span class="default-text bold">@tip.ThumbsDown</span>
+
+                                </button>
+
+                            </div>
+
+                        }
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+    }
+
+
+</div>
+
+
+
+
+@code {
+
+    ApplicationUser currentUser;
+    TeamEntity team;
+    SessionTeam sessionTeamInfo;
+
+    List<TipsEntity> RemainderTips;
+
+    protected override async Task OnInitializedAsync() {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        currentUser = await userManager.FindByNameAsync(user.Identity.Name);
+        team = dbContext.Teams.Where(t => t.AccountId == currentUser.Id).FirstOrDefault();
+        sessionTeamInfo = SessionInfo.SessionInfoList.GetValueOrDefault(team.SessionId).GetValueOrDefault(team.TeamId.ToString());
+
+        RemainderTips = sessionTeamInfo.LabQueue.ElementAt(0).Tips.ToList();
+
+        for (int i = 0; i < RemainderTips.Count; i++) {
+            var tip = RemainderTips.ElementAt(i);
+            if (sessionTeamInfo.TipsLiked.Contains(tip) || sessionTeamInfo.TipsDisliked.Contains(tip)) {
+                RemainderTips.Remove(tip);
+            }
+        }
+
+    }
+
+    public async void LikeTip(TipsEntity tip) {
+        if (sessionTeamInfo.TipsDisliked.Contains(tip)) {
+            sessionTeamInfo.TipsDisliked.Remove(tip);
+            tip.ThumbsDown--;
+        } else if (RemainderTips.Contains(tip)) {
+            RemainderTips.Remove(tip);
+        } else {
+            return;
+        }
+
+        tip.ThumbsUp++;
+        sessionTeamInfo.TipsLiked.Add(tip);
+        dbContext.Tips.Update(tip);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async void DislikeTip(TipsEntity tip) {
+        if (sessionTeamInfo.TipsLiked.Contains(tip)) {
+            sessionTeamInfo.TipsLiked.Remove(tip);
+            tip.ThumbsUp--;
+        }
+        else if (RemainderTips.Contains(tip)) {
+            RemainderTips.Remove(tip);
+        }
+        else {
+            return;
+        }
+
+        tip.ThumbsDown++;
+        sessionTeamInfo.TipsDisliked.Add(tip);
+        dbContext.Tips.Update(tip);
+        await dbContext.SaveChangesAsync();
+    }
+
+}

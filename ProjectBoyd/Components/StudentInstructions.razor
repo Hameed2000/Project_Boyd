@@ -1,0 +1,391 @@
+﻿@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Microsoft.AspNetCore.WebUtilities;
+@using ProjectBoyd.Models;
+@using ProjectBoyd.Data;
+@using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+@using ProjectBoyd.Models.EntityModels;
+@using ProjectBoyd.Models.ObjectModels;
+@using Microsoft.AspNetCore.Identity;
+
+
+@inject UserManager<ApplicationUser> userManager
+@inject ApplicationDbContext dbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
+
+
+
+<div id="body-main">
+
+    <!-- MODALS GO HERE -->
+  
+    <StudentMessage>  </StudentMessage>
+
+    <!-- the main body container-->
+    <div class="nav-bar">
+        <button id="menu-toggle" class="icon-button" style="height:55px;width:55px;margin-left:15px;display:none;">
+            <span class="material-icons" style="margin:auto;font-size:30px">menu</span>
+        </button>
+
+        <div class="flex-divider"></div>
+    </div>
+
+
+    @if (sessionTeamInfo != null) {
+
+        <!-- PAGE CONTENT GOES HERE -->
+        @if (page == "Menu") {
+            <div>
+                <!-- CATEGORIES section -->
+
+                <div class="session-panel-container active">
+
+                    <div id="instruction-categories" class="session-panel active">
+
+                        <div class="default-text title">Categories</div>
+
+                        <div class="instruction-categories-button-holder">
+
+                            <button class="rounded-button centering-flex" @onclick="EquipmentListMenu" style="background-color: var(--accent-color);color:rgb(255, 255, 255)">
+                                <span class="material-icons">checklist</span>
+                                Equipment Checklist
+                            </button>
+
+                            <button class="rounded-button centering-flex" @onclick="WorkOrderMenu" style="background-color: var(--content-color);color:rgb(255, 255, 255)">
+                                <span class="material-icons">work</span>
+                                Work Order
+                            </button>
+
+                            <button class="rounded-button centering-flex" @onclick="SafetyWarningMenu" style="background-color: rgb(255, 185, 34);color:rgb(255, 255, 255)">
+                                <span class="material-icons">health_and_safety</span>
+                                Safety Warning
+                            </button>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+            </div>
+        }
+        else {
+
+            <div class="session-panel-container active">
+
+                @if (page == "AssignedPopUp") {
+
+                    <div id="instructions-panel-1" class="session-panel active">
+
+                        <div class="default-text title">You have been assigned to a lab!</div>
+
+                        <div class="centering-flex" style="flex-direction: column;">
+
+                            <div class="default-text" style="font-size:1.1em;font-weight: bold;margin-bottom:10px"> @sessionTeamInfo.LabQueue.ElementAt(0).LabName </div>
+                            <img class="avatar-icon" src=@sessionTeamInfo.LabQueue.ElementAt(0).LabIconAddress style="width:100px;height:100px">
+
+                        </div>
+
+                        <div class="default-text" style="font-size: 1.1em">
+                            @*You have been tasked with a work permit to configure and calibrate <em style="color:var(--accent-color)">Tag F420</em>. Note that the device has been disconfigured.*@
+                            @sessionTeamInfo.LabQueue.ElementAt(0).LabDescription;
+                        </div>
+
+                        <div></div>
+
+                        <div class="centering-flex" style="width: 100%;">
+
+                            <button type="button" @onclick="@(() => AssignedPopUpNext("Deny"))" id="session-instructions-lab-decline" class="rounded-button default-text" style="font-size:1.1em; flex: 45%; background-color: var(--error-color); color: #fff;">Decline</button>
+
+                            <div class="flex-divider"></div>
+
+                            <button type="button" @onclick="@(() => AssignedPopUpNext("Accept"))" id="session-instructions-lab-start" class="rounded-button default-text" style="font-size:1.1em; flex: 45%; background-color: var(--accent-color); color: #fff;">Start</button>
+
+                        </div>
+
+                    </div>
+                }
+                else if (page == "EquipmentCheckList") {
+
+                    <div id="instructions-panel-2" class="session-panel active">
+
+                        <div class="default-text title">Equipment Checklist</div>
+
+                        <div class="default-text" style="font-size: 1.1em">
+                            Select the correct equipment you'll need to complete this module:
+                        </div>
+
+                        <div></div>
+
+                        <form id="equipment-checklist-form" name="registerAccount" class="list-flex">
+
+                            <div class="equipment-checklist-entries">
+
+                                @foreach (var tool in sessionTeamInfo.EquipmentList) {
+                                    <div class="equipment-checklist-entry centering-flex">
+                                        <input id="equipment-checkbox-template" type="checkbox" @onchange="e => UpdateToolCheck(tool.Key, e.Value)">
+                                        <label for="equipment-checkbox-template" class="default-text" style="font-size: 1.1em">@tool.Key</label>
+                                    </div>
+                                }
+
+                            </div>
+
+                            <div></div>
+
+                            <div>
+
+                                <input id="equipment-checklist-next" class="noselect" type="submit" @onclick="EquipmentCheckListNext" value="Next" style="background-color: var(--accent-color); color: #fff;">
+                                <div class="default-text form-error"></div>
+
+                            </div>
+
+
+                        </form>
+
+
+                    </div>
+
+                }
+                else if (page == "WorkOrder") {
+
+                    <div id="instructions-panel-3" class="session-panel active">
+
+                        <div class="default-text title">Work Order</div>
+
+                        <div class="instruction-info-field">
+                            <!-- TAG NAME -->
+                            <div class="default-text form-title">Tag</div>
+
+                            <div class="default-text instruction-info-field-text">@sessionTeamInfo.TagAssigned.TagName</div>
+
+                        </div>
+
+                        <div class="instruction-info-field">
+                            <!-- DESCRIPTION -->
+                            <div class="default-text form-title">Description</div>
+
+                            <div class="default-text instruction-info-field-text">@sessionTeamInfo.LabQueue.ElementAt(0).WorkOrder.Description</div>
+
+                        </div>
+
+                        <div></div>
+
+                        <div class="default-text title">Tasks</div>
+
+                        <form id="equipment-checklist-form" name="registerAccount" class="list-flex">
+
+                            <div class="equipment-checklist-entries" style="max-height: 200px;">
+
+                                @foreach (var task in sessionTeamInfo.TaskList) {
+                                    <div class="equipment-checklist-entry centering-flex">
+                                        <input id="work-order-checkbox-template" type="checkbox" @onchange="e => UpdateTaskCheck(task.Key, e.Value)">
+                                        <label for="work-order-checkbox-template" class="default-text" style="font-size: 1.1em">@task.Key</label>
+                                    </div>
+                                }
+
+                            </div>
+
+                            <div></div>
+
+                            <div>
+
+                                <input id="work-order-next" class="noselect" type="submit" @onclick="WorkOrderNext" value="Next" style="background-color: var(--accent-color); color: #fff;">
+                                <div class="default-text form-error"></div>
+
+                            </div>
+
+
+                        </form>
+
+
+                    </div>
+
+                }
+                else if (page == "SafetyWarning") {
+
+                    <div id="instructions-panel-4" class="session-panel active">
+
+                        <div class="default-text title">Safety Warning</div>
+
+                        <div class="default-text" style="font-size: 1.1em;color:var(--error-color)">
+                            Remember to take precautions against hazards and to obtain the proper permits.
+                        </div>
+
+                        <div></div>
+
+                        <div class="centering-flex">
+
+                            <div class="session-instructions-safety-list">
+
+                                <div class="default-text">Potential Hazards:</div>
+
+                                <ul class="safety-bullet-list list-flex">
+
+                                    <li class="default-text">Hazard Template</li>
+
+                                </ul>
+
+                            </div>
+
+                            <div class="flex-divider"></div>
+
+                            <div class="session-instructions-safety-list">
+
+                                <div class="default-text">Potential Permits:</div>
+
+                                <ul class="safety-bullet-list list-flex">
+
+                                    <li class="default-text">Permit Template</li>
+
+                                </ul>
+
+                            </div>
+
+
+                        </div>
+
+                        <div></div>
+
+                        <!-- safety equipment warning -->
+
+                        <div class="centering-flex">
+
+                            <span class="material-icons default-text" style="font-size:3em;margin:auto 15px;color:#ffe606">engineering</span>
+                            <span class="default-text" style="margin:auto 15px; color:#ffe606">Always remember to wear the proper safety equipment.</span>
+
+                        </div>
+
+                        <div></div>
+
+                        <form id="equipment-checklist-form" name="registerAccount" class="list-flex">
+
+                            <div class="equipment-checklist-entries plain" style="max-height: 200px;">
+
+                                <div class="equipment-checklist-entry centering-flex">
+                                    <input id="safety-warning-checkbox" type="checkbox" @bind="SafetyChecked">
+                                    <label for="safety-warning-checkbox" class="default-text" style="font-size: 1.1em">I understand the above risks.</label>
+                                </div>
+
+                            </div>
+
+                            <div>
+
+                                <input id="work-order-next" class="noselect" @onclick="SafetyNext" type="submit" value="Next" style="background-color: var(--accent-color); color: #fff;">
+                                <div class="default-text form-error"></div>
+
+                            </div>
+
+
+                        </form>
+
+
+                    </div>
+
+                }
+
+            </div>
+
+        }
+
+    }
+</div>
+
+
+@code {
+
+    string page = "Waiting";
+
+    ApplicationUser currentUser;
+    TeamEntity team;
+    SessionTeam sessionTeamInfo;
+    bool labAssigned = false;
+
+
+
+    protected override async Task OnInitializedAsync() {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        currentUser = await userManager.FindByNameAsync(user.Identity.Name);
+        team = dbContext.Teams.Where(t => t.AccountId == currentUser.Id).FirstOrDefault();
+        sessionTeamInfo = SessionInfo.SessionInfoList.GetValueOrDefault(team.SessionId).GetValueOrDefault(team.TeamId.ToString());
+
+        if (sessionTeamInfo.LabQueue.Count == 0) {
+            page = "Waiting";
+        }
+        else if (sessionTeamInfo.CompletedFirstRun) {
+            page = "Menu";
+            SafetyChecked = true;
+        }
+        else {
+            page = "AssignedPopUp";
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+
+        //if (firstRender) {
+        await JSRuntime.InvokeVoidAsync("DisableFormss");
+        //}
+
+    }
+
+
+    public void AssignedPopUpNext(string action) {
+        if (action == "Accept") {
+            SessionInfo.PopulateValues(team.SessionId, team.TeamId.ToString());
+            page = "EquipmentCheckList";
+        }
+        else {
+            sessionTeamInfo.LabQueue.RemoveAt(0);
+            page = "Waiting";
+        }
+    }
+
+    public void EquipmentCheckListNext() {
+        page = "WorkOrder";
+    }
+
+    public void WorkOrderNext() {
+        page = "SafetyWarning";
+    }
+
+
+    public bool SafetyChecked = false;
+    public void SafetyNext() {
+        if (SafetyChecked) {
+            sessionTeamInfo.CompletedFirstRun = true;
+            NavManager.NavigateTo("/Student/StudentDataTable", true);
+        }
+    }
+
+    public void EquipmentListMenu() {
+        page = "EquipmentCheckList";
+    }
+
+    public void WorkOrderMenu() {
+        page = "WorkOrder";
+    }
+
+    public void SafetyWarningMenu() {
+        page = "SafetyWarning";
+    }
+
+
+
+    public void UpdateToolCheck(string toolKey, object val) {
+        sessionTeamInfo.EquipmentList[toolKey] = (bool) val;
+    }
+
+    public void UpdateTaskCheck(string taskKey, object val) {
+        sessionTeamInfo.EquipmentList[taskKey] = (bool)val;
+    }
+
+}

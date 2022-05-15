@@ -1,0 +1,381 @@
+/* lists */
+    .lab-item-list {
+
+        display: flex;
+        justify-content: left;
+        align-items: top;
+
+        flex-direction: column;
+
+        box-sizing: border-box;
+
+        padding: 10px;
+
+        overflow: auto;
+
+        max-height: 400px;
+
+    }
+
+    .lab-item-list > * {
+
+        width: 100%;
+
+        margin-bottom: 15px;
+
+    }
+
+    .lab-item-list > *:last-child {
+
+        margin-bottom: 0px;
+
+    }
+    
+    .lab-list-empty {
+
+        display: none;
+
+    }
+
+    .lab-list-empty:only-child {
+
+        display: block;
+
+    }
+
+    /* list items */
+
+        .lab-list-item {
+
+            padding: 5px 10px;
+
+            border: 1px solid var(--hover-color);
+
+            background-color: rgba(0,0,0,0.1);
+
+            box-sizing: border-box;
+
+            border-radius: 8px;
+
+        }
+
+        .lab-list-item-text {
+
+            font-size: 1.1em;
+
+            font-weight: bold;
+
+            margin: 0px;
+
+            color: #fff;
+
+            padding: 5px 0px;
+
+        }
+
+        .lab-list-item-icon-buttons > * {
+
+            padding: 5px;
+
+        }
+
+        .lab-list-item-icon-buttons > * > .material-icons {
+
+            margin: auto;
+
+            font-size: 25px;
+
+        }
+
+/* create lab button */
+
+    #create-lab-button {
+
+        background-color: var(--accent-color);
+        
+        color: white;
+
+    }
+
+    #create-lab-button > .lab-list-item-text {
+        
+        color: white;
+
+    }
+
+    #create-lab-button > .material-icons {
+
+        font-size: 25px;
+
+    }
+
+/* form stuff */
+
+    .lab-form {
+
+        flex-direction: column;
+
+        height: 100%;
+
+        width: 100%;
+
+    }
+
+    .lab-form > * {
+
+        width: 100%;
+
+        margin-bottom: 15px;
+
+    }
+
+    .lab-form > *:last-child {
+
+        margin-bottom: 0px;
+
+    }
+
+    .lab-form-next-button {
+
+        background-color: var(--accent-color);
+        color: white;
+
+        width: 100%;
+        flex: 50%;
+
+    }
+
+/* buttons */
+
+    #create-lab-add-equipment {
+
+        background-color: var(--content-color);
+        color: white;
+
+    }
+
+/* icon stuff */
+    .create-lab-icon-empty {
+
+        padding: 10px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+
+        background-color: rgba(0,0,0,0.1);
+
+        color: var(--text-color);
+
+        height: 100%;
+        width: 100%;
+
+        box-sizing: border-box;
+
+        position: absolute;
+
+        top:0;
+        bottom:0;
+        right:0;
+        left:0;
+
+    }
+
+    .create-lab-icon-empty > .material-icons {
+
+        font-size: 40px;
+
+    }
+
+    .create-lab-icon-empty > .default-text {
+
+        font-size: 0.7em;
+
+        color: inherit
+
+    }
+
+    .create-lab-image-submission {
+
+        height: 120px;
+
+        width: 120px;
+
+        background: none;
+
+        box-sizing: border-box;
+
+        position: relative;
+
+    }
+
+    /* panel 3 image upload stuff */
+        #create-lab-panel-3-sheet-img-button {
+
+            height: 100px;
+
+            width: 100%;
+
+        }
+
+    /* panel 1 icon */
+        .create-lab-image-submission-icon {
+
+            position: absolute;
+
+            object-fit: cover;
+
+            display: none;
+
+            height: 100%;
+
+            width: 100%;
+
+            z-index: 3;
+
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+
+        }
+
+        .create-lab-image-submission-icon.active {
+
+            display: block
+    
+        }
+
+/* icon selector modal */
+
+    #create-lab-icon-selector-container {
+        
+        padding: 10px;
+
+        display: flex;
+
+        justify-content: center;
+        align-items: flex-start;
+
+        gap: 10px 10px; /* row gap, column gap */
+
+        flex-wrap: wrap;
+
+        box-sizing: border-box;
+
+        max-height: 450px;
+
+        overflow: auto;
+
+    }
+
+    .create-lab-icon-selector-icon {
+
+        height: 80px;
+
+        width: 80px;
+
+        box-sizing: border-box;
+
+        border-radius: 8px;
+        
+        position: relative;
+
+    }
+
+    .create-lab-icon-selector-icon > img {
+
+        position: absolute;
+
+        border-radius: inherit;
+
+        height: 100%;
+
+        top:0;
+        bottom:0;
+        right:0;
+        left:0;
+
+    }
+
+    
+
+/* image uploader */
+    .create-lab-image-upload-file-name {
+
+        display: none;
+
+    }
+
+    .create-lab-image-upload-file-name.active {
+
+        display: block;
+
+    }
+
+    .create-lab-upload-image-preview-container {
+
+        max-height: 500px;
+        
+        width: 100%;
+
+        box-sizing: border-box;
+
+        display: none;
+
+    }
+
+    .create-lab-upload-image-preview-container.active {
+
+        display: block
+
+    }
+
+    .create-lab-upload-image-preview {
+
+        object-fit: cover;
+
+        max-width: 100% !important;
+
+        height: auto;
+        width: auto;
+
+        max-width: 100%;
+
+        border-radius: 8px;
+
+        background-color: rgba(0,0,0,0.1);
+
+    }
+
+    /* submit button */
+        #create-lab-upload-image-image {
+
+            color: var(--text-color);
+
+            font-size: 1.1em;
+
+            font-family: inherit;
+
+        }
+
+/* previous page button */
+
+    .previous-page-button-float {
+
+        position: absolute;
+
+        top: 15px;
+
+        left: 10px;
+        
+    }
+
+    .previous-page-button-float > button {
+
+        font-size: 30px;
+
+        padding: 5px;
+
+    }

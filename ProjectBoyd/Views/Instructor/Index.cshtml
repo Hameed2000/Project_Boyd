@@ -1,0 +1,58 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<link rel="stylesheet" href="~/css/dashboard.css"> <!-- main css -->
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+
+<script src="~/js/circularProgress.js"></script>
+<script src="~/js/login.js"></script>
+
+<!-- TEMPORARY, USE THIS AS A TEMPLATE TO INTEGRATE INTO YOUR CODE -->
+
+
+<partial name="_SideBar" />
+
+<component type="typeof(InstructorDashboard)" render-mode="ServerPrerendered" />
+
+
+<script>
+
+    function LoadChart() {
+        const chartElement = document.getElementById("dashboard-classes-taught-graph")
+        try {
+            const chart = new Chart(chartElement, {
+                type: "bar",
+                data: {
+                    labels: ['Feb', "Mar", "Apr", "May", "Jun"],
+                    datasets: [{
+                        label: "Classes Taught",
+                        data: [5, 3, 1, 7, 10],
+
+                        backgroundColor: ["#309DFF"],
+                        borderRadius: "5"
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+
+                }
+
+            })
+        } catch (exception_var) {
+            console.log("Graph already exists");
+        }
+
+    }
+
+</script>

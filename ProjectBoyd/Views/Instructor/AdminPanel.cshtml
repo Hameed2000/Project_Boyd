@@ -1,0 +1,10 @@
+﻿@{
+    ViewData["Title"] = "Admin Panel";
+    string page = "AdminPanel";
+}
+
+<link rel="stylesheet" href="~/css/adminpanel.css" />
+
+<partial name="_SideBar" model="page"/>
+
+<component type="typeof(AdminPanel)" render-mode="ServerPrerendered" />
