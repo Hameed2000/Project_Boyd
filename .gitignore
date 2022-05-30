@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Added by Hameed
+appsettings.json
+.vs/ 
+bin/ 
+obj/ 
