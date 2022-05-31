@@ -8,9 +8,13 @@
 
   <ItemGroup>
     <Compile Remove="Data\Migrations\**" />
+    <Compile Remove="Models\HtmlModels\Instructor\**" />
     <Content Remove="Data\Migrations\**" />
+    <Content Remove="Models\HtmlModels\Instructor\**" />
     <EmbeddedResource Remove="Data\Migrations\**" />
+    <EmbeddedResource Remove="Models\HtmlModels\Instructor\**" />
     <None Remove="Data\Migrations\**" />
+    <None Remove="Models\HtmlModels\Instructor\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,7 +38,6 @@
 
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
-    <Folder Include="Models\HtmlModels\Instructor\" />
     <Folder Include="wwwroot\Assets\Images\cds_imgs\" />
     <Folder Include="wwwroot\Assets\Images\tag_icons\" />
     <Folder Include="wwwroot\css\NewFolder\" />

@@ -1,25 +1,20 @@
 ﻿@{
     ViewData["Title"] = "Dashboard";
+    string page = "InstructorDashboard";
 }
 
-<link rel="stylesheet" href="~/css/dashboard.css"> <!-- main css -->
-
-
-
-
+<link rel="stylesheet" href="~/css/dashboard.css">
+<!-- Library used for the bar chart to represet data -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
-
-<script src="~/js/circularProgress.js"></script>
+<!-- Script for the circular progress bar -->
+<script src="~/js/dashboard-charts.js"></script>
 <script src="~/js/login.js"></script>
 
-<!-- TEMPORARY, USE THIS AS A TEMPLATE TO INTEGRATE INTO YOUR CODE -->
-
-
-<partial name="_SideBar" />
-
+<partial name="_SideBar" model="page"/>
 <component type="typeof(InstructorDashboard)" render-mode="ServerPrerendered" />
 
 
+<!-- Used to create the bar chart -->
 <script>
 
     function LoadChart() {

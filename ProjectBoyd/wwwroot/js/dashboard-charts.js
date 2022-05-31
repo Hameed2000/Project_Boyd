@@ -30,7 +30,6 @@ window.onload = function () {
     
     circularProgressBars.forEach( (element) => {
 
-
         updateCircularProgress(element,0)
 
     })

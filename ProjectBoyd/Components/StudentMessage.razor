@@ -74,8 +74,12 @@
         var user = authState.User;
         currentUser = await userManager.FindByNameAsync(user.Identity.Name);
         team = dbContext.Teams.Where(t => t.AccountId == currentUser.Id).FirstOrDefault();
-        sessionTeamInfo = SessionInfo.SessionInfoList.GetValueOrDefault(team.SessionId).GetValueOrDefault(team.TeamId.ToString());
-        sessionTeamInfo.StateHasChangedDelegate = StateHasChanged;
+        try {
+            sessionTeamInfo = SessionInfo.SessionInfoList.GetValueOrDefault(team.SessionId).GetValueOrDefault(team.TeamId.ToString());
+            sessionTeamInfo.StateHasChangedDelegate = StateHasChanged;
+        } catch(Exception e) {
+            
+        }
 
     }
 

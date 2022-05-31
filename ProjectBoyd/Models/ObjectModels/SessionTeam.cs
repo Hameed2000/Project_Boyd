@@ -13,6 +13,7 @@ namespace ProjectBoyd.Models.ObjectModels {
 
         public bool CompletedFirstRun { get; set; } = false;
         public bool AwaitingApproval { get; set; } = false;
+        public bool NeedHelp { get; set; } = false;
         public string Status { get; set; } = "Awaiting Lab";
         public List<ModuleEntity> LabQueue { get; set; } = new List<ModuleEntity>();
         //Search through the static list when assigning a tag, if the tag is used in its session, select the next tag and search through the list, if you reach the end of the list assign them the first tag

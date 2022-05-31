@@ -1,9 +1,15 @@
+// Author: Hameed Awwad
+//
+// Description
+// The Startup file is used to basically add configurations to the project
+// A lot of it is boilerplate and isn't important to understand
+// You can also use Startup to run some code you want before the project starts up, for example populating the database, or creating a super account
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity; 
-using ProjectBoyd.Models;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,11 +20,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using ProjectBoyd.Models.EntityModels;
 using ProjectBoyd.Models.ObjectModels;
 using Blazored.SessionStorage;
-using ProjectBoyd.Services;
 using ProjectBoyd.Models.EntityModels.LabEntities;
 
 namespace ProjectBoyd {
@@ -32,34 +36,37 @@ namespace ProjectBoyd {
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
 
-            //services.AddScoped<Session>();
-            //services.AddScoped<InstructorEntity>();
-
+            // This adds the database context as a service to the project that way we can access the database
+            // It sets the Connection String to "DefaultConnection"
+            // "DefaultConnection" can be found and configured to your machine in appsettings.json
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
+            // Adds the Identity service, used for authenticating user accounts
             services.AddIdentity<ApplicationUser, IdentityRole>(options => {
 
                 //options.SignIn.RequireConfirmedAccount = false;
 
             }).AddDefaultUI().AddDefaultTokenProviders().AddEntityFrameworkStores<ApplicationDbContext>();
-          
 
-            //services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-            //    .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            // Adds Microsoft login authentication
+            // I got the client ID and the client secret from https://go.microsoft.com/fwlink/?linkid=2083908
+            // I created an account for this project, and it already has this information set up
+            // We might have to work with Blaine to create an official Emerson account, but as of now I've set up a temporary account
             services.AddAuthentication().AddMicrosoftAccount(microsoftOptions => {
-                microsoftOptions.ClientId = "ac07f7f5-53a6-4f01-869a-de2f3ca768d6";//"c2ea8842-772a-4280-92a6-20db876b9e05";
-                microsoftOptions.ClientSecret = "6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";//"umm7Q~iuAjQ54lfEzTwjskiKpRekPMyhEef99";
+                microsoftOptions.ClientId = "ac07f7f5-53a6-4f01-869a-de2f3ca768d6";
+                microsoftOptions.ClientSecret = "6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";
             });
 
+
+            // Add any other services you'd like here
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddBlazoredSessionStorage();
-
             services.AddLiveReload();
         }
 
@@ -71,7 +78,6 @@ namespace ProjectBoyd {
             }
             else {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
@@ -91,25 +97,39 @@ namespace ProjectBoyd {
                 endpoints.MapRazorPages();
             });
 
+
+            // Add any code you'd like to run here in a similar format
+            // Create the methods below this method
             CreateRoles(serviceProvider).Wait();
-            RefillSessionInfoList(serviceProvider).Wait();
+            CloseActiveSessions(serviceProvider).Wait();
+
+
+            // Whenever you need to reset the database for any reason follow these steps:
+            // 1: Uncomment the two lines below
+            // 2: Delete the values in migration folder
+            // 3: Run the application
+            // 4: Recomment the two lines below
+            // 5: Run these commands in Package Manager Console: "Add-Migration InitialCreate" and "Update-Database"
 
             //var dbContext = new ApplicationDbContext(serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());
-
             //dbContext.Database.EnsureDeleted();
 
         }
 
+
+        // Function used to create roles
+        // It loops through the roles that exist, if any of the roles are missing it will create them
+        // I also use this function to add the initial account
+        // Configure the "TopAdmin" variable to your emerson email that way when you try to log in it approves your account
+        // When you first log in you will need to register your account, then close the program, and re-open the program
+        // Eventually you'll need to create something that automatically aproves the TopAdmin account without needing to
+        // restart the application
         private async Task CreateRoles(IServiceProvider serviceProvider) {
 
             var dbContext = new ApplicationDbContext(serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());
-            ModuleEntity mod = await dbContext.Modules.Include(m => m.WorkOrder).Include(m => m.Tags).Include(m => m.Tips).Where(l => l.LabId == 15).FirstOrDefaultAsync();
-            SessionInfo.SessionInfoList.Add("46", new Dictionary<string, SessionTeam>());
-            SessionInfo.SessionInfoList.GetValueOrDefault("46").Add("43", new SessionTeam());
-            SessionInfo.SessionInfoList.GetValueOrDefault("46").GetValueOrDefault("43").LabQueue.Add(mod);
-            SessionInfo.HelpQueue.Add("46", new List<TeamEntity>());
 
-            //initializing custom roles 
+            // Initializing roles 
+            // Add any roles you'd like to add in "roleNames"
             var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             string[] roleNames = { "Admin", "Instructor", "Student", "Pending" };
             IdentityResult roleResult;
@@ -117,26 +137,24 @@ namespace ProjectBoyd {
             foreach (var roleName in roleNames) {
                 var roleExist = await RoleManager.RoleExistsAsync(roleName);
                 if (!roleExist) {
-                    //create the roles and seed them to the database: Question 1
                     roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
                 }
             }
 
+            // Approving the TopAdmin account
             var SignInManager = serviceProvider.GetRequiredService<SignInManager<ApplicationUser>>();
             var UserManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var TopAdmin = await UserManager.FindByEmailAsync("boydipe@outlook.com");
             if (TopAdmin != null) {
-                Console.WriteLine("FOund aawwad3");
                 await UserManager.AddToRoleAsync(TopAdmin, "Admin");
                 await UserManager.AddToRoleAsync(TopAdmin, "Instructor");
                 await UserManager.RemoveFromRoleAsync(TopAdmin, "Pending");
 
                 var foundInstructor = dbContext.Instructors.Where(i => i.UserId == TopAdmin.Id).FirstOrDefault();
-                Console.WriteLine("1");
+
                 if (foundInstructor == null) {
                     InstructorEntity instructorEntry = new InstructorEntity();
                     instructorEntry.UserId = TopAdmin.Id;
-                    Console.WriteLine("2");
                     await dbContext.Instructors.AddAsync(instructorEntry);
                     await dbContext.SaveChangesAsync();
                 }
@@ -145,7 +163,12 @@ namespace ProjectBoyd {
 
         }
 
-        private async Task RefillSessionInfoList(IServiceProvider serviceProvider) {
+        // Function used to close any active sessions on StartUp
+        // The reason I made this is because the ActiveSessionList is stored on the RAM so when the application turns off the memory is wiped
+        // Because that list is empty I decided to close any active sessions in the database
+        // The other option and the better option is to just refill the ActiveSessionList with any sessions that should still be active
+        // and closing any sessions that need to be closed
+        private async Task CloseActiveSessions(IServiceProvider serviceProvider) {
 
             var dbContext = new ApplicationDbContext(serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());
             var activeSessions = dbContext.Sessions.Where(s => s.Active == true).ToList();
@@ -171,116 +194,3 @@ namespace ProjectBoyd {
     }
 
 }
-
-// Hello Test
-
-/* //Here you could create a super user who will maintain the web app
-            var UserManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            var poweruser = new ApplicationUser {
-
-                UserName = Configuration["AppSettings:UserName"],
-                Email = Configuration["AppSettings:UserEmail"],
-            };
-            //Ensure you have these values in your appsettings.json file
-            string userPWD = Configuration["AppSettings:UserPassword"];
-            var _user = await UserManager.FindByEmailAsync(Configuration["AppSettings:AdminUserEmail"]);
-
-            if (_user == null) {
-                var createPowerUser = await UserManager.CreateAsync(poweruser, userPWD);
-                if (createPowerUser.Succeeded) {
-                    //here we tie the new user to the role
-                    await UserManager.AddToRoleAsync(poweruser, "Admin");
-
-                }
-            }*/
-
-
-
-
-/*
- * 
- *             var user = new ApplicationUser {
-                RoleRequest = "Admin",
-                UserName = "CoolGuy123",
-                Email = "xxxx@example.com",
-                NormalizedEmail = "XXXX@EXAMPLE.COM",
-                NormalizedUserName = "OWNER",
-                PhoneNumber = "+111111111111",
-                EmailConfirmed = true,
-                PhoneNumberConfirmed = true,
-                SecurityStamp = Guid.NewGuid().ToString("D"),
-                PasswordHash = "adsfaqw"
-            };
-
-            var userStore = new UserStore<ApplicationUser>(dbContext);
-            var resule = userStore.CreateAsync(user);
-            var userr = await UserManager.FindByNameAsync("OWNER");
-
-            var result = await UserManager.AddToRoleAsync(userr, "Pending");
- * Console.WriteLine("0");
-           var user = await UserManager.FindByNameAsync("OWNER");
-           Console.WriteLine(user.UserName);
-           Console.WriteLine("0");
-           var result = await UserManager.AddToRoleAsync(user, "Pending");
-           Console.WriteLine("0");
-           user = await UserManager.FindByEmailAsync("xxsssxx@example.com");
-           Console.WriteLine("0");
-           result = await UserManager.AddToRoleAsync(user, "Pending");
-           Console.WriteLine("0");
-           user = await UserManager.FindByEmailAsync("xxssssxx@example.com");
-           Console.WriteLine("0");
-           result = await UserManager.AddToRoleAsync(user, "Pending");
-           Console.WriteLine("0");
-
-
-          //Creating a bunch of members
-         var user = new ApplicationUser {
-              RoleRequest = "Admin",
-              UserName = "CoolGuy123",
-              Email = "xxxx@example.com",
-              NormalizedEmail = "XXXX@EXAMPLE.COM",
-              NormalizedUserName = "OWNER",
-              PhoneNumber = "+111111111111",
-              EmailConfirmed = true,
-              PhoneNumberConfirmed = true,
-              SecurityStamp = Guid.NewGuid().ToString("D"),
-              PasswordHash = "adsfaqw"
-          };
-
-          var userStore = new UserStore<ApplicationUser>(dbContext);
-          var resule = userStore.CreateAsync(user);
-
-          //Creating a bunch of members
-          user = new ApplicationUser {
-              RoleRequest = "Instructor",
-              UserName = "CoolsafsafGuy123",
-              Email = "xxsssxx@example.com",
-              NormalizedEmail = "XXsssXX@EXAMPLE.COM",
-              NormalizedUserName = "OWadsaNER",
-              PhoneNumber = "+111211111111",
-              EmailConfirmed = true,
-              PhoneNumberConfirmed = true,
-              SecurityStamp = Guid.NewGuid().ToString("D"),
-              PasswordHash = "adsfaasdsaqw"
-          };
-
-          userStore = new UserStore<ApplicationUser>(dbContext);
-          resule = userStore.CreateAsync(user);  
-
-          //Creating a bunch of members
-          var user = new ApplicationUser {
-              RoleRequest = "Instructor",
-              UserName = "CoolsafsaaaafGuy123",
-              Email = "xxssssxx@example.com",
-              NormalizedEmail = "XXssssXX@EXAMPLE.COM",
-              NormalizedUserName = "OWadaxzxsaNER",
-              PhoneNumber = "+111211111111",
-              EmailConfirmed = true,
-              PhoneNumberConfirmed = true,
-              SecurityStamp = Guid.NewGuid().ToString("D"),
-              PasswordHash = "adsfaasasdxzdsaqw"
-          };
-
-          var userStore = new UserStore<ApplicationUser>(dbContext);
-          var resule = userStore.CreateAsync(user);
-        */

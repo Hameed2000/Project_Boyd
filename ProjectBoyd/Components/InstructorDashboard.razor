@@ -23,8 +23,6 @@
 
     @if (AssignLabComponent || SendMessageComponent) {
         <div id="dashboard-modal-container" class="basic-modal-container active">
-
-            
                 
             @if (AssignLabComponent) {
                 <AssignLabComp HideAssignLab="AssignLabHide" SessionInfo="sessionInfo">  </AssignLabComp>
@@ -106,12 +104,12 @@
 
                             <div class="class-dashboard-teams-item">
 
-                            <!-- CHANGE THE ICON TO 'close' WHEN the 'more info menu' IS OPENED-->
+                            @*<!-- CHANGE THE ICON TO 'close' WHEN the 'more info menu' IS OPENED-->
                             <!-- ALSO APPLY "filter: blur(2px)" TO 'class-dashboard-item-info' WHEN MORE-INFO IS OPENED -->
 
                             <button class="default-text icon-button class-dasboard-item-more-info-button">
                                 <span class="material-icons">more_horiz</span>
-                            </button>
+                            </button>*@
 
                             <div class="class-dashboard-item-info list-flex">
 
@@ -128,8 +126,6 @@
                                 </div>
 
                                 <div class="flex-divider"></div>
-
-
 
                                 <div class="dashboard-text bold class-dashboard-teams-progress-text" style="color:var(--accent-color)"> @team.sessionTeam.Status </div>
 
