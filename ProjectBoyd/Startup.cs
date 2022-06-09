@@ -42,6 +42,7 @@ namespace ProjectBoyd {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+                    
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             // Adds the Identity service, used for authenticating user accounts
