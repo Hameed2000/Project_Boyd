@@ -1,6 +1,11 @@
 ﻿@using ProjectBoyd.Models.EntityModels;
 @using ProjectBoyd.Models.ObjectModels;
+@using ProjectBoyd.Data;
+@using Microsoft.EntityFrameworkCore;
+@using System.Timers;
 
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 <div class="dashboard-grid-item item-2">
 
@@ -17,14 +22,14 @@
         </div>
 
     }
-    else {
-
+    else 
+    {
         <div id="dashboard-item-2-class-info" class="centering-flex active">
 
             <div class="list-flex dashboard-class-info">
 
-                <div class="dashboard-class-info-stat centering-flex" style="border-color: var(--dashboard-accent-color-3);">
-                    <div class="dashboard-text bold">36</div>
+                <div class="dashboard-class-info-stat centering-flex" style="border-color: var(--dashboard-accent-color-2);">
+                    <div class="dashboard-text bold">@Output</div>
                 </div>
 
                 <div class="dashboard-text sub bold dashboard-class-info-stat-text">Session Length</div>
@@ -32,8 +37,8 @@
             </div>
             <div class="list-flex dashboard-class-info">
 
-                <div class="dashboard-class-info-stat centering-flex" style="border-color: var(--dashboard-accent-color-2);">
-                    <div class="dashboard-text bold">8</div>
+                <div class="dashboard-class-info-stat centering-flex" style="border-color: var(--dashboard-accent-color-3);">
+                    <div class="dashboard-text bold">@TotalStudents</div>
                 </div>
 
                 <div class="dashboard-text sub bold dashboard-class-info-stat-text">Total Students</div>
@@ -42,11 +47,9 @@
             <div class="list-flex dashboard-class-info">
 
                 <div class="dashboard-class-info-stat centering-flex" style="border-color: var(--dashboard-accent-color-1);">
-                    <div class="dashboard-text bold">3</div>
+                    <div class="dashboard-text bold">@NeedHelpCount</div>
                 </div>
-
                 <div class="dashboard-text sub bold dashboard-class-info-stat-text">Need Help</div>
-
             </div>
 
         </div>
@@ -58,11 +61,97 @@
 
 
 @code {
+    ApplicationDbContext dbContext;
 
     [Parameter]
     public SessionEntity Session { get; set; }
 
     [Parameter]
-    public Dictionary<string, SessionTeam> SessionInfo { get; set; }
+    public Dictionary<string, SessionTeam> sessionInfo { get; set; }
+
+    Session session;
+
+    public int TotalStudents { get; set; } = new();
+    public TimeSpan Duration { get; set; }
+    public TimeSpan UpdateTime { get; set; }
+    public string Output { get; set; }
+    public int NeedHelpCount { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Db Factory
+        dbContext = await dbFactory.CreateDbContextAsync();
+
+        if (Session != null && Session.Active ) 
+        {
+            session = new Session(Session);
+            TotalStudents = session.StudentCount(dbContext);
+            StartTimer(Session.Created);        
+        }
+
+        // Populating the need help field
+        foreach(var team in SessionInfo.HelpQueue)
+        {
+            NeedHelpCount = team.Value.Count();
+        }
+
+        Timer timer = new Timer();
+        timer.Interval = 1000;
+        timer.Elapsed += OnTimedEvent;
+        timer.AutoReset = true;
+        timer.Enabled = true;
+
+        base.OnInitialized();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+       if( firstRender )
+       {
+           await OnInitializedAsync();
+           await InvokeAsync( () => StateHasChanged());
+
+       }  
+    }
+
+
+    // Starting the session length timer
+    private void StartTimer(DateTime StartTime)
+    {
+        Duration = DateTime.Now - StartTime;
+        Output = FormatTimer(Duration);
+    }
+
+    // Formatting the timer
+    public string FormatTimer(TimeSpan time)
+    {
+        if(time.Hours < 1)
+        {
+            string temp = time.ToString("m':'ss");
+            return temp;
+        }
+        else
+        {
+            string temp = string.Format("{0}:{1}", time.Hours, time.Minutes);
+            return temp;
+        }
+    }
+
+
+    // Updates the timer every 60 seconds
+    public async void OnTimedEvent(Object? source, System.Timers.ElapsedEventArgs e) {
+        UpdateTime = new TimeSpan(0, 0, 1);
+        Duration = UpdateTime + Duration;
+        Output = FormatTimer(Duration);
+
+        await InvokeAsync(() => StateHasChanged());
+        return;
+    }
+
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
+    }
 
 }

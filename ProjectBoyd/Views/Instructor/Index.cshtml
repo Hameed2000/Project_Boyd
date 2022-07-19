@@ -17,37 +17,6 @@
 <!-- Used to create the bar chart -->
 <script>
 
-    function LoadChart() {
-        const chartElement = document.getElementById("dashboard-classes-taught-graph")
-        try {
-            const chart = new Chart(chartElement, {
-                type: "bar",
-                data: {
-                    labels: ['Feb', "Mar", "Apr", "May", "Jun"],
-                    datasets: [{
-                        label: "Classes Taught",
-                        data: [5, 3, 1, 7, 10],
-
-                        backgroundColor: ["#309DFF"],
-                        borderRadius: "5"
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-
-                }
-
-            })
-        } catch (exception_var) {
-            console.log("Graph already exists");
-        }
-
-    }
+  
 
 </script>

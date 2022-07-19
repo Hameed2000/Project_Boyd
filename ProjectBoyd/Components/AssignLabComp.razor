@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Authorization;
+﻿@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Authorization;
 @using Microsoft.AspNetCore.Identity;
 @using System.Threading.Tasks;
 @using Microsoft.AspNetCore.Mvc;
@@ -11,65 +12,64 @@
 @using ProjectBoyd.Models.ObjectModels;
 @using ProjectBoyd.Models.EntityModels.LabEntities;
 
-@inject ApplicationDbContext dbContext
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 
 <div id="student-assign-lab-team-info-modal" class="basic-modal-item active">
 
     <div class="modal-form">
 
-        <span class="absolute-button-container">
-            <!-- collapse button -->
-            <button id="student-assign-lab-team-info-modal-close" class="icon-button" style="height:40px;width:40px;">
-                <span class="material-icons" style="margin:auto;font-size:25px">close</span>
-            </button>
-        </span>
-
         <img class="avatar-icon" src="https://www.iconbunny.com/icons/media/catalog/product/3/4/3423.12-beaker-icon-iconbunny.jpg" style="max-width: 100px;">
+        @foreach(var team in SelectedTeams){
+                
+                <div class="default-text form-title" style="text-align:center">@team.TeamName</div>
+       
+                @*<div class="default-text title" style="margin-bottom: 5px;">Team_Name</div>*@
 
-        <div class="default-text title" style="margin-bottom: 5px;">Team_Name</div>
-
-        <div>
-            <!-- Team Members -->
-            <div class="default-text form-title">Members</div>
-
-            <div class="rounded-visible-border form-list">
-
-                <div class="class-dashboard-help-queue-item centering-flex">
-
-                    <div class="dashboard-text bold">Member Name</div>
-
-                    <div class="flex-divider"></div>
+                <div>
+                    <!-- Team Members -->
+                    @*Why doesn't it show the student names*@
+                    <div class="default-text form-title">Members</div>
+                    <div class="rounded-visible-border form-list">
+                    @foreach(var student in team.Students)
+                    {
+                        <div class="class-dashboard-help-queue-item centering-flex">
+                            <div class="dashboard-text bold">@student.FirstName</div>
+                            <div class="flex-divider"></div>
+                        </div>
+                    }
+                    
+                        <div class="class-dashboard-help-queue-item centering-flex">
+                            <div class="dashboard-text bold">Student 2</div>
+                            <div class="flex-divider"></div>
+                        </div>
+                        </div> 
+                    <div class="default-text form-error"></div>
 
                 </div>
+            <div>
+                <!-- Team Members -->
+                <div class="default-text form-title">Assigned Labs</div>
 
+                <div class="rounded-visible-border form-list">
+                    @foreach(var module in SelectedModules){
+                        <div class="class-dashboard-help-queue-item centering-flex">
+
+                            <div class="dashboard-text bold">Lab Name</div>
+
+                            <div class="flex-divider"></div>
+
+                        </div>
+                    }
+                </div>
+
+                <div class="default-text form-error"></div>
 
             </div>
 
-            <div class="default-text form-error"></div>
-
-        </div>
-
-        <div>
-            <!-- Team Members -->
-            <div class="default-text form-title">Assigned Labs</div>
-
-            <div class="rounded-visible-border form-list">
-
-                <div class="class-dashboard-help-queue-item centering-flex">
-
-                    <div class="dashboard-text bold">Lab Name</div>
-
-                    <div class="flex-divider"></div>
-
-                </div>
-
-            </div>
-
-            <div class="default-text form-error"></div>
-
-        </div>
-
+        }
 
 
     </div>
@@ -79,6 +79,13 @@
 <div id="dashboard-assign-lab-modal" class="basic-modal-item active">
 
     <form id="dashboard-assign-lab-modal-form" name="assign-lab" class="centering-flex modal-form">
+
+        <span class="absolute-button-container">
+            <!-- collapse button -->
+            <button id="student-assign-lab-team-info-modal-close" class="icon-button" style="height:40px;width:40px; margin-bottom:5px;" @onclick="HideAssignLab">
+                <span class="material-icons" style="margin:auto;font-size:20px">close</span>
+            </button>
+        </span>
 
         <div class="default-text title">Assign Lab</div>
 
@@ -248,6 +255,8 @@
 
 @code {
 
+    ApplicationDbContext dbContext;
+
     [Parameter]
     public EventCallback HideAssignLab { get; set; }
 
@@ -264,6 +273,7 @@
     public List<TeamEntity> UnSelectedTeams = new List<TeamEntity>();
 
     protected override async Task OnInitializedAsync() {
+        dbContext = await dbFactory.CreateDbContextAsync();
         UnSelectedModules = dbContext.Modules.ToList();
 
         foreach (var team in SessionInfo) {
@@ -320,7 +330,17 @@
 
 
     public async void Submit() {
+        foreach(var team in SelectedTeams)
+        {
+            SessionInfo[team.TeamId.ToString()].LabQueue = SelectedModules;
+        }
         await HideAssignLab.InvokeAsync();
+    }
+
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
     }
 
 

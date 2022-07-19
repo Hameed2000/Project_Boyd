@@ -72,8 +72,6 @@ namespace ProjectBoyd.Models.ObjectModels {
             .UseSqlServer(ConnectionString)
             .Options;
 
-            //using var dbContext = new ApplicationDbContext(contextOptions);
-
             using (var dbContext = new ApplicationDbContext(contextOptions)) {
                 sessionEntity = await dbContext.Sessions.FirstOrDefaultAsync<SessionEntity>(s => s.SessionId == sessionEntity.SessionId);
                 if (sessionEntity.Active) {

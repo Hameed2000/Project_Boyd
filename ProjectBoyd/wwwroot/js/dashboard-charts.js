@@ -35,3 +35,36 @@ window.onload = function () {
     })
 
 }
+
+function LoadChart(months, classesTaught) {
+    const chartElement = document.getElementById("dashboard-classes-taught-graph")
+    try {
+        const chart = new Chart(chartElement, {
+            type: "bar",
+            data: {
+                labels: months,
+                datasets: [{
+                    label: "Classes Taught",
+                    data: classesTaught,
+
+                    backgroundColor: ["#309DFF"],
+                    borderRadius: "5"
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+
+            }
+
+        })
+    } catch (exception_var) {
+        console.log("Graph already exists");
+    }
+
+}

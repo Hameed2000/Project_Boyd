@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Authorization;
+﻿@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Authorization;
 @using Microsoft.AspNetCore.Identity;
 @using System.Threading.Tasks;
 @using Microsoft.AspNetCore.Mvc;
@@ -13,10 +14,12 @@
 
 @inject UserManager<ApplicationUser> userManager
 @inject RoleManager<IdentityRole> roleManager
-@inject ApplicationDbContext dbContext
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ProtectedLocalStorage LocalStorage
 @inject IJSRuntime JSRuntime
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 <div id="side-container">
     <!-- the side container -->
@@ -38,7 +41,7 @@
             </div>
 
             <div>
-                <div id="side-container-user-name" class="default-text" style="font-weight: bold; text-align: left; width:auto; font-size: 1em">@currentUser.UserName</div>
+                <div id="side-container-user-name" class="default-text" style="font-weight: bold; text-align: left; width:auto; font-size: 1em">Hassen</div>
             </div>
 
         </button>
@@ -103,6 +106,7 @@
 </div>
 
 @code {
+    ApplicationDbContext dbContext;
 
     [Parameter]
     public string PageName { get; set; } = "AdminPanel";
@@ -113,16 +117,24 @@
     InstructorEntity instructorEntity;
 
     protected override async Task OnInitializedAsync() {
+        // Db Factory
+        dbContext = await dbFactory.CreateDbContextAsync();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
-        currentUser = await userManager.FindByNameAsync(user.Identity.Name);
 
-        instructorEntity = dbContext.Instructors.FirstOrDefault(i => i.UserId == currentUser.Id);
-        if (instructorEntity != null && instructorEntity.SessionId != null && instructorEntity.SessionId >= 0) {
-            sessionStatusColor = "#47c661";
-        }
+        // find the name using the aspNet user table. print first, compare it to the table and get the name of the commulm
+        // Once found query dbContext for the user
+        
+        // What
+
+        //currentUser = await userManager.FindByNameAsync(user.Identity.Name);
+
+        //instructorEntity = await dbContext.Instructors.FirstOrDefaultAsync(i => i.UserId == currentUser.Id);
+        //if (instructorEntity != null && instructorEntity.SessionId != null && instructorEntity.SessionId >= 0) {
+        //    sessionStatusColor = "#47c661";
+        //}
 
         await base.OnInitializedAsync();
 
@@ -147,6 +159,12 @@
             sessionStatusColor = "#ca2a2a";
         }
 
+    }
+
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
     }
 
 }

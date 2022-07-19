@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Authorization;
+﻿@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Authorization;
 @using Microsoft.AspNetCore.Identity;
 @using System.Threading.Tasks;
 @using Microsoft.AspNetCore.Mvc;
@@ -12,9 +13,11 @@
 
 @inject UserManager<ApplicationUser> userManager
 @inject RoleManager<IdentityRole> roleManager
-@inject ApplicationDbContext dbContext
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 <div id="body-main">
 
@@ -27,7 +30,7 @@
             @if (AssignLabComponent) {
                 <AssignLabComp HideAssignLab="AssignLabHide" SessionInfo="sessionInfo">  </AssignLabComp>
             } else if (SendMessageComponent) {
-                <InstructorSendMessage HideSendMessage="SendMessageHide">  </InstructorSendMessage>
+                <InstructorSendMessage HideSendMessage="SendMessageHide" TeamList="@teamList" SessionInfo="@sessionInfo">  </InstructorSendMessage>
             }
 
         </div>
@@ -60,34 +63,33 @@
                     
                 <DashboardNavigation @ref="NavRef" ClassroomDashboard="ClassroomDashboard" MainDashboard="InstructorDash" ShowAssignLab="AssignLabShow" ShowSendMessage="SendMessageShow" Page="@DashboardView" Session="@session"> </DashboardNavigation>
 
-                <BasicStatsDashboard @ref="StatsRef" Session="session" SessionInfo="sessionInfo"> </BasicStatsDashboard>
+                <BasicStatsDashboard @ref="StatsRef" Session="session" sessionInfo="sessionInfo" > </BasicStatsDashboard>
 
                 <div class="dashboard-grid-item class-item-3 full-item" >
-
+                   
                     <div class="dashboard-text title dashboard-panel-title">Help Queue</div>
 
                     <div class="class-dashboard-help-queue-container list-flex">
+                        @*make this for each team*@
+                        @foreach(var team in SessionInfo.HelpQueue[session.SessionId.ToString()])
+                        {
+                                <div class="class-dashboard-help-queue-item centering-flex">
 
-                        <div class="class-dashboard-help-queue-item centering-flex">
+                                    <div class="dashboard-text bold">@team.TeamName</div>
 
-                            <div class="dashboard-text bold">Team 6</div>
+                                    <div class="flex-divider"></div>
 
-                            <div class="flex-divider"></div>
+                                    <div class="class-dashboard-help-queue-item-buttons item-spacer-right">
 
-                            <div class="class-dashboard-help-queue-item-buttons item-spacer-right">
+                                        <button class="icon-button" title="Accept" @onclick="() => AcceptHelp(team)">
+                                            <span class="material-icons">done</span>
+                                        </button>
 
-                                <button class="icon-button" title="Accept">
-                                    <span class="material-icons">done</span>
-                                </button>
+                                    </div>
 
-                                <button class="icon-button" title="Deny">
-                                    <span class="material-icons">delete</span>
-                                </button>
-
-                            </div>
-
-                        </div>
-
+                                </div>
+                            
+                        }
                     </div>
 
 
@@ -170,7 +172,7 @@
 
             <DashboardNavigation ClassroomDashboard="ClassroomDashboard" MainDashboard="InstructorDash" ShowAssignLab="AssignLabShow" ShowSendMessage="SendMessageShow" Page="@DashboardView" Session="session"> </DashboardNavigation>
 
-             <BasicStatsDashboard Session="session" SessionInfo="sessionInfo"> </BasicStatsDashboard>
+             <BasicStatsDashboard Session="session" sessionInfo="sessionInfo" > </BasicStatsDashboard>
 
 
             <div class="dashboard-grid-item item-3">
@@ -190,7 +192,7 @@
 
                         <div class="dashboard-item-3-panel-body">
 
-                            <div class="dashboard-text title">0</div>
+                            <div class="dashboard-text title">@ClassesTaught</div>
                             <div class="dashboard-text sub">Classes Taught</div>
 
                         </div>
@@ -208,7 +210,7 @@
 
                         <div class="dashboard-item-3-panel-body">
 
-                            <div class="dashboard-text title">0/5</div>
+                            <div class="dashboard-text title">X/5</div>
                             <div class="dashboard-text sub">Student Ranking</div>
                                     
                         </div>
@@ -226,7 +228,7 @@
 
                         <div class="dashboard-item-3-panel-body">
 
-                            <div class="dashboard-text title">0</div>
+                            <div class="dashboard-text title">@TechniciansPrepared</div>
                             <div class="dashboard-text sub">Technicians Prepared</div>
                                     
                         </div>
@@ -388,6 +390,7 @@
 
     DashboardNavigation NavRef;
     BasicStatsDashboard StatsRef;
+    ApplicationDbContext dbContext;
 
     string DashboardView = "Main";
 
@@ -396,6 +399,25 @@
     Dictionary<string, SessionTeam> sessionInfo;
     SessionEntity session;
     List<TeamEntity> teamList = new List<TeamEntity>();
+    TeamEntity testTeam = new TeamEntity(); 
+
+
+
+    // Data for the bar chart
+    List<int> months = new List<int>();
+    List<string> classesTaught = new List<string>();
+    DateTime CurrentMonth = DateTime.Now;
+    public int fourBefore{ get; set; } = 0;
+    public int threeBefore { get; set; } = 0;
+    public int twoBefore { get; set; } = 0;
+    public int oneBefore { get; set; } = 0;
+    public int thisMonth { get; set; } = 0;
+
+
+    public int ClassesTaught { get; set; } = new();
+    public int StudentRanking { get; set; } = new();
+    public int TechniciansPrepared { get; set; } = new();
+    public int SessionLength { get; set; } = new();
 
     public async void StateHasChangedWrapper(Object? source, System.Timers.ElapsedEventArgs e) {
 
@@ -407,6 +429,8 @@
     }
 
     protected override async Task OnInitializedAsync() {
+        // Db Factory
+        dbContext = await dbFactory.CreateDbContextAsync();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -415,19 +439,85 @@
         sessionInfo = SessionInfo.SessionInfoList.GetValueOrDefault(instructor.SessionId.ToString());
         session = dbContext.Sessions.Where(s => s.SessionId == instructor.SessionId).FirstOrDefault();
 
+        //await dbContext.SaveChangesAsync();
+
+        // Getting the number of classes the instructor taught
+        var InstructorSessions = dbContext.Sessions.Where(s => s.PrimaryInstructor == instructor.InstructorId.ToString());
+        ClassesTaught = InstructorSessions.Count();
+
+        // Bar Chart Data - Populating the x-axis
+        classesTaught.Add(getMonth(CurrentMonth.Month - 4));
+        classesTaught.Add(getMonth(CurrentMonth.Month - 3));
+        classesTaught.Add(getMonth(CurrentMonth.Month - 2));
+        classesTaught.Add(getMonth(CurrentMonth.Month - 1));
+        classesTaught.Add(getMonth(CurrentMonth.Month));
+
+        // Bar Chart Data - Populating the y-axis
+        foreach(var session in InstructorSessions){
+            if (session.Created.Month == CurrentMonth.Month)
+            {
+                thisMonth++;
+            }
+            else if (session.Created.Month == (CurrentMonth.Month - 1))
+            {
+                oneBefore++;
+            }
+            else if (session.Created.Month == (CurrentMonth.Month - 2))
+            {
+                twoBefore++;
+            }
+            else if (session.Created.Month == (CurrentMonth.Month + 1))
+            {
+                threeBefore++;
+            }
+            else if (session.Created.Month == (CurrentMonth.Month + 2))
+            {
+                fourBefore++;
+            }
+        }
+        months.Add(fourBefore);
+        months.Add(threeBefore);
+        months.Add(twoBefore);
+        months.Add(oneBefore);
+        months.Add(thisMonth);
+
+        if(sessionInfo != null)
+        {
+            SessionInfo.HelpQueue[session.SessionId.ToString()].Add(testTeam);
+        }
+
+        foreach(var session in InstructorSessions)
+        {
+            string[] teamList = session.TeamsList.Split(' ');
+            // String of all the teams so just get the count?
+            TechniciansPrepared += teamList.Count() - 1;
+            
+
+            foreach(var teamId in teamList)
+            {
+                //Console.Write(teamId);
+                //TechniciansPrepared += dbContext.Teams.Where(t => t.TeamId.ToString() == teamId).Count();
+                //var te = await dbContext.Teams.FirstOrDefaultAsync(t => t.TeamId.ToString() == teamId);
+                //Console.WriteLine(te);
+            }
+        }
+
         System.Timers.Timer timer = new System.Timers.Timer();
-        timer.Interval = 5000;
+        timer.Interval = 1000;
         timer.Elapsed += StateHasChangedWrapper;
         timer.AutoReset = true;
         timer.Enabled = true;
 
     }
 
+
+
+
     protected override async Task OnAfterRenderAsync(bool firstRender) {
 
         //if (firstRender) {
 
-        await JSRuntime.InvokeVoidAsync("LoadChart");
+        await JSRuntime.InvokeVoidAsync("LoadChart", classesTaught, months);
         await JSRuntime.InvokeVoidAsync("DisableFormss");
 
         sessionInfo = SessionInfo.SessionInfoList.GetValueOrDefault(instructor.SessionId.ToString());
@@ -448,6 +538,48 @@
 
         //}
 
+    }
+
+    public string getMonth(int n)
+    {
+        switch (n)
+        {
+            case 1:
+                return "Jan";
+            case 2:
+                return "Feb";
+            case 3:
+                return "Mar";
+            case 4:
+                return "Apr";
+            case 5:
+                return "May";
+            case 6:
+                return "Jun";
+            case 7:
+                return "Jul";
+            case 8:
+                return "Aug";
+            case 9 | -3:
+                return "Sep";
+            case 10 | -2:
+                return "Oct";
+            case 11 | -1:
+                return "Nov";
+            case 12 | 0:
+                return "Dec";
+            default:
+                return "null";
+        }
+    }
+
+
+
+    // Removes from the help queue list
+    public void AcceptHelp(TeamEntity team)
+    {
+        //SessionInfo.HelpQueue[team.SessionId].Remove(team);
+        SessionInfo.HelpQueue[session.SessionId.ToString()].Remove(testTeam);
     }
 
     public void ClassroomDashboard() {
@@ -486,5 +618,10 @@
         SendMessageComponent = false;
     }
 
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
+    }
 
 }

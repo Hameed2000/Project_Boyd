@@ -7,19 +7,22 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectBoyd.Data;
 
+#nullable disable
+
 namespace ProjectBoyd.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220213214917_Lab-Relationships")]
-    partial class LabRelationships
+    [Migration("20220621153342_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.9")
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -45,15 +48,16 @@ namespace ProjectBoyd.Migrations
                         .HasDatabaseName("RoleNameIndex")
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
-                    b.ToTable("AspNetRoles");
+                    b.ToTable("AspNetRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -69,15 +73,16 @@ namespace ProjectBoyd.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims");
+                    b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -93,7 +98,7 @@ namespace ProjectBoyd.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims");
+                    b.ToTable("AspNetUserClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -115,7 +120,7 @@ namespace ProjectBoyd.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins");
+                    b.ToTable("AspNetUserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -130,7 +135,7 @@ namespace ProjectBoyd.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles");
+                    b.ToTable("AspNetUserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -149,7 +154,7 @@ namespace ProjectBoyd.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens");
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBoyd.Models.EntityModels.ApplicationUser", b =>
@@ -217,15 +222,16 @@ namespace ProjectBoyd.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("AspNetUsers");
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBoyd.Models.EntityModels.InstructorEntity", b =>
                 {
                     b.Property<int>("InstructorId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InstructorId"), 1L, 1);
 
                     b.Property<int?>("SessionId")
                         .HasColumnType("int");
@@ -246,8 +252,9 @@ namespace ProjectBoyd.Migrations
                 {
                     b.Property<int>("LabId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LabId"), 1L, 1);
 
                     b.Property<string>("LabDescription")
                         .HasColumnType("nvarchar(max)");
@@ -265,10 +272,8 @@ namespace ProjectBoyd.Migrations
 
             modelBuilder.Entity("ProjectBoyd.Models.EntityModels.LabEntities.TagEntity", b =>
                 {
-                    b.Property<int>("TagId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("ServiceNumber")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CDSImageAddress")
                         .HasColumnType("nvarchar(max)");
@@ -282,13 +287,10 @@ namespace ProjectBoyd.Migrations
                     b.Property<int>("LowRange")
                         .HasColumnType("int");
 
-                    b.Property<string>("ServiceNumber")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("TagName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("TagId");
+                    b.HasKey("ServiceNumber");
 
                     b.HasIndex("LabId");
 
@@ -299,8 +301,9 @@ namespace ProjectBoyd.Migrations
                 {
                     b.Property<int>("TipsId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TipsId"), 1L, 1);
 
                     b.Property<int>("LabId")
                         .HasColumnType("int");
@@ -325,8 +328,9 @@ namespace ProjectBoyd.Migrations
                 {
                     b.Property<int>("WorkOrderId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WorkOrderId"), 1L, 1);
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -352,8 +356,9 @@ namespace ProjectBoyd.Migrations
                 {
                     b.Property<int>("SessionId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SessionId"), 1L, 1);
 
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
@@ -388,8 +393,9 @@ namespace ProjectBoyd.Migrations
                 {
                     b.Property<int>("StudentId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StudentId"), 1L, 1);
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
@@ -403,10 +409,15 @@ namespace ProjectBoyd.Migrations
                     b.Property<string>("ProfilePicture")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("TeamEntityTeamId")
+                        .HasColumnType("int");
+
                     b.Property<string>("TeamIds")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("StudentId");
+
+                    b.HasIndex("TeamEntityTeamId");
 
                     b.ToTable("Students");
                 });
@@ -415,8 +426,9 @@ namespace ProjectBoyd.Migrations
                 {
                     b.Property<int>("TeamId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TeamId"), 1L, 1);
 
                     b.Property<string>("AccountId")
                         .HasColumnType("nvarchar(max)");
@@ -537,6 +549,13 @@ namespace ProjectBoyd.Migrations
                     b.Navigation("Lab");
                 });
 
+            modelBuilder.Entity("ProjectBoyd.Models.EntityModels.StudentEntity", b =>
+                {
+                    b.HasOne("ProjectBoyd.Models.EntityModels.TeamEntity", null)
+                        .WithMany("Students")
+                        .HasForeignKey("TeamEntityTeamId");
+                });
+
             modelBuilder.Entity("ProjectBoyd.Models.EntityModels.LabEntities.ModuleEntity", b =>
                 {
                     b.Navigation("Tags");
@@ -544,6 +563,11 @@ namespace ProjectBoyd.Migrations
                     b.Navigation("Tips");
 
                     b.Navigation("WorkOrder");
+                });
+
+            modelBuilder.Entity("ProjectBoyd.Models.EntityModels.TeamEntity", b =>
+                {
+                    b.Navigation("Students");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
+#nullable disable
+
 namespace ProjectBoyd.Migrations
 {
     public partial class InitialCreate : Migration
@@ -48,6 +50,21 @@ namespace ProjectBoyd.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Modules",
+                columns: table => new
+                {
+                    LabId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    LabName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LabIconAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LabDescription = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Modules", x => x.LabId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Sessions",
                 columns: table => new
                 {
@@ -65,23 +82,6 @@ namespace ProjectBoyd.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Sessions", x => x.SessionId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Students",
-                columns: table => new
-                {
-                    StudentId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TeamIds = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProfilePicture = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Students", x => x.StudentId);
                 });
 
             migrationBuilder.CreateTable(
@@ -208,6 +208,72 @@ namespace ProjectBoyd.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Tags",
+                columns: table => new
+                {
+                    ServiceNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TagName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LowRange = table.Column<int>(type: "int", nullable: false),
+                    HighRange = table.Column<int>(type: "int", nullable: false),
+                    CDSImageAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LabId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tags", x => x.ServiceNumber);
+                    table.ForeignKey(
+                        name: "FK_Tags_Modules_LabId",
+                        column: x => x.LabId,
+                        principalTable: "Modules",
+                        principalColumn: "LabId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tips",
+                columns: table => new
+                {
+                    TipsId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TipText = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ThumbsUp = table.Column<int>(type: "int", nullable: false),
+                    ThumbsDown = table.Column<int>(type: "int", nullable: false),
+                    LabId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tips", x => x.TipsId);
+                    table.ForeignKey(
+                        name: "FK_Tips_Modules_LabId",
+                        column: x => x.LabId,
+                        principalTable: "Modules",
+                        principalColumn: "LabId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WorkOrders",
+                columns: table => new
+                {
+                    WorkOrderId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Equipment = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Tasks = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LabId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WorkOrders", x => x.WorkOrderId);
+                    table.ForeignKey(
+                        name: "FK_WorkOrders_Modules_LabId",
+                        column: x => x.LabId,
+                        principalTable: "Modules",
+                        principalColumn: "LabId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Instructors",
                 columns: table => new
                 {
@@ -223,14 +289,35 @@ namespace ProjectBoyd.Migrations
                         name: "FK_Instructors_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Instructors_Sessions_SessionId",
                         column: x => x.SessionId,
                         principalTable: "Sessions",
-                        principalColumn: "SessionId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "SessionId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Students",
+                columns: table => new
+                {
+                    StudentId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TeamIds = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProfilePicture = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TeamEntityTeamId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Students", x => x.StudentId);
+                    table.ForeignKey(
+                        name: "FK_Students_Teams_TeamEntityTeamId",
+                        column: x => x.TeamEntityTeamId,
+                        principalTable: "Teams",
+                        principalColumn: "TeamId");
                 });
 
             migrationBuilder.CreateIndex(
@@ -281,6 +368,27 @@ namespace ProjectBoyd.Migrations
                 name: "IX_Instructors_UserId",
                 table: "Instructors",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Students_TeamEntityTeamId",
+                table: "Students",
+                column: "TeamEntityTeamId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tags_LabId",
+                table: "Tags",
+                column: "LabId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tips_LabId",
+                table: "Tips",
+                column: "LabId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkOrders_LabId",
+                table: "WorkOrders",
+                column: "LabId",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -307,7 +415,13 @@ namespace ProjectBoyd.Migrations
                 name: "Students");
 
             migrationBuilder.DropTable(
-                name: "Teams");
+                name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "Tips");
+
+            migrationBuilder.DropTable(
+                name: "WorkOrders");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -317,6 +431,12 @@ namespace ProjectBoyd.Migrations
 
             migrationBuilder.DropTable(
                 name: "Sessions");
+
+            migrationBuilder.DropTable(
+                name: "Teams");
+
+            migrationBuilder.DropTable(
+                name: "Modules");
         }
     }
 }
