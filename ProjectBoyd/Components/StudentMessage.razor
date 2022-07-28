@@ -96,7 +96,7 @@
 
         // Checks for a message every 15 seconds
         System.Timers.Timer timer = new System.Timers.Timer();
-        timer.Interval = 15000;
+        timer.Interval = 1000;
         timer.Elapsed += StateHasChangedWrapper;
         timer.AutoReset = true;
         timer.Enabled = true;
@@ -107,8 +107,14 @@
         StateHasChanged();
     }
 
+    // Navigate from here // multiple functions
+
     public void CloseMessage() {
         sessionTeamInfo.Message = "";
+        if(sessionTeamInfo.MessageAction != null)
+        {
+            sessionTeamInfo.MessageAction.Invoke(sessionTeamInfo); 
+        }
         StateHasChanged();
     }
 

@@ -22,7 +22,7 @@
     <div class="modal-form">
 
         <img class="avatar-icon" src="https://www.iconbunny.com/icons/media/catalog/product/3/4/3423.12-beaker-icon-iconbunny.jpg" style="max-width: 100px;">
-        @foreach(var team in SelectedTeams){
+        @foreach(var team in TeamList){
                 
                 <div class="default-text form-title" style="text-align:center">@team.TeamName</div>
        
@@ -33,19 +33,14 @@
                     @*Why doesn't it show the student names*@
                     <div class="default-text form-title">Members</div>
                     <div class="rounded-visible-border form-list">
-                    @foreach(var student in team.Students)
-                    {
-                        <div class="class-dashboard-help-queue-item centering-flex">
-                            <div class="dashboard-text bold">@student.FirstName</div>
-                            <div class="flex-divider"></div>
-                        </div>
-                    }
-                    
-                        <div class="class-dashboard-help-queue-item centering-flex">
-                            <div class="dashboard-text bold">Student 2</div>
-                            <div class="flex-divider"></div>
-                        </div>
-                        </div> 
+                        @foreach(var student in team.Students)
+                        {
+                            <div class="class-dashboard-help-queue-item centering-flex">
+                                <div class="dashboard-text bold">@student.FirstName</div>
+                                <div class="flex-divider"></div>
+                            </div>
+                        }
+                    </div> 
                     <div class="default-text form-error"></div>
 
                 </div>
@@ -54,15 +49,23 @@
                 <div class="default-text form-title">Assigned Labs</div>
 
                 <div class="rounded-visible-border form-list">
-                    @foreach(var module in SelectedModules){
-                        <div class="class-dashboard-help-queue-item centering-flex">
+                    @foreach(var t in SelectedTeams)
+                    {
+                        if(t.TeamId == team.TeamId)
+                        {
+                            // Loop through lab queue instead
+                            @foreach(var module in SelectedModules){
+                                <div class="class-dashboard-help-queue-item centering-flex">
 
-                            <div class="dashboard-text bold">Lab Name</div>
+                                    <div class="dashboard-text bold">@module.LabName</div>
 
-                            <div class="flex-divider"></div>
+                                    <div class="flex-divider"></div>
 
-                        </div>
+                                </div>
+                            }
+                        }
                     }
+                    
                 </div>
 
                 <div class="default-text form-error"></div>
@@ -245,6 +248,7 @@
         <div>
 
             <input type="submit" id="create-lab-equipment-tool-create" value="Assign" class="noselect rounded-button dashboard-form-next-button" @onclick="Submit" >
+            @*<input type="submit" id="create-lab-equipment-tool-create" value="Remove" class="noselect rounded-button dashboard-form-next-button" @onclick="Submit" >*@
             <div class="default-text form-error"></div>
 
         </div>
@@ -254,6 +258,8 @@
 </div>
 
 @code {
+
+    // Check parameters and the actual code base for any bugs
 
     ApplicationDbContext dbContext;
 
@@ -270,15 +276,18 @@
     public List<ModuleEntity> UnSelectedModules;
 
     public List<TeamEntity> SelectedTeams = new List<TeamEntity>();
+    public List<TeamEntity> TeamList = new List<TeamEntity>();
     public List<TeamEntity> UnSelectedTeams = new List<TeamEntity>();
 
     protected override async Task OnInitializedAsync() {
         dbContext = await dbFactory.CreateDbContextAsync();
-        UnSelectedModules = dbContext.Modules.ToList();
+
+        UnSelectedModules = dbContext.Modules.Include(m => m.WorkOrder).Include(m => m.Tags).Include(m => m.Tips).ToList();
 
         foreach (var team in SessionInfo) {
-            TeamEntity temp = dbContext.Teams.Where(t => t.TeamId.ToString() == team.Key).FirstOrDefault();
+            TeamEntity temp = dbContext.Teams.Include(t => t.Students).Where(t => t.TeamId.ToString() == team.Key).FirstOrDefault();
             UnSelectedTeams.Add(temp);
+            TeamList.Add(temp);
         }
 
         await base.OnInitializedAsync();
@@ -332,10 +341,21 @@
     public async void Submit() {
         foreach(var team in SelectedTeams)
         {
-            SessionInfo[team.TeamId.ToString()].LabQueue = SelectedModules;
+            if (SelectedModules.Count() > 0)
+            {
+                SessionInfo[team.TeamId.ToString()].LabQueue.AddRange(SelectedModules);
+            }
         }
         await HideAssignLab.InvokeAsync();
     }
+
+    //public async void Remove() {
+    //    foreach(var team in SelectedTeams)
+    //    {
+    //        SessionInfo[team.TeamId.ToString()].LabQueue.Remove(SelectedModules);
+    //    }
+    //    await HideAssignLab.InvokeAsync();
+    //}
 
     public async ValueTask DisposeAsync() {
         if (dbContext != null) {

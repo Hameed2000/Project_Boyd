@@ -61,6 +61,8 @@
 
 
 @code {
+    // Figure out a better format for the clock when it goes past one hour
+
     ApplicationDbContext dbContext;
 
     [Parameter]
@@ -108,12 +110,11 @@
     {
        if( firstRender )
        {
-           await OnInitializedAsync();
+           //await OnInitializedAsync();
            await InvokeAsync( () => StateHasChanged());
 
        }  
     }
-
 
     // Starting the session length timer
     private void StartTimer(DateTime StartTime)

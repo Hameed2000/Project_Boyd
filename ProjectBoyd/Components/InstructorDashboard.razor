@@ -18,6 +18,7 @@
 @*@inject ApplicationDbContext dbContext*@
 @inject IDbContextFactory<ApplicationDbContext> dbFactory
 @implements IAsyncDisposable
+@inject NavigationManager NavManager
 
 <div id="body-main">
 
@@ -133,25 +134,26 @@
 
                             </div>
 
-                            <div class="class-dashboard-item-more-info list-flex">
+                            <div class="class-dashboard-item-more-info list-flex @isActive">
 
                                 <div class="dashboard-text bold class-dashboard-teams-approval-text" style="color:var(--dashboard-accent-color-1)">Approval Request</div>
 
                                 <div class="flex-divider"></div>
 
                                 <!-- ADD 'active' TO THESE TO MAKE THEM VISIBLE DEPENDING ON THE SITUATION-->
-                                <div class="centering-flex item-spacer-right class-dashboard-teams-more-info-buttons results">
+                                <div class="centering-flex item-spacer-right class-dashboard-teams-more-info-buttons results @isActive">
                                         
                                     <button class="rounded-button" style="color:var(--accent-color)">View Results</button>
                                         
                                 </div>
 
-                                <div class="centering-flex item-spacer-right class-dashboard-teams-more-info-buttons approval">
+                                <div class="centering-flex item-spacer-right class-dashboard-teams-more-info-buttons approval @isActive">
                                         
-                                    <button class="rounded-button" style="color:var(--content-color)">Approve</button>
-                                    <button class="rounded-button" style="color:var(--error-color)">Reject</button>
+                                    <button class="rounded-button" style="color:var(--content-color)" @onclick="() => RequestApproved(team)">Approve</button>
+                                    <button class="rounded-button" style="color:var(--error-color)" @onclick="() => RequestDenied(team)">Reject</button>
 
                                 </div>
+                                
 
                             </div>
 
@@ -282,7 +284,7 @@
                             <div class="circular-progress-half half2" style="z-index:2;"></div>
                             <div class="circular-progress-middle centering-flex" style="z-index:5">
                                         
-                                <div class="dashboard-text circular-progress-title">0/5</div>
+                                <div class="dashboard-text circular-progress-title">@AvgMonthlyClasses</div>
 
                             </div>
 
@@ -398,9 +400,8 @@
     InstructorEntity instructor;
     Dictionary<string, SessionTeam> sessionInfo;
     SessionEntity session;
+    SessionTeam sessionTeamInfo;
     List<TeamEntity> teamList = new List<TeamEntity>();
-    TeamEntity testTeam = new TeamEntity(); 
-
 
 
     // Data for the bar chart
@@ -413,6 +414,10 @@
     public int oneBefore { get; set; } = 0;
     public int thisMonth { get; set; } = 0;
 
+    public string isActive { get; set; }
+
+    // Circle Chart
+    public int AvgMonthlyClasses { get; set; }
 
     public int ClassesTaught { get; set; } = new();
     public int StudentRanking { get; set; } = new();
@@ -453,7 +458,7 @@
         classesTaught.Add(getMonth(CurrentMonth.Month));
 
         // Bar Chart Data - Populating the y-axis
-        foreach(var session in InstructorSessions){
+        foreach (var session in InstructorSessions) {
             if (session.Created.Month == CurrentMonth.Month)
             {
                 thisMonth++;
@@ -481,19 +486,22 @@
         months.Add(oneBefore);
         months.Add(thisMonth);
 
-        if(sessionInfo != null)
-        {
-            SessionInfo.HelpQueue[session.SessionId.ToString()].Add(testTeam);
-        }
+        // Populating Average Monthly Classes
+        AvgMonthlyClasses = (fourBefore + threeBefore + twoBefore + oneBefore + thisMonth) / 5;
 
-        foreach(var session in InstructorSessions)
+        //if(sessionInfo != null)
+        //{
+        //    SessionInfo.HelpQueue[session.SessionId.ToString()].Add(testTeam);
+        //}
+
+        foreach (var session in InstructorSessions)
         {
             string[] teamList = session.TeamsList.Split(' ');
             // String of all the teams so just get the count?
             TechniciansPrepared += teamList.Count() - 1;
-            
 
-            foreach(var teamId in teamList)
+
+            foreach (var teamId in teamList)
             {
                 //Console.Write(teamId);
                 //TechniciansPrepared += dbContext.Teams.Where(t => t.TeamId.ToString() == teamId).Count();
@@ -536,6 +544,14 @@
             }
         }
 
+        foreach(var te in teamList)
+        {
+            if (te.sessionTeam.AwaitingApproval)
+            {
+                isActive = "active";
+            }
+        }
+
         //}
 
     }
@@ -574,12 +590,36 @@
     }
 
 
-
     // Removes from the help queue list
     public void AcceptHelp(TeamEntity team)
     {
-        //SessionInfo.HelpQueue[team.SessionId].Remove(team);
-        SessionInfo.HelpQueue[session.SessionId.ToString()].Remove(testTeam);
+        SessionInfo.HelpQueue[team.SessionId].Remove(team);
+        //SessionInfo.HelpQueue[session.SessionId.ToString()].Remove(testTeam);
+    }
+
+    public void RequestApproved(TeamEntity team)
+    {
+        sessionInfo[team.TeamId.ToString()].Message = "Congratulations! Your lab was approved.";
+        if (team.sessionTeam.LabQueue.Count() > 1)
+        {
+            team.sessionTeam.LabQueue.RemoveAt(0);
+        }
+        team.sessionTeam.CompletedFirstRun = false;
+        team.sessionTeam.DataTableValues = Enumerable.Repeat("", 25).ToArray();
+        team.sessionTeam.EquipmentSelected = new List<string>();
+        team.sessionTeam.TasksSelected = new List<string>();
+        team.sessionTeam.AwaitingApproval = false;
+        team.sessionTeam.nav = NavManager;
+        team.sessionTeam.MessageAction = SessionInfo.CloseLabApproval;
+        Console.WriteLine(team.sessionTeam.LabQueue[0].LabName);
+        isActive = "";
+    }
+
+    public void RequestDenied(TeamEntity team)
+    {
+        sessionInfo[team.TeamId.ToString()].Message = "Your lab was denied, try again.";  
+        team.sessionTeam.AwaitingApproval = false;
+        isActive = "";
     }
 
     public void ClassroomDashboard() {
