@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Mvc;
+﻿@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Mvc;
 @using Microsoft.AspNetCore.Mvc.RazorPages;
 @using Microsoft.AspNetCore.WebUtilities;
 @using ProjectBoyd.Models;
@@ -9,16 +10,16 @@
 @using ProjectBoyd.Models.ObjectModels;
 @using System.Text.RegularExpressions;
 @using ProjectBoyd.Models.EntityModels.LabEntities;
-@using Microsoft.EntityFrameworkCore;
 @using System.Linq;
 
 @inject UserManager<ApplicationUser> userManager
 @inject SignInManager<ApplicationUser> signinManager
-@inject ApplicationDbContext dbContext
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavManager
-
+@inject ApplicationDbContext dbContext
+@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable*@
 
 <div id="body-main" class="full-width">
 
@@ -260,6 +261,7 @@
 
 @code {
 
+    //ApplicationDbContext dbContext;
     public string sessionError = "";
     public string teamNameError = "";
 
@@ -271,6 +273,8 @@
     public string teamName;
 
     protected override async Task OnInitializedAsync() {
+        // Db Factory
+        //dbContext = await dbFactory.CreateDbContextAsync();
 
         sessionList = dbContext.Sessions.Where(s => s.Active == true).ToList<SessionEntity>();
 
@@ -496,7 +500,11 @@
         var userStore = new UserStore<ApplicationUser>(dbContext);
         var result = await userStore.CreateAsync(user);
 
+
+        // Figure this out
         await userManager.AddToRoleAsync(user, "Student");
+
+        
 
         team.teamEntity.AccountId = user.Id;
         await dbContext.SaveChangesAsync();
@@ -508,6 +516,12 @@
         NavManager.NavigateTo("/Student/LoginInternal?userId=" + user.Id + "&sessionId=" + session.SessionId + "&teamId=" + team.teamEntity.TeamId, true);
     
     }
+
+    //public async ValueTask DisposeAsync() {
+    //    if (dbContext != null) {
+    //        await dbContext.DisposeAsync();
+    //    }
+    //}
 
 }
 

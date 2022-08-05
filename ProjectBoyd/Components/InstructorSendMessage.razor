@@ -1,6 +1,16 @@
-﻿<div id="dashboard-send-message-modal" class="basic-modal-item active">
+﻿@using ProjectBoyd.Models.EntityModels
+<!--Used to populate the message field for the students-->
+@using ProjectBoyd.Models.ObjectModels
+
+<div id="dashboard-send-message-modal" class="basic-modal-item active">
 
     <form id="dashboard-send-message-modal-form" name="send-message" class="centering-flex modal-form">
+        <span class="absolute-button-container">
+            <!-- collapse button -->
+            <button id="student-assign-lab-team-info-modal-close" class="icon-button" style="height:40px;width:40px; margin-bottom:5px;" @onclick="HideSendMessage">
+                <span class="material-icons" style="margin:auto;font-size:20px">close</span>
+            </button>
+        </span>
 
         <div class="default-text title">Send Message</div>
 
@@ -10,7 +20,7 @@
             <!-- MESSAGE INPUT FIELD -->
             <div class="default-text form-title">Message</div>
 
-            <textarea id="dashboard-send-message-modal-message" placeholder="A message." name="message" type="text" normal required></textarea>
+            <textarea id="dashboard-send-message-modal-message" placeholder="Message." name="message" type="text" normal required @bind="Message"></textarea>
 
             <div class="default-text form-error"></div>
 
@@ -43,22 +53,24 @@
             <!-- WHEN A CHECK BOX IS SELECTED BY THE USER, CHANGE THE ICON TO 'check_box'-->
 
             <div class="rounded-visible-border form-list">
+                @foreach(var team in TeamItemList)
+                {
+                    <div class="class-dashboard-help-queue-item centering-flex">
 
-                <div class="class-dashboard-help-queue-item centering-flex">
+                        <div class="dashboard-text bold">@team.Team.TeamName</div>
 
-                    <div class="dashboard-text bold">Team Name</div>
+                        <div class="flex-divider"></div>
 
-                    <div class="flex-divider"></div>
+                        <div class="class-dashboard-help-queue-item-buttons item-spacer-right">
 
-                    <div class="class-dashboard-help-queue-item-buttons item-spacer-right">
+                            <button type="button" class="icon-button" title="Select" @onclick="() => Selected(team)">
+                                <span class="material-icons">@team.CheckMarkText</span>
+                            </button>
 
-                        <button type="button" class="icon-button" title="Select">
-                            <span class="material-icons">check_box_outline_blank</span>
-                        </button>
+                        </div>
 
                     </div>
-
-                </div>
+                }
 
             </div>
 
@@ -68,7 +80,7 @@
 
         <div>
 
-            <input type="submit" id="create-lab-equipment-tool-create" value="Send Message" class="noselect rounded-button dashboard-form-next-button" @onclick="HideSendMessage">
+            <input type="submit" id="create-lab-equipment-tool-create" value="Send Message" class="noselect rounded-button dashboard-form-next-button" @onclick="SendMessage">
             <div class="default-text form-error"></div>
 
         </div>
@@ -83,6 +95,51 @@
 
     [Parameter]
     public EventCallback HideSendMessage { get; set; }
+    // List of all the teams as a param
+    [Parameter]
+    public List<TeamEntity> TeamList { get; set; } = new List<TeamEntity>();
+    [Parameter]
+    public Dictionary<string, SessionTeam> SessionInfo { get; set; }
 
+    // Binded to the text area
+    public string Message { get; set; } = String.Empty;
+
+    // Keeping track of which teams are selected
+    List<SendMessageTeamItem> TeamItemList { get; set; } = new List<SendMessageTeamItem>();
+    protected override void OnInitialized()
+    {
+        foreach(var team in TeamList)
+        {
+            SendMessageTeamItem temp = new SendMessageTeamItem();
+            temp.Team = team;
+            TeamItemList.Add(temp);
+        }
+        base.OnInitialized();
+    }
+
+    List<TeamEntity> SelectedTeams = new List<TeamEntity>();
+    public void Selected(SendMessageTeamItem team)
+    {
+        if (SelectedTeams.Contains(team.Team))
+        {
+            // Unhighlight checkbox and remove from selected teams list
+            team.CheckMarkText = "check_box_outline_blank";
+            SelectedTeams.Remove(team.Team);
+        }else
+        {
+            // Highlight checkbox and add to selected teams list
+            team.CheckMarkText = "select_check_box";
+            SelectedTeams.Add(team.Team);
+        }
+    }
+
+    public async void SendMessage()
+    {
+        foreach(var team in SelectedTeams)
+        {
+            SessionInfo[team.TeamId.ToString()].Message = Message;            
+        }
+        await HideSendMessage.InvokeAsync();
+    }
 
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 using ProjectBoyd.Models.EntityModels;
 using ProjectBoyd.Models.EntityModels.LabEntities;
 
@@ -11,6 +12,8 @@ namespace ProjectBoyd.Models.ObjectModels {
 
         }
 
+        public NavigationManager nav { get; set; }
+        public Action<SessionTeam> MessageAction { get; set; }
         public bool CompletedFirstRun { get; set; } = false;
         public bool AwaitingApproval { get; set; } = false;
         public bool NeedHelp { get; set; } = false;
@@ -63,6 +66,12 @@ namespace ProjectBoyd.Models.ObjectModels {
 
             AssignTag(sessionId, teamId);
 
+        }
+
+        public static void CloseLabApproval(SessionTeam team)
+        {
+            
+            team.nav.NavigateTo("/Student/StudentInstructions", true);
         }
 
         public static void AssignTag(string sessionId, string teamId) {

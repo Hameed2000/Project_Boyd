@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Authorization;
+﻿@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Authorization;
 @using Microsoft.AspNetCore.Identity;
 @using System.Threading.Tasks;
 @using Microsoft.AspNetCore.Mvc;
@@ -14,8 +15,10 @@
 @inject SignInManager<ApplicationUser> signInManager
 @inject RoleManager<IdentityRole> roleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject ApplicationDbContext dbContext
 @inject IJSRuntime JSRuntime
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 @* To-Do: Create a page model for it *@
 
@@ -42,7 +45,7 @@
 
                         <div id="active-session-instructor-list" class="rounded-visible-border" style="width:100%; padding:10px; box-sizing: border-box; border: none">
 
-                            @foreach (var studentEnt in session.GetStudents(dbContext)) {
+                            @foreach (var studentEnt in session.GetStudents(dbFactory.CreateDbContext())) {
 
                                 <div class="form-instructor-entry centering-flex">
 
@@ -316,7 +319,7 @@
 
 
 @code {
-
+    ApplicationDbContext dbContext;
     public static int counter = 0;
 
     public class addInstructorItem {
@@ -377,12 +380,17 @@
     protected override async Task OnInitializedAsync() {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
+        // Db Factory
+        dbContext = await dbFactory.CreateDbContextAsync();
 
         currentUser = await userManager.FindByNameAsync(user.Identity.Name);
+
         addInstructorItem primInstructor = new addInstructorItem(currentUser);
         instructorElementSelectedList.Add(primInstructor);
 
-        primaryInstructorEntity = dbContext.Instructors.Where(i => i.UserId == currentUser.Id).FirstOrDefault<InstructorEntity>();
+        primaryInstructorEntity = await dbContext.Instructors.FirstOrDefaultAsync(i => i.UserId == currentUser.Id);
+
+        await dbContext.SaveChangesAsync();
 
         instructorList = await userManager.GetUsersInRoleAsync("Instructor");
 
@@ -392,7 +400,7 @@
             instructorElementList.Add(item);
         }
 
-        SessionEntity sessionEnt = dbContext.Sessions.Where(s => s.SessionId == primaryInstructorEntity.SessionId).FirstOrDefault<SessionEntity>();
+        SessionEntity sessionEnt = await dbContext.Sessions.FirstOrDefaultAsync(s => s.SessionId == primaryInstructorEntity.SessionId);
 
         if (sessionEnt != null && sessionEnt.Active) {
 
@@ -495,6 +503,12 @@
 
         await JSRuntime.InvokeVoidAsync("StudentListHide");
 
+    }
+
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
     }
 
     @*

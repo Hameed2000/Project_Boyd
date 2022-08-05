@@ -87,15 +87,9 @@
 
             <div id="class-dashboard-class-buttons" class="centering-flex dashboard-button-container active">
 
-                <button class="rounded-button centering-flex" href="instructor/sessiongenerator" style="background-color: var(--accent-color);" @onclick="MainDashboard">
+                <button class="rounded-button centering-flex" style="background-color: var(--dashboard-accent-color-1);" @onclick="ShowSendMessage">
 
-                    <div class="default-text" style="color:white;">Main Dashboard</div>
-
-                </button>
-
-                <button class="rounded-button centering-flex" style="background-color: var(--error-color);" onclick="location.href='instructor/sessiongenerator'">
-
-                    <div class="default-text" style="color:white;">End Class</div>
+                    <div class="default-text" style="color:white;">Send Message</div>
 
                 </button>
 
@@ -105,9 +99,15 @@
 
                 </button>
 
-                <button class="rounded-button centering-flex" style="background-color: var(--dashboard-accent-color-1);" @onclick="ShowSendMessage">
+                <button class="rounded-button centering-flex" href="instructor/sessiongenerator" style="background-color: var(--accent-color);" @onclick="MainDashboard">
 
-                    <div class="default-text" style="color:white;">Send Message</div>
+                    <div class="default-text" style="color:white;">Main Dashboard</div>
+
+                </button>
+
+                <button class="rounded-button centering-flex" style="background-color: var(--error-color);" onclick="location.href='instructor/sessiongenerator'">
+
+                    <div class="default-text" style="color:white;">End Class</div>
 
                 </button>
 
