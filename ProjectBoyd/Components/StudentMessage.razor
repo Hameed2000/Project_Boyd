@@ -17,6 +17,7 @@
 @*@inject ApplicationDbContext dbContext*@
 @inject IDbContextFactory<ApplicationDbContext> dbFactory
 @implements IAsyncDisposable
+@inject NavigationManager NavManager
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined">
 
@@ -33,7 +34,7 @@
 
                 <div></div>
 
-                <img id="student-instructor-message-modal-icon" class="avatar-icon" src="https://tr.rbxcdn.com/8df083e060887d214f1df6f9c992bc8d/150/150/AvatarHeadshot/Png" style="width:80px;">
+                <img id="student-instructor-message-modal-icon" class="avatar-icon" src="https://cdn-icons-png.flaticon.com/512/1177/1177568.png" style="width:80px;">
 
                 <div id="student-instructor-message-modal-text" class="rounded-visible-border default-text form-list" style="text-align: left;">
 
@@ -110,11 +111,17 @@
     // Navigate from here // multiple functions
 
     public void CloseMessage() {
-        sessionTeamInfo.Message = "";
-        if(sessionTeamInfo.MessageAction != null)
+        if(sessionTeamInfo.Message == "Congratulations! Your lab was approved.")
         {
-            sessionTeamInfo.MessageAction.Invoke(sessionTeamInfo); 
+            sessionTeamInfo.Message = "";
+            NavManager.NavigateTo("/Student/StudentInstructions", true);
         }
+        sessionTeamInfo.Message = "";
+        //if(sessionTeamInfo.MessageAction != null)
+        //{
+        //    sessionTeamInfo.MessageAction.Invoke(sessionTeamInfo); 
+        //}
+        
         StateHasChanged();
     }
 
