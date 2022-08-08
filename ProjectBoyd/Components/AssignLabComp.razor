@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Authorization;
+﻿@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Authorization;
 @using Microsoft.AspNetCore.Identity;
 @using System.Threading.Tasks;
 @using Microsoft.AspNetCore.Mvc;
@@ -11,65 +12,84 @@
 @using ProjectBoyd.Models.ObjectModels;
 @using ProjectBoyd.Models.EntityModels.LabEntities;
 
-@inject ApplicationDbContext dbContext
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 
 <div id="student-assign-lab-team-info-modal" class="basic-modal-item active">
 
     <div class="modal-form">
+    @foreach(var team in TeamList){
+        <div class="rounded-visible-border" style="margin:5px;">
+            <img class="avatar-icon" src="https://www.iconbunny.com/icons/media/catalog/product/3/4/3423.12-beaker-icon-iconbunny.jpg" style="max-width: 100px; display:block; margin: 5px auto;">
+        
+            <div class="default-text form-title" style="text-align:center">@team.TeamName</div>
+       
+            @*<div class="default-text title" style="margin-bottom: 5px;">Team_Name</div>*@
 
-        <span class="absolute-button-container">
-            <!-- collapse button -->
-            <button id="student-assign-lab-team-info-modal-close" class="icon-button" style="height:40px;width:40px;">
-                <span class="material-icons" style="margin:auto;font-size:25px">close</span>
-            </button>
-        </span>
-
-        <img class="avatar-icon" src="https://www.iconbunny.com/icons/media/catalog/product/3/4/3423.12-beaker-icon-iconbunny.jpg" style="max-width: 100px;">
-
-        <div class="default-text title" style="margin-bottom: 5px;">Team_Name</div>
-
-        <div>
-            <!-- Team Members -->
-            <div class="default-text form-title">Members</div>
-
-            <div class="rounded-visible-border form-list">
-
-                <div class="class-dashboard-help-queue-item centering-flex">
-
-                    <div class="dashboard-text bold">Member Name</div>
-
-                    <div class="flex-divider"></div>
-
-                </div>
-
+            <div>
+                <!-- Team Members -->
+                <div class="default-text form-title" style="margin-left:12px;">Members</div>
+                <div class="rounded-visible-border form-list" style="margin:8px;">
+                    @foreach(var student in team.Students)
+                    {
+                        <div class="class-dashboard-help-queue-item centering-flex">
+                            <div class="dashboard-text bold">@student.FirstName</div>
+                            <div class="flex-divider"></div>
+                        </div>
+                    }
+                </div> 
+                <div class="default-text form-error"></div>
 
             </div>
+            <div>
+                <!-- Team Members -->
+                <div class="default-text form-title" style="margin-left:12px;">Assigned Labs</div>
 
-            <div class="default-text form-error"></div>
+                <div class="rounded-visible-border form-list" style="margin:8px;">
+                    @if(SessionInfo[team.TeamId.ToString()].LabQueue.Count() > 0)
+                    {
+                        @foreach(var mod in SessionInfo[team.TeamId.ToString()].LabQueue)
+                        {
+                            <div class="class-dashboard-help-queue-item centering-flex">
 
-        </div>
+                                    <div class="dashboard-text bold">@mod.LabName</div>
 
-        <div>
-            <!-- Team Members -->
-            <div class="default-text form-title">Assigned Labs</div>
+                                    <div class="flex-divider"></div>
 
-            <div class="rounded-visible-border form-list">
+                            </div>
+                        }
+                    }else
+                    {
+                        @foreach(var t in SelectedTeams)
+                        {
+                            if(t.TeamId == team.TeamId)
+                            {
+                                // Loop through lab queue instead
+                                @foreach(var module in SelectedModules){
+                                    <div class="class-dashboard-help-queue-item centering-flex">
 
-                <div class="class-dashboard-help-queue-item centering-flex">
+                                        <div class="dashboard-text bold">@module.LabName</div>
 
-                    <div class="dashboard-text bold">Lab Name</div>
+                                        <div class="flex-divider"></div>
 
-                    <div class="flex-divider"></div>
+                                    </div>
+                                }
+                            }
+                        }
+                    }
 
+                    
+                    
                 </div>
 
+                <div class="default-text form-error"></div>
+
             </div>
-
-            <div class="default-text form-error"></div>
-
         </div>
 
+    }
 
 
     </div>
@@ -79,6 +99,13 @@
 <div id="dashboard-assign-lab-modal" class="basic-modal-item active">
 
     <form id="dashboard-assign-lab-modal-form" name="assign-lab" class="centering-flex modal-form">
+
+        <span class="absolute-button-container">
+            <!-- collapse button -->
+            <button id="student-assign-lab-team-info-modal-close" class="icon-button" style="height:40px;width:40px; margin-bottom:5px;" @onclick="HideAssignLab">
+                <span class="material-icons" style="margin:auto;font-size:20px">close</span>
+            </button>
+        </span>
 
         <div class="default-text title">Assign Lab</div>
 
@@ -238,6 +265,7 @@
         <div>
 
             <input type="submit" id="create-lab-equipment-tool-create" value="Assign" class="noselect rounded-button dashboard-form-next-button" @onclick="Submit" >
+            @*<input type="submit" id="create-lab-equipment-tool-create" value="Remove" class="noselect rounded-button dashboard-form-next-button" @onclick="Submit" >*@
             <div class="default-text form-error"></div>
 
         </div>
@@ -247,6 +275,10 @@
 </div>
 
 @code {
+
+    // Check parameters and the actual code base for any bugs
+
+    ApplicationDbContext dbContext;
 
     [Parameter]
     public EventCallback HideAssignLab { get; set; }
@@ -261,14 +293,18 @@
     public List<ModuleEntity> UnSelectedModules;
 
     public List<TeamEntity> SelectedTeams = new List<TeamEntity>();
+    public List<TeamEntity> TeamList = new List<TeamEntity>();
     public List<TeamEntity> UnSelectedTeams = new List<TeamEntity>();
 
     protected override async Task OnInitializedAsync() {
-        UnSelectedModules = dbContext.Modules.ToList();
+        dbContext = await dbFactory.CreateDbContextAsync();
+
+        UnSelectedModules = dbContext.Modules.Include(m => m.WorkOrder).Include(m => m.Tags).Include(m => m.Tips).ToList();
 
         foreach (var team in SessionInfo) {
-            TeamEntity temp = dbContext.Teams.Where(t => t.TeamId.ToString() == team.Key).FirstOrDefault();
+            TeamEntity temp = dbContext.Teams.Include(t => t.Students).Where(t => t.TeamId.ToString() == team.Key).FirstOrDefault();
             UnSelectedTeams.Add(temp);
+            TeamList.Add(temp);
         }
 
         await base.OnInitializedAsync();
@@ -320,7 +356,29 @@
 
 
     public async void Submit() {
+        foreach(var team in SelectedTeams)
+        {
+            if (SelectedModules.Count() > 0)
+            {
+                SessionInfo[team.TeamId.ToString()].LabQueue.AddRange(SelectedModules);
+                SessionInfo[team.TeamId.ToString()].Status = "Lab Assigned";
+            }
+        }
         await HideAssignLab.InvokeAsync();
+    }
+
+    //public async void Remove() {
+    //    foreach(var team in SelectedTeams)
+    //    {
+    //        SessionInfo[team.TeamId.ToString()].LabQueue.Remove(SelectedModules);
+    //    }
+    //    await HideAssignLab.InvokeAsync();
+    //}
+
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
     }
 
 

@@ -39,10 +39,20 @@ namespace ProjectBoyd {
             // This adds the database context as a service to the project that way we can access the database
             // It sets the Connection String to "DefaultConnection"
             // "DefaultConnection" can be found and configured to your machine in appsettings.json
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
-                    
+            //services.AddDbContext<ApplicationDbContext>(options =>
+            //    options.UseSqlServer(
+            //        Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddDbContext<ApplicationDbContext>(
+                options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
+                contextLifetime: ServiceLifetime.Transient,
+                optionsLifetime: ServiceLifetime.Singleton);
+
+            // DB Factory
+            services.AddDbContextFactory<ApplicationDbContext>(
+                options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
+                ServiceLifetime.Scoped);
+
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             // Adds the Identity service, used for authenticating user accounts
@@ -73,6 +83,7 @@ namespace ProjectBoyd {
             services.AddServerSideBlazor();
             services.AddBlazoredSessionStorage();
             services.AddLiveReload();
+            services.AddScoped<ApplicationDbContext, ApplicationDbContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Authorization;
+﻿@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Authorization;
 @using Microsoft.AspNetCore.Identity;
 @using System.Threading.Tasks;
 @using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,12 @@
 
 @inject UserManager<ApplicationUser> userManager
 @inject RoleManager<IdentityRole> roleManager
-@inject ApplicationDbContext dbContext
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ProtectedLocalStorage LocalStorage
 @inject IJSRuntime JSRuntime
-
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 @if (DisplayLeaveConfirmation) {
 
@@ -84,7 +86,7 @@
         <button id="session-status" class="centering-flex hover-background noselect" style="padding: 8px; box-sizing: border-box;" @onclick="ToggleStudentOptions">
 
             <div style="position: relative;width:45px;margin-right:12px;">
-                <img class="avatar-icon" src="https://tr.rbxcdn.com/8df083e060887d214f1df6f9c992bc8d/150/150/AvatarHeadshot/Png" style="width:100%;">
+                <img class="avatar-icon" src="https://cdn-icons-png.flaticon.com/512/1177/1177444.png" style="width:100%;">
                 <!-- session status -->
                 <div style="border-radius:50%;position: absolute; background-color: var(--side-container-color);width:18px;height:18px;right:0px;bottom:0px;display:flex">
 
@@ -178,6 +180,7 @@
 </div>
 
 @code {
+    ApplicationDbContext dbContext;
 
     [Parameter]
     public string PageName { get; set; } = "StudentInstructions";
@@ -193,13 +196,15 @@
     SessionTeam sessionTeamInfo;
 
     protected override async Task OnInitializedAsync() {
+        // Db Factory
+        dbContext = await dbFactory.CreateDbContextAsync();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         currentUser = await userManager.FindByNameAsync(user.Identity.Name);
         team = dbContext.Teams.Where(t => t.AccountId == currentUser.Id).FirstOrDefault();
         //Console.WriteLine(SessionInfo.)
-        
+
         sessionTeamInfo = SessionInfo.SessionInfoList.GetValueOrDefault(team.SessionId).GetValueOrDefault(team.TeamId.ToString());
 
         if (sessionTeamInfo.AwaitingApproval) {
@@ -262,7 +267,6 @@
             SessionInfo.HelpQueue[team.SessionId].Add(team);
             StateHasChanged();
         }
-
     }
 
     public string StudentButtonOptions { get; set; } = "student-session-modal";
@@ -289,6 +293,12 @@
     public void LeaveSession() {
         // Leave Session
         HideLeaveConfirmation();
+    }
+
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
     }
 
 }

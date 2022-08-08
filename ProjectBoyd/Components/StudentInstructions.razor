@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Mvc;
+﻿@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Mvc;
 @using Microsoft.AspNetCore.Mvc.RazorPages;
 @using Microsoft.AspNetCore.WebUtilities;
 @using ProjectBoyd.Models;
@@ -7,14 +8,16 @@
 @using ProjectBoyd.Models.EntityModels;
 @using ProjectBoyd.Models.ObjectModels;
 @using Microsoft.AspNetCore.Identity;
+@using System.Timers
 
 
 @inject UserManager<ApplicationUser> userManager
-@inject ApplicationDbContext dbContext
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavManager
-
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 
 <div id="body-main">
@@ -92,7 +95,7 @@
 
                         <div class="default-text" style="font-size: 1.1em">
                             @*You have been tasked with a work permit to configure and calibrate <em style="color:var(--accent-color)">Tag F420</em>. Note that the device has been disconfigured.*@
-                            @sessionTeamInfo.LabQueue.ElementAt(0).LabDescription;
+                            @sessionTeamInfo.LabQueue.ElementAt(0).LabDescription
                         </div>
 
                         <div></div>
@@ -116,23 +119,31 @@
                         <div class="default-text title">Equipment Checklist</div>
 
                         <div class="default-text" style="font-size: 1.1em">
-                            Select the correct equipment you'll need to complete this module:
+                            Equipment you'll need to complete this module:
                         </div>
 
                         <div></div>
 
                         <form id="equipment-checklist-form" name="registerAccount" class="list-flex">
 
-                            <div class="equipment-checklist-entries">
-
-                                @foreach (var tool in sessionTeamInfo.EquipmentList) {
+                            @*<div class="equipment-checklist-entries">*@
+                                @*@foreach (var tool in sessionTeamInfo.EquipmentList) {
                                     <div class="equipment-checklist-entry centering-flex">
                                         <input id="equipment-checkbox-template" type="checkbox" @onchange="e => UpdateToolCheck(tool.Key, e.Value)">
                                         <label for="equipment-checkbox-template" class="default-text" style="font-size: 1.1em">@tool.Key</label>
                                     </div>
-                                }
+                                }*@
+                            @*</div>*@
 
-                            </div>
+                            <div class="rounded-visible-border form-list">
+                                @foreach(var tool in sessionTeamInfo.EquipmentList)
+                                {
+                                    <div class="class-dashboard-help-queue-item centering-flex" style="color: white">
+                                        <div class="dashboard-text bold">@tool.Key</div>
+                                        <div class="flex-divider"></div>
+                                    </div>
+                                }
+                            </div> 
 
                             <div></div>
 
@@ -178,7 +189,7 @@
 
                         <form id="equipment-checklist-form" name="registerAccount" class="list-flex">
 
-                            <div class="equipment-checklist-entries" style="max-height: 200px;">
+                            @*<div class="equipment-checklist-entries" style="max-height: 200px;">
 
                                 @foreach (var task in sessionTeamInfo.TaskList) {
                                     <div class="equipment-checklist-entry centering-flex">
@@ -187,6 +198,16 @@
                                     </div>
                                 }
 
+                            </div>*@
+
+                            <div class="rounded-visible-border form-list">
+                                @foreach(var task in sessionTeamInfo.TaskList)
+                                {
+                                    <div class="class-dashboard-help-queue-item centering-flex" style="color: white">
+                                        <div class="dashboard-text bold">@task.Key</div>
+                                        <div class="flex-divider"></div>
+                                    </div>
+                                }
                             </div>
 
                             <div></div>
@@ -299,14 +320,18 @@
 
     string page = "Waiting";
 
+    ApplicationDbContext dbContext;
     ApplicationUser currentUser;
     TeamEntity team;
     SessionTeam sessionTeamInfo;
+    Timer timer = new Timer();
     bool labAssigned = false;
 
 
 
     protected override async Task OnInitializedAsync() {
+        // Db Factory
+        dbContext = await dbFactory.CreateDbContextAsync();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -325,6 +350,11 @@
             page = "AssignedPopUp";
         }
 
+        timer.Interval = 10000;
+        timer.Elapsed += OnTimedEvent;
+        timer.AutoReset = true;
+        timer.Enabled = true;
+
         await base.OnInitializedAsync();
     }
 
@@ -333,8 +363,19 @@
 
         //if (firstRender) {
         await JSRuntime.InvokeVoidAsync("DisableFormss");
+        //await InvokeAsync(() => StateHasChanged());
         //}
+    }
 
+    public async void OnTimedEvent(Object? source, System.Timers.ElapsedEventArgs e) {
+
+        if(sessionTeamInfo.LabQueue.Count >= 1)
+        {
+            page = "AssignedPopUp";
+            timer.Enabled = false;
+            await InvokeAsync(() => StateHasChanged()); 
+        }
+        return;
     }
 
 
@@ -386,6 +427,12 @@
 
     public void UpdateTaskCheck(string taskKey, object val) {
         sessionTeamInfo.EquipmentList[taskKey] = (bool)val;
+    }
+
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
     }
 
 }

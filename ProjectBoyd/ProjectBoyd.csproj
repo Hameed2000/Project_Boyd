@@ -38,6 +38,7 @@
 
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
+    <Folder Include="Migrations\" />
     <Folder Include="wwwroot\Assets\Images\cds_imgs\" />
     <Folder Include="wwwroot\Assets\Images\tag_icons\" />
     <Folder Include="wwwroot\css\NewFolder\" />

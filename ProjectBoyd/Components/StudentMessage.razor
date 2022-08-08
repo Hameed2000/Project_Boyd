@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Mvc;
+﻿@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Mvc;
 @using Microsoft.AspNetCore.Mvc.RazorPages;
 @using Microsoft.AspNetCore.WebUtilities;
 @using ProjectBoyd.Models;
@@ -10,11 +11,13 @@
 @using Microsoft.AspNetCore.Identity;
 
 @inject UserManager<ApplicationUser> userManager
-@inject ApplicationDbContext dbContext
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavManager
-
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
+@inject NavigationManager NavManager
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined">
 
@@ -31,7 +34,7 @@
 
                 <div></div>
 
-                <img id="student-instructor-message-modal-icon" class="avatar-icon" src="https://tr.rbxcdn.com/8df083e060887d214f1df6f9c992bc8d/150/150/AvatarHeadshot/Png" style="width:80px;">
+                <img id="student-instructor-message-modal-icon" class="avatar-icon" src="https://cdn-icons-png.flaticon.com/512/1177/1177568.png" style="width:80px;">
 
                 <div id="student-instructor-message-modal-text" class="rounded-visible-border default-text form-list" style="text-align: left;">
 
@@ -63,12 +66,23 @@
 
 
 @code {
-
+    ApplicationDbContext dbContext;
     ApplicationUser currentUser;
     TeamEntity team;
     SessionTeam sessionTeamInfo;
 
+    public async void StateHasChangedWrapper(Object? source, System.Timers.ElapsedEventArgs e)
+    {
+        await InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+        return;
+    }
+
     protected override async Task OnInitializedAsync() {
+        // Db Factory
+        dbContext = await dbFactory.CreateDbContextAsync();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -76,16 +90,45 @@
         team = dbContext.Teams.Where(t => t.AccountId == currentUser.Id).FirstOrDefault();
         try {
             sessionTeamInfo = SessionInfo.SessionInfoList.GetValueOrDefault(team.SessionId).GetValueOrDefault(team.TeamId.ToString());
-            sessionTeamInfo.StateHasChangedDelegate = StateHasChanged;
+            sessionTeamInfo.StateHasChangedDelegate = InvokeChange;
         } catch(Exception e) {
-            
+
         }
 
+        // Checks for a message every 15 seconds
+        System.Timers.Timer timer = new System.Timers.Timer();
+        timer.Interval = 1000;
+        timer.Elapsed += StateHasChangedWrapper;
+        timer.AutoReset = true;
+        timer.Enabled = true;
     }
 
-    public void CloseMessage() {
-        sessionTeamInfo.Message = "";
+    public void InvokeChange()
+    {
         StateHasChanged();
+    }
+
+    // Navigate from here // multiple functions
+
+    public void CloseMessage() {
+        if(sessionTeamInfo.Message == "Congratulations! Your lab was approved.")
+        {
+            sessionTeamInfo.Message = "";
+            NavManager.NavigateTo("/Student/StudentInstructions", true);
+        }
+        sessionTeamInfo.Message = "";
+        //if(sessionTeamInfo.MessageAction != null)
+        //{
+        //    sessionTeamInfo.MessageAction.Invoke(sessionTeamInfo); 
+        //}
+        
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
     }
 
 }

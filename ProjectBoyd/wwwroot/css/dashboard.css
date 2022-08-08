@@ -1,6 +1,6 @@
 html {
-    --dashboard-accent-color-1: #7943b6;
     --dashboard-accent-color-2: #3fa656;
+    --dashboard-accent-color-1: #7943b6;
     --dashboard-accent-color-3: #427eb6;
 }
 
@@ -200,7 +200,7 @@ html {
 /* class information */
 .dashboard-class-info {
     flex: 100%;
-    height: 100%;
+    /*height: 100%;*/
     box-sizing: border-box;
     align-items: center;
     gap: 6px
@@ -474,7 +474,7 @@ th.dashboard-text {
 .absolute-button-container {
     position: absolute;
     width: auto;
-    top: 5px;
+    /*top: 5px;*/
     right: 5px;
 }
 

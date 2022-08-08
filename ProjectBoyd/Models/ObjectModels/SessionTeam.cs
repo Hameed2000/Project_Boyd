@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 using ProjectBoyd.Models.EntityModels;
 using ProjectBoyd.Models.EntityModels.LabEntities;
 
@@ -51,12 +52,14 @@ namespace ProjectBoyd.Models.ObjectModels {
             
             List<string> equipmentList = lab.WorkOrder.Equipment.Split(", ").ToList();
             equipmentList.Remove("");
+            entry.EquipmentList = new Dictionary<string, bool>();
             foreach (var equipment in equipmentList) {
                 entry.EquipmentList.Add(equipment, false);
             }
 
             List<string> taskList = lab.WorkOrder.Tasks.Split(", ").ToList();
             taskList.Remove("");
+            entry.TaskList = new Dictionary<string, bool>();
             foreach (var task in taskList) {
                 entry.TaskList.Add(task, false);
             }
@@ -64,6 +67,7 @@ namespace ProjectBoyd.Models.ObjectModels {
             AssignTag(sessionId, teamId);
 
         }
+
 
         public static void AssignTag(string sessionId, string teamId) {
             Dictionary<string, SessionTeam> sessionTeams = SessionInfo.SessionInfoList.GetValueOrDefault(sessionId);

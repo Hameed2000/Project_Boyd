@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Mvc;
+﻿@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Mvc;
 @using Microsoft.AspNetCore.Mvc.RazorPages;
 @using Microsoft.AspNetCore.WebUtilities;
 @using ProjectBoyd.Models;
@@ -8,12 +9,15 @@
 @using ProjectBoyd.Models.ObjectModels;
 @using ProjectBoyd.Models.EntityModels.LabEntities;
 @using Microsoft.AspNetCore.Identity;
+@using System.Timers
 
 @inject UserManager<ApplicationUser> userManager
-@inject ApplicationDbContext dbContext
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavManager
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 <div id="body-main">
 
@@ -263,12 +267,15 @@
 
 @code {
 
+    ApplicationDbContext dbContext;
     ApplicationUser currentUser;
     TeamEntity team;
     SessionTeam sessionTeamInfo;
     bool labAssigned = false;
 
     protected override async Task OnInitializedAsync() {
+        // Db Factory
+        dbContext = await dbFactory.CreateDbContextAsync();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -287,6 +294,12 @@
             //AwaitinApprovalStyle = "max-width:700px; transition: opacity 0.3s; -webkit-transition: opacity 0.3s;border-radius:8px;";
         }
 
+        Timer timer = new Timer();
+        timer.Interval = 1000;
+        timer.Elapsed += OnTimedEvent;
+        timer.AutoReset = true;
+        timer.Enabled = true;
+
     }
 
     protected async override Task OnAfterRenderAsync(bool firstRender) {
@@ -302,7 +315,16 @@
             SubmissionColor = "var(--accent-color)";
             //AwaitinApprovalStyle = "max-width:700px; transition: opacity 0.3s; -webkit-transition: opacity 0.3s;border-radius:8px;";
         }
+        if (!sessionTeamInfo.AwaitingApproval)
+        {
+            SubmissionText = "Submit";
+            SubmissionColor = "var(--accent-color)";
+        }
+    }
 
+    public async void OnTimedEvent(Object? source, System.Timers.ElapsedEventArgs e) {
+        await InvokeAsync(() => StateHasChanged());
+        return;
     }
 
     public void UpdateTableValue(object val, int index) {
@@ -335,6 +357,12 @@
 
         }
 
+    }
+
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
     }
 
 }

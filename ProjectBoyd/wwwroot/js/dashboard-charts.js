@@ -24,14 +24,56 @@ function updateCircularProgress(element, dividend) {
 
 }
 
-window.onload = function () {
+//window.onload = function () {
 
-    const circularProgressBars = document.querySelectorAll(".circular-progress")
+//    const circularProgressBars = document.querySelectorAll(".circular-progress")
     
-    circularProgressBars.forEach( (element) => {
+//    circularProgressBars.forEach( (element) => {
 
-        updateCircularProgress(element,0)
+//        updateCircularProgress(element,0)
+
+//    })
+
+//}
+
+function LoadChart(months, classesTaught) {
+    const chartElement = document.getElementById("dashboard-classes-taught-graph")
+    try {
+        const chart = new Chart(chartElement, {
+            type: "bar",
+            data: {
+                labels: months,
+                datasets: [{
+                    label: "Classes Taught",
+                    data: classesTaught,
+
+                    backgroundColor: ["#309DFF"],
+                    borderRadius: "5"
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+
+            }
+
+        })
+    } catch (exception_var) {
+        console.log("Graph already exists");
+    }
+}
+
+function PopulateCircularBars(amountList) {
+    const circularProgressBars = document.querySelectorAll(".circular-progress")
+
+    circularProgressBars.forEach((element) => {
+
+        updateCircularProgress(0, amountList)
 
     })
-
 }
