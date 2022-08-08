@@ -20,59 +20,76 @@
 <div id="student-assign-lab-team-info-modal" class="basic-modal-item active">
 
     <div class="modal-form">
-
-        <img class="avatar-icon" src="https://www.iconbunny.com/icons/media/catalog/product/3/4/3423.12-beaker-icon-iconbunny.jpg" style="max-width: 100px;">
-        @foreach(var team in TeamList){
-                
-                <div class="default-text form-title" style="text-align:center">@team.TeamName</div>
+    @foreach(var team in TeamList){
+        <div class="rounded-visible-border" style="margin:5px;">
+            <img class="avatar-icon" src="https://www.iconbunny.com/icons/media/catalog/product/3/4/3423.12-beaker-icon-iconbunny.jpg" style="max-width: 100px; display:block; margin: 5px auto;">
+        
+            <div class="default-text form-title" style="text-align:center">@team.TeamName</div>
        
-                @*<div class="default-text title" style="margin-bottom: 5px;">Team_Name</div>*@
+            @*<div class="default-text title" style="margin-bottom: 5px;">Team_Name</div>*@
 
-                <div>
-                    <!-- Team Members -->
-                    @*Why doesn't it show the student names*@
-                    <div class="default-text form-title">Members</div>
-                    <div class="rounded-visible-border form-list">
-                        @foreach(var student in team.Students)
-                        {
-                            <div class="class-dashboard-help-queue-item centering-flex">
-                                <div class="dashboard-text bold">@student.FirstName</div>
-                                <div class="flex-divider"></div>
-                            </div>
-                        }
-                    </div> 
-                    <div class="default-text form-error"></div>
-
-                </div>
             <div>
                 <!-- Team Members -->
-                <div class="default-text form-title">Assigned Labs</div>
-
-                <div class="rounded-visible-border form-list">
-                    @foreach(var t in SelectedTeams)
+                <div class="default-text form-title" style="margin-left:12px;">Members</div>
+                <div class="rounded-visible-border form-list" style="margin:8px;">
+                    @foreach(var student in team.Students)
                     {
-                        if(t.TeamId == team.TeamId)
-                        {
-                            // Loop through lab queue instead
-                            @foreach(var module in SelectedModules){
-                                <div class="class-dashboard-help-queue-item centering-flex">
+                        <div class="class-dashboard-help-queue-item centering-flex">
+                            <div class="dashboard-text bold">@student.FirstName</div>
+                            <div class="flex-divider"></div>
+                        </div>
+                    }
+                </div> 
+                <div class="default-text form-error"></div>
 
-                                    <div class="dashboard-text bold">@module.LabName</div>
+            </div>
+            <div>
+                <!-- Team Members -->
+                <div class="default-text form-title" style="margin-left:12px;">Assigned Labs</div>
+
+                <div class="rounded-visible-border form-list" style="margin:8px;">
+                    @if(SessionInfo[team.TeamId.ToString()].LabQueue.Count() > 0)
+                    {
+                        @foreach(var mod in SessionInfo[team.TeamId.ToString()].LabQueue)
+                        {
+                            <div class="class-dashboard-help-queue-item centering-flex">
+
+                                    <div class="dashboard-text bold">@mod.LabName</div>
 
                                     <div class="flex-divider"></div>
 
-                                </div>
+                            </div>
+                        }
+                    }else
+                    {
+                        @foreach(var t in SelectedTeams)
+                        {
+                            if(t.TeamId == team.TeamId)
+                            {
+                                // Loop through lab queue instead
+                                @foreach(var module in SelectedModules){
+                                    <div class="class-dashboard-help-queue-item centering-flex">
+
+                                        <div class="dashboard-text bold">@module.LabName</div>
+
+                                        <div class="flex-divider"></div>
+
+                                    </div>
+                                }
                             }
                         }
                     }
+
+                    
                     
                 </div>
 
                 <div class="default-text form-error"></div>
 
             </div>
+        </div>
 
-        }
+    }
 
 
     </div>
@@ -344,6 +361,7 @@
             if (SelectedModules.Count() > 0)
             {
                 SessionInfo[team.TeamId.ToString()].LabQueue.AddRange(SelectedModules);
+                SessionInfo[team.TeamId.ToString()].Status = "Lab Assigned";
             }
         }
         await HideAssignLab.InvokeAsync();

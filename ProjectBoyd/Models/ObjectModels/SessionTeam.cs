@@ -12,8 +12,6 @@ namespace ProjectBoyd.Models.ObjectModels {
 
         }
 
-        public NavigationManager nav { get; set; }
-        public Action<SessionTeam> MessageAction { get; set; }
         public bool CompletedFirstRun { get; set; } = false;
         public bool AwaitingApproval { get; set; } = false;
         public bool NeedHelp { get; set; } = false;
@@ -54,12 +52,14 @@ namespace ProjectBoyd.Models.ObjectModels {
             
             List<string> equipmentList = lab.WorkOrder.Equipment.Split(", ").ToList();
             equipmentList.Remove("");
+            entry.EquipmentList = new Dictionary<string, bool>();
             foreach (var equipment in equipmentList) {
                 entry.EquipmentList.Add(equipment, false);
             }
 
             List<string> taskList = lab.WorkOrder.Tasks.Split(", ").ToList();
             taskList.Remove("");
+            entry.TaskList = new Dictionary<string, bool>();
             foreach (var task in taskList) {
                 entry.TaskList.Add(task, false);
             }
@@ -68,11 +68,6 @@ namespace ProjectBoyd.Models.ObjectModels {
 
         }
 
-        public static void CloseLabApproval(SessionTeam team)
-        {
-            
-            team.nav.NavigateTo("/Student/StudentInstructions", true);
-        }
 
         public static void AssignTag(string sessionId, string teamId) {
             Dictionary<string, SessionTeam> sessionTeams = SessionInfo.SessionInfoList.GetValueOrDefault(sessionId);

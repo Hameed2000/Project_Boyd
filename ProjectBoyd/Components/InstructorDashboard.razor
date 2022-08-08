@@ -129,33 +129,64 @@
                                 </div>
 
                                 <div class="flex-divider"></div>
-
-                                <div class="dashboard-text bold class-dashboard-teams-progress-text" style="color:var(--accent-color)"> @team.sessionTeam.Status </div>
-
-                            </div>
-
-                            <div class="class-dashboard-item-more-info list-flex @isActive">
-
-                                <div class="dashboard-text bold class-dashboard-teams-approval-text" style="color:var(--dashboard-accent-color-1)">Approval Request</div>
-
-                                <div class="flex-divider"></div>
-
-                                <!-- ADD 'active' TO THESE TO MAKE THEM VISIBLE DEPENDING ON THE SITUATION-->
-                                <div class="centering-flex item-spacer-right class-dashboard-teams-more-info-buttons results @isActive">
-                                        
-                                    <button class="rounded-button" style="color:var(--accent-color)">View Results</button>
-                                        
-                                </div>
-
-                                <div class="centering-flex item-spacer-right class-dashboard-teams-more-info-buttons approval @isActive">
-                                        
-                                    <button class="rounded-button" style="color:var(--content-color)" @onclick="() => RequestApproved(team)">Approve</button>
-                                    <button class="rounded-button" style="color:var(--error-color)" @onclick="() => RequestDenied(team)">Reject</button>
-
-                                </div>
-                                
+                                    @if(team.sessionTeam.Status == "Lab Assigned")
+                                    {
+                                        <div class="dashboard-text bold class-dashboard-teams-progress-text" style="color:#ca2a2a;"> @team.sessionTeam.Status </div>
+                                    }else{
+                                    <div class="dashboard-text bold class-dashboard-teams-progress-text" style="color:var(--accent-color)"> @team.sessionTeam.Status </div>
+                                    }
 
                             </div>
+                                @if (team.sessionTeam.AwaitingApproval)
+                                {
+                                    <div class="class-dashboard-item-more-info list-flex @isActive">
+
+                                        <div class="dashboard-text bold class-dashboard-teams-approval-text" style="color:var(--dashboard-accent-color-1)">Approval Request</div>
+
+                                        <div class="flex-divider"></div>
+
+                                        <!-- ADD 'active' TO THESE TO MAKE THEM VISIBLE DEPENDING ON THE SITUATION-->
+                                        <div class="centering-flex item-spacer-right class-dashboard-teams-more-info-buttons results @isActive">
+
+                                            <button class="rounded-button" style="color:var(--accent-color)">View Results</button>
+
+                                        </div>
+
+                                        <div class="centering-flex item-spacer-right class-dashboard-teams-more-info-buttons approval @isActive">
+
+                                            <button class="rounded-button" style="color:var(--content-color)" @onclick="() => RequestApproved(team)">Approve</button>
+                                            <button class="rounded-button" style="color:var(--error-color)" @onclick="() => RequestDenied(team)">Reject</button>
+
+                                        </div>
+
+
+                                    </div>
+                                }else
+                                {
+                                    <div class="class-dashboard-item-more-info list-flex">
+
+                                        <div class="dashboard-text bold class-dashboard-teams-approval-text" style="color:var(--dashboard-accent-color-1)">Approval Request</div>
+
+                                        <div class="flex-divider"></div>
+
+                                        <!-- ADD 'active' TO THESE TO MAKE THEM VISIBLE DEPENDING ON THE SITUATION-->
+                                        <div class="centering-flex item-spacer-right class-dashboard-teams-more-info-buttons results">
+
+                                            <button class="rounded-button" style="color:var(--accent-color)">View Results</button>
+
+                                        </div>
+
+                                        <div class="centering-flex item-spacer-right class-dashboard-teams-more-info-buttons approval">
+
+                                            <button class="rounded-button" style="color:var(--content-color)" @onclick="() => RequestApproved(team)">Approve</button>
+                                            <button class="rounded-button" style="color:var(--error-color)" @onclick="() => RequestDenied(team)">Reject</button>
+
+                                        </div>
+
+
+                                    </div>
+                                }
+
 
                         </div>
 
@@ -414,7 +445,7 @@
     public int oneBefore { get; set; } = 0;
     public int thisMonth { get; set; } = 0;
 
-    public string isActive { get; set; }
+    public string isActive { get; set; } = "";
 
     // Circle Chart
     public int AvgMonthlyClasses { get; set; }
@@ -550,6 +581,13 @@
             {
                 isActive = "active";
             }
+            if(te.sessionTeam.LabQueue.Count() > 0)
+            {
+                te.sessionTeam.Status = "Lab Assigned";
+            }else
+            {
+                te.sessionTeam.Status = "Awaiting Lab";
+            }
         }
 
         //}
@@ -600,18 +638,20 @@
     public void RequestApproved(TeamEntity team)
     {
         sessionInfo[team.TeamId.ToString()].Message = "Congratulations! Your lab was approved.";
-        if (team.sessionTeam.LabQueue.Count() > 1)
+        if (team.sessionTeam.LabQueue.Count() >= 1)
         {
             team.sessionTeam.LabQueue.RemoveAt(0);
+        }
+        if(team.sessionTeam.LabQueue.Count() == 0)
+        {
+            team.sessionTeam.Status = "Awaiting Lab";
         }
         team.sessionTeam.CompletedFirstRun = false;
         team.sessionTeam.DataTableValues = Enumerable.Repeat("", 25).ToArray();
         team.sessionTeam.EquipmentSelected = new List<string>();
         team.sessionTeam.TasksSelected = new List<string>();
         team.sessionTeam.AwaitingApproval = false;
-        team.sessionTeam.nav = NavManager;
-        team.sessionTeam.MessageAction = SessionInfo.CloseLabApproval;
-        Console.WriteLine(team.sessionTeam.LabQueue[0].LabName);
+        //Console.WriteLine(team.sessionTeam.LabQueue[0].LabName);
         isActive = "";
     }
 
