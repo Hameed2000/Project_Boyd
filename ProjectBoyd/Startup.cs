@@ -57,11 +57,15 @@ namespace ProjectBoyd {
             // I got the client ID and the client secret from https://go.microsoft.com/fwlink/?linkid=2083908
             // I created an account for this project, and it already has this information set up
             // We might have to work with Blaine to create an official Emerson account, but as of now I've set up a temporary account
+            /*services.AddAuthentication().AddMicrosoftAccount(microsoftOptions => {
+                microsoftOptions.ClientId = "b391d2c7-379b-4b18-896e-3e8211925fcf";
+                microsoftOptions.ClientSecret = "ylz8Q~WZGjp9J8SrnHpRyZixyQpcwiIaO-SkwbE3";
+            });*/
+
             services.AddAuthentication().AddMicrosoftAccount(microsoftOptions => {
                 microsoftOptions.ClientId = "ac07f7f5-53a6-4f01-869a-de2f3ca768d6";
                 microsoftOptions.ClientSecret = "6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";
             });
-
 
             // Add any other services you'd like here
             services.AddControllersWithViews();
@@ -112,7 +116,7 @@ namespace ProjectBoyd {
             // 4: Recomment the two lines below
             // 5: Run these commands in Package Manager Console: "Add-Migration InitialCreate" and "Update-Database"
 
-            //var dbContext = new ApplicationDbContext(serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());
+            //var dbContext = new ApplicationDbContext(serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());            
             //dbContext.Database.EnsureDeleted();
 
         }
@@ -128,6 +132,7 @@ namespace ProjectBoyd {
         private async Task CreateRoles(IServiceProvider serviceProvider) {
 
             var dbContext = new ApplicationDbContext(serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());
+            //dbContext.Database.MigrateAsync();
 
             // Initializing roles 
             // Add any roles you'd like to add in "roleNames"
