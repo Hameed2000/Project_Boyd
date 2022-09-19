@@ -30,22 +30,8 @@ function HideCustomEquipmentModal() {
 
 
 function ShowUploadImageModal() {
-
     document.getElementById("create-lab-upload-image").classList.add("active");
-    document.getElementById("create-lab-modal-container").classList.add("active");
-
 }
-
-function HideUploadImageModal() {
-
-    document.getElementById("create-lab-upload-image").classList.remove("active");
-
-    if (!document.getElementById("create-lab-tag-creator").classList.contains("active")) {
-        document.getElementById("create-lab-modal-container").classList.remove("active");
-    }
-
-}
-
 
 function ShowCreateTagModal() {
 

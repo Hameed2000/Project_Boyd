@@ -388,19 +388,18 @@
 
                         </span>
 
-                        <div>
+                        <div id="create-lab-upload-image">
                             <!-- IMAGE INPUT FIELD -->
                             <!-- USE THE 'create-lab-upload-image' MODAL FOR THE 'Upload Image' BUTTON -->
                             <div class="default-text form-title">Configuration Sheet Image</div>
 
                             <div class="centering-flex">
 
-
                                     @* @onclick="ShowUploadImageModal"*@
                                     
                                     <div id="create-lab-panel-3-sheet-img-button" class="noselect create-lab-image-submission"> 
 
-                                        <div class="create-lab-icon-empty rounded-dashed-border">
+                                        <div class="default-text create-lab-icon-empty rounded-dashed-border">
                                                 <span class="material-icons">add</span>
                                                 <span> <label for="image-picker" class="create-lab-image-submission">Upload Image</label> </span>
                                                 <InputFile accept="image/png, image/jpg" id="image-picker" name="uploadedImage" OnChange="(e) => HandleImageUpload(e, false)" class="create-lab-image-submission" type="file" normal required />
@@ -408,15 +407,14 @@
                                                 </div>
                                                                               
                                     </div> 
-
                                     @*Image Preview*@
-                                    <div id="create-lab-panel-3" class="basic-panel active rounded-dashed-border">
+                                   <div id="create-lab-panel-3 create-lab-upload-img-container" class="basic-panel1 active">
                                         <div class="create-lab-upload-image-preview-container active">
 
-                                            <img id="create-lab-upload-image-preview" class="create-lab-upload-image-preview rounded-visible-border" src=@CDFImagePath>
+                                            <img id="create-lab-upload-image-preview" class="create-lab-upload-image-preview" src=@CDFImagePath>
 
                                         </div> 
-                                    </div> 
+                                    </div>
                                 
                                 <div class="flex-divider"></div>
 
@@ -833,7 +831,6 @@
     public string CDFImagePath { get; set; } = "";
 
     public async void ShowUploadImageModal() {
-        Warning = "";
         await JSRuntime.InvokeVoidAsync("ShowUploadImageModal");
     }
 
@@ -854,13 +851,9 @@
         var file = e.File;
 
         Console.WriteLine(file.ContentType);
-        // var filePath = @"C:\Users\E1415506\source\repos\Project_Boyd02\ProjectBoyd\wwwroot\Assets\Images\cds_imgs" + file.Name;
-        
-        string filePath = Path.GetFullPath(file.Name); 
-        Console.WriteLine($"Path full path: {filePath}"); 
 
-        // var systemPath = System.IO.Path.GetDirectoryName (file.Name); 
-        // Console.WriteLine($"filePath: {systemPath}"); 
+        string filePath = Path.GetFullPath(file.Name); 
+        // Console.WriteLine($"Path full path: {filePath}"); 
 
         string temp = @"/Assets/Images/cds_imgs/" + file.Name;
         string getCurrentDir = Directory.GetCurrentDirectory(); 
@@ -876,15 +869,10 @@
                 return;
             }
 
-                  var fileName = Path.GetFileName(file.Name);
-                  filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Assets\Images\cds_imgs", file.Name);
-                  Console.WriteLine(filePath); 
-                // }
+            var fileName = Path.GetFileName(file.Name);
+            filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Assets\Images\cds_imgs", file.Name);
+            Console.WriteLine(filePath); 
 
-            // await using (var fileStream = new FileStream(filePath, FileMode.Create))
-            // {
-            //     await file.OpenReadStream().CopyToAsync(fileStream);
-            // }
             await using FileStream fs = new(filePath, FileMode.Create);
             await file.OpenReadStream().CopyToAsync(fs);
 
@@ -898,19 +886,17 @@
             TagsConfirmationCancel();
         }
 
-
         Warning = "";
         await Task.Delay(1000);
         CDFImagePath = temp;
         Console.WriteLine($"CDFImagePath = {CDFImagePath}" ); 
+        ShowUploadImageModal(); 
         StateHasChanged();
     }
 
 
     InputFileChangeEventArgs overRideFile;
-    public async void HandleImageUploadOverRide() {
-        await HandleImageUpload(overRideFile, true);
-    }
+    public async void HandleImageUploadOverRide() => await HandleImageUpload(overRideFile, true);
 
     public void TagsConfirmationCancel() {
         overRideFile = null;
