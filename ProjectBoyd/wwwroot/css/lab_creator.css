@@ -87,14 +87,19 @@
 
         }
 
+        .equipment-checklist {
+            text-align: right; 
+        }
+
 /* create lab button */
+.page1-create-lab-btn {
+    display: inline-block;
+    margin-left: 5px;
+}
 
     #create-lab-button {
-
         background-color: var(--accent-color);
-        
         color: white;
-
     }
 
     #create-lab-button > .lab-list-item-text {

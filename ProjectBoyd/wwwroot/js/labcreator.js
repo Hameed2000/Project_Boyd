@@ -57,9 +57,7 @@ function ShowCreateTagModal() {
 function HideCreateTagModal() {
 
     document.getElementById("create-lab-tag-creator").classList.remove("active");
-    if (!document.getElementById("create-lab-upload-image").classList.contains("active")) {
-        document.getElementById("create-lab-modal-container").classList.remove("active");
-    }
+    document.getElementById("create-lab-modal-container").classList.remove("active");
 
 }
 

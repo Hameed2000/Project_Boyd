@@ -30,7 +30,7 @@
         <button id="session-status" class="centering-flex hover-background noselect" style="display: flex; column-gap: 20px; padding: 8px; box-sizing: border-box;">
 
             <div style="position: relative;width:45px;margin-right:12px;">
-                <img class="avatar-icon" src="/Assets/Images/icons8-butterfly-96.png" style="width:100%; border-radius: 30%; object-fit: cover; background-color: #313131; padding: 3px; border: 0px solid rgba(255,255,255,0.1)">
+                @*<img class="avatar-icon" src="/Assets/Images/icons8-butterfly-96.png" style="width:100%; border-radius: 30%; object-fit: cover; background-color: #313131; padding: 3px; border: 0px solid rgba(255,255,255,0.1)">*@
                 <img class="avatar-icon" src="https://cdn-icons-png.flaticon.com/512/1177/1177568.png" style="width:100%;">
                 <!-- session status -->
                 <div style="border-radius:50%;position: absolute; background-color: var(--side-container-color);width:18px;height:18px;right:0px;bottom:0px;display:flex">
@@ -109,6 +109,7 @@
 
 @code {
     ApplicationDbContext dbContext;
+
 
     [Parameter]
     public string PageName { get; set; } = "AdminPanel";

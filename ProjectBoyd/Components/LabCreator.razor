@@ -69,47 +69,18 @@
 
         </div>
 
-        <div id="create-lab-upload-image" class="basic-modal-item">
-
-            <form id="create-lab-equipment-modal-form" name="create-lab-equipment" class="centering-flex lab-form">
-
-                <div class="default-text title">Upload Image</div>
-
-                <div></div>
-
-                <div>
-
-                    <div class="default-text form-title">Configuration Sheet</div>
-
-                    @*<input accept="image/png, image/jpg" id="create-lab-upload-image-image" name="uploadedImage" type="file" normal required>*@
-                    <InputFile id="image-picker" OnChange="(e) => HandleImageUpload(e, false)" accept="image/png, image/jpg" />
-
-                    <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>
-
-                </div>
-
-                <div class="create-lab-upload-image-preview-container active">
-
-                    <img id="create-lab-upload-image-preview" class="create-lab-upload-image-preview rounded-visible-border" src=@CDFImagePath>
-
-                </div>
-
-                <div></div>
-
-                <div>
-
-                    @*<input type="submit" id="create-lab-upload-image-submit" value="Upload" class="noselect rounded-button lab-form-next-button" @onclick="UploadImage">
-                        <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>*@
-
-                </div>
-
-            </form>
-
-        </div>
 
         <div id="create-lab-tag-creator" class="basic-modal-item">
 
             <form id="create-lab-equipment-modal-form" name="create-lab-equipment" class="centering-flex lab-form">
+
+                
+@*                <span class="absolute-button-container">
+                    <!-- collapse button -->
+                    <button id="close-create-tag-button" class="icon-button" @onclick="HideCreateTag" style="height:40px;width:40px; margin-bottom:5px;">
+                        <span class="material-icons" style="margin:auto;font-size:20px">close</span>
+                    </button>
+                </span>*@
 
                 <div class="default-text title">Create Tag</div>
 
@@ -156,7 +127,7 @@
 
                 <div>
 
-                    <input type="submit" id="create-lab-tag-creator-create" value="Create" class="noselect rounded-button lab-form-next-button" @onclick="UploadImage">
+                    <input type="submit" id="create-lab-tag-creator-create" value="Create" class="noselect rounded-button lab-form-next-button" @onclick="UploadTags">
                     <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>
 
                 </div>
@@ -256,8 +227,8 @@
 
                 <button id="create-lab-button" class="centering-flex item-spacer-right rounded-button" @onclick="Next">
 
-                    <div class="default-text lab-list-item-text">Create Lab</div>
-                    <span class="material-icons noselect">add_circle_outline</span>
+                    <span class="material-icons noselect page1-create-lab-btn">post_add</span>
+                    <div class="default-text lab-list-item-text">Create Lab </div>
 
                 </button>
 
@@ -276,6 +247,15 @@
                 @if (pageDisplay == 2) {
 
                     <div id="create-lab-panel-1" class="basic-panel active">
+
+                        <!-- previous page button -->
+                        <span class="previous-page-button-float">
+
+                            <button class="icon-button" title="Previous Panel" @onclick="Prev">
+                                <span class="material-icons">arrow_back</span>
+                            </button>
+
+                        </span>
 
                         <div class="default-text title">Basic Information</div>
                         <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>
@@ -307,7 +287,7 @@
 
                                 <img src=@IconPath id="create-lab-panel-1-icon" class="rounded-visible-border create-lab-image-submission-icon" style="display:@IconSelectedDisplay;">
 
-
+                                
                             </button>
 
                             <div class="default-text form-error"></div>
@@ -367,7 +347,7 @@
 
                                     <div class="flex-divider"></div>
 
-                                    <div class="centering-flex lab-list-item-icon-buttons">
+                                    <div class="centering-flex lab-list-item-icon-buttons" >
 
                                         <button class="icon-button" @onclick="() => RemoveTool(tool)" title="Delete Equipment">
                                             <span class="material-icons">delete</span>
@@ -415,29 +395,41 @@
 
                             <div class="centering-flex">
 
-                                <button type="button" id="create-lab-panel-3-sheet-img-button" class="noselect create-lab-image-submission">
+
                                     @* @onclick="ShowUploadImageModal"*@
+                                    
+                                    <div id="create-lab-panel-3-sheet-img-button" class="noselect create-lab-image-submission"> 
 
-                                    <div class="create-lab-icon-empty rounded-dashed-border">
+                                        <div class="create-lab-icon-empty rounded-dashed-border">
+                                                <span class="material-icons">add</span>
+                                                <span> <label for="image-picker" class="create-lab-image-submission">Upload Image</label> </span>
+                                                <InputFile accept="image/png, image/jpg" id="image-picker" name="uploadedImage" OnChange="(e) => HandleImageUpload(e, false)" class="create-lab-image-submission" type="file" normal required />
+                                                <div class="default-text form-error" style="margin-bottom: 10px; display: inherit"> @Warning  </div>
+                                                </div>
+                                                                              
+                                    </div> 
 
-                                        <span class="material-icons">add</span>
-                                        <span class="lab-list-item-text">Upload Image</span>
+                                    @*Image Preview*@
+                                    <div id="create-lab-panel-3" class="basic-panel active rounded-dashed-border">
+                                        <div class="create-lab-upload-image-preview-container active">
 
-                                    </div>
+                                            <img id="create-lab-upload-image-preview" class="create-lab-upload-image-preview rounded-visible-border" src=@CDFImagePath>
 
-                                    <img src=@CDFImagePath id="create-lab-panel-3-sheet-img" class="rounded-visible-border create-lab-image-submission-icon">
-
-
-                                </button>
-
+                                        </div> 
+                                    </div> 
+                                
                                 <div class="flex-divider"></div>
 
                             </div>
 
 
+
+                            <div></div> 
+
                             <div class="default-text form-error"></div>
 
                         </div>
+
 
                         <div class="default-text form-title">Tags</div>
                         <div id="create-lab-panel-3-tag-list" class="lab-item-list rounded-visible-border">
@@ -475,8 +467,6 @@
                             }
 
                         </div>
-
-
 
                         <div></div>
 
@@ -651,6 +641,7 @@
         pageDisplay--;
     }
 
+
     //Add Custom Input Modal
     public string CustomName { get; set; } = "";
     public string ModalText { get; set; } = "";
@@ -735,7 +726,7 @@
     public void DeleteLab(ModuleEntity module) {
         LabDelete = module;
         DeleteLabConfirmed();
-        @* StateHasChanged();
+    @* StateHasChanged();
         LabsConfirmationBool = true;
         await Task.Delay(10);
         DeleteConfirmationComponent.Show(true, "Delete Lab Module?", "Do you want to permanently delete this lab module", " ", "Delete", "Cancel");
@@ -851,7 +842,6 @@
         await JSRuntime.InvokeVoidAsync("HideUploadImageModal");
     }
 
-
     private List<IBrowserFile> loadedFiles = new();
     private long maxFileSize = 1024 * 15;
     public Confirmation ConfirmationComponent;
@@ -864,12 +854,20 @@
         var file = e.File;
 
         Console.WriteLine(file.ContentType);
-        var path = @"C:\Users\E1416383\source\repos\BOYD\ProjectBoyd\wwwroot\Assets\Images\cds_imgs\" + file.Name;
-        var temp = @"/Assets/Images/cds_imgs/" + file.Name;
+        // var filePath = @"C:\Users\E1415506\source\repos\Project_Boyd02\ProjectBoyd\wwwroot\Assets\Images\cds_imgs" + file.Name;
+        
+        string filePath = Path.GetFullPath(file.Name); 
+        Console.WriteLine($"Path full path: {filePath}"); 
+
+        // var systemPath = System.IO.Path.GetDirectoryName (file.Name); 
+        // Console.WriteLine($"filePath: {systemPath}"); 
+
+        string temp = @"/Assets/Images/cds_imgs/" + file.Name;
+        string getCurrentDir = Directory.GetCurrentDirectory(); 
 
         try {
 
-            if (!overRide && dbContext.Tags.Where(t => t.CDSImageAddress == path).FirstOrDefault() != null) {
+            if (!overRide && dbContext.Tags.Where(t => t.CDSImageAddress == filePath).FirstOrDefault() != null) {
                 Warning = "File Name is Already in Use";
                 overRideFile = e;
                 TagsConfirmationBool = true;
@@ -878,24 +876,36 @@
                 return;
             }
 
-            await using FileStream fs = new(path, FileMode.Create);
+                  var fileName = Path.GetFileName(file.Name);
+                  filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Assets\Images\cds_imgs", file.Name);
+                  Console.WriteLine(filePath); 
+                // }
+
+            // await using (var fileStream = new FileStream(filePath, FileMode.Create))
+            // {
+            //     await file.OpenReadStream().CopyToAsync(fileStream);
+            // }
+            await using FileStream fs = new(filePath, FileMode.Create);
             await file.OpenReadStream().CopyToAsync(fs);
 
         }
         catch (Exception en) {
             Warning = "Image Upload Failed";
-            return;
+            return; 
         }
 
         if (overRideFile != null) {
             TagsConfirmationCancel();
         }
 
+
         Warning = "";
         await Task.Delay(1000);
         CDFImagePath = temp;
+        Console.WriteLine($"CDFImagePath = {CDFImagePath}" ); 
         StateHasChanged();
     }
+
 
     InputFileChangeEventArgs overRideFile;
     public async void HandleImageUploadOverRide() {
@@ -908,14 +918,9 @@
         TagsConfirmationBool = false;
     }
 
-    public void UploadImage() {
-        if (CDFImagePath.Length <= 1) {
-            Warning = "Image Upload Failed";
-            return;
-        }
-        Warning = "";
+    public void UploadTags() {
         CreateTag();
-        HideUploadImageModal();
+        HideCreateTagModal(); 
     }
 
     public ICollection<TagEntity> TagsList { get; set; } = new List<TagEntity>();
@@ -935,7 +940,7 @@
         TagServiceNumber = tag.ServiceNumber;
         CDFImagePath = tag.CDSImageAddress;
 
-        ShowUploadImageModal();
+        // ShowUploadImageModal();
         ShowCreateTagModal();
 
     }
@@ -947,7 +952,7 @@
 
     public void CreateTag() {
 
-        if (TagName.Length <= 1 || TagLowRange >= TagHighRange || TagHighRange <= 0 || TagServiceNumber.Length <= 1 || CDFImagePath.Length <= 1) {
+        if (TagName.Length <= 1 || TagHighRange <= 0 || TagServiceNumber.Length <= 1 ) { // CDFImagePath.Length <= 1
             Warning = "One or more of your fields are incorrect";
             return;
         }
@@ -975,7 +980,7 @@
 
         }
 
-        HideCreateTagModal();
+        // HideCreateTagModal();
 
         TagName = "";
         TagLowRange = 0;
@@ -987,7 +992,7 @@
 
     public void CreateTagButton() {
         editTagClicked = false;
-        ShowUploadImageModal();
+        // ShowUploadImageModal();
         ShowCreateTagModal();
     }
 
@@ -1001,8 +1006,10 @@
         await JSRuntime.InvokeVoidAsync("HideCreateTagModal");
     }
 
-    public void TagsNextPage() {
 
+    public void TagsNextPage() {
+        
+        // AddImageTag(); 
         if (TagsList.Count == 0) {
             Warning = "Create Tags";
         }
@@ -1010,6 +1017,8 @@
             Warning = "";
             pageDisplay++;
         }
+
+        CDFImagePath = "";
 
     }
 
