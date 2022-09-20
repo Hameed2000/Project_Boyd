@@ -357,52 +357,12 @@
                             <td class="dashboard-text">97%</td>
 
                         </tr>
-
+                        
                         <tr>
 
-                            <td class="dashboard-text">3</td>
-                            <td class="dashboard-text">Allen Pangilinan</td>
-                            <td class="dashboard-text">93%</td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td class="dashboard-text">4</td>
-                            <td class="dashboard-text">Jerald Agarin</td>
-                            <td class="dashboard-text">87%</td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td class="dashboard-text">5</td>
-                            <td class="dashboard-text">Arianee Tanyag</td>
-                            <td class="dashboard-text">86%</td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td class="dashboard-text">6</td>
-                            <td class="dashboard-text">Senn Alonzo</td>
-                            <td class="dashboard-text">81%</td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td class="dashboard-text">7</td>
-                            <td class="dashboard-text">Paul De Leon</td>
-                            <td class="dashboard-text">76%</td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td class="dashboard-text">8</td>
-                            <td class="dashboard-text">Luna Marianne</td>
-                            <td class="dashboard-text">73%</td>
+                            <td class="dashboard-text">2</td>
+                            <td class="dashboard-text">Stuart Detter</td>
+                            <td class="dashboard-text">97%</td>
 
                         </tr>
 
@@ -598,6 +558,14 @@
     {
         switch (n)
         {
+            case -3:
+                return "Sep";
+            case -2: 
+                return "Oct";
+            case -1: 
+                return "Nov";
+            case 0:
+                return "Dec";
             case 1:
                 return "Jan";
             case 2:
@@ -614,13 +582,13 @@
                 return "Jul";
             case 8:
                 return "Aug";
-            case 9 | -3:
+            case 9:
                 return "Sep";
-            case 10 | -2:
+            case 10: 
                 return "Oct";
-            case 11 | -1:
+            case 11: 
                 return "Nov";
-            case 12 | 0:
+            case 12:
                 return "Dec";
             default:
                 return "null";

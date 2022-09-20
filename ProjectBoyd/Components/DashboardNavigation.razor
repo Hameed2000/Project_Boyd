@@ -51,7 +51,7 @@
 
                     </button>
 
-                    <button class="rounded-button centering-flex" style="background-color: var(--error-color);" onclick="location.href='instructor/sessiongenerator'">
+                    <button class="rounded-button centering-flex" style="background-color: var(--error-color);" @onclick="EndClassSession">
 
                         <div class="default-text" style="color:white;">End Class</div>
 
@@ -142,7 +142,13 @@
     [Parameter]
     public SessionEntity Session { get; set; }
 
+    public void EndClassSession ()
+    {
+        Session = null; 
+        Page = "Main"; 
+        StateHasChanged(); 
 
+    }
     public void ChangePage(string pageName) {
         Page = pageName;
         Console.WriteLine(Page);

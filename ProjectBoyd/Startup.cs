@@ -126,9 +126,9 @@ namespace ProjectBoyd {
             // 3: Run the application
             // 4: Recomment the two lines below
             // 5: Run these commands in Package Manager Console: "Add-Migration InitialCreate" and "Update-Database"
-
-            //var dbContext = new ApplicationDbContext(serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());            
-            //dbContext.Database.EnsureDeleted();
+/*
+            var dbContext = new ApplicationDbContext(serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());
+            dbContext.Database.EnsureDeleted();*/
 
         }
 
