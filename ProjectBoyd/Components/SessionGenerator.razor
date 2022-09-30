@@ -214,7 +214,7 @@
 
                                 <div class="default-text form-title">Join Code</div>
 
-                                <button title="Copy Join Code" id="active-session-joinCode" class="rounded-button active-session-entry centering-flex" style="background-color: var(--accent-color);color: #fff">
+                                <button title="Copy Join Code" id="active-session-joinCode" class="rounded-button active-session-entry centering-flex" @onclick="CopySessionCode" style="background-color: var(--accent-color);color: #fff">
 
                                     @*copy to clipboard*@
                                     <code @ref="_sessionJoinCode">
