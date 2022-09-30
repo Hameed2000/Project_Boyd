@@ -10,10 +10,9 @@
       "connectionId": "Azure:SignalR:ConnectionString",
       "dynamicId": null
     },
-    "mssql1": {
+    "mssql3": {
       "type": "mssql",
-      "connectionId": "ConnectionStrings:DefaultConnection",
-      "dynamicId": null
+      "connectionId": "ConnectionStrings:DefaultConnection"
     }
   }
 }

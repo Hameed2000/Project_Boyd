@@ -113,7 +113,8 @@ namespace ProjectBoyd {
                 endpoints.MapRazorPages();
             });
 
-
+            var dbContext = new ApplicationDbContext(serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());
+            dbContext.Database.MigrateAsync().Wait();
             // Add any code you'd like to run here in a similar format
             // Create the methods below this method
             CreateRoles(serviceProvider).Wait();
