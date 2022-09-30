@@ -598,6 +598,14 @@
     {
         switch (n)
         {
+            case -3:
+                return "Sep";
+            case -2: 
+                return "Oct";
+            case -1: 
+                return "Nov";
+            case 0:
+                return "Dec";
             case 1:
                 return "Jan";
             case 2:
@@ -614,13 +622,13 @@
                 return "Jul";
             case 8:
                 return "Aug";
-            case 9 | -3:
+            case 9:
                 return "Sep";
-            case 10 | -2:
+            case 10:
                 return "Oct";
-            case 11 | -1:
+            case 11:
                 return "Nov";
-            case 12 | 0:
+            case 12:
                 return "Dec";
             default:
                 return "null";

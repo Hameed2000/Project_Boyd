@@ -216,7 +216,10 @@
 
                                 <button title="Copy Join Code" id="active-session-joinCode" class="rounded-button active-session-entry centering-flex" style="background-color: var(--accent-color);color: #fff">
 
-                                    <div class="default-text">@JoinCode</div>
+                                    @*copy to clipboard*@
+                                    <code @ref="_sessionJoinCode">
+                                        <div class="default-text" id="join-session-code">@JoinCode</div>
+                                    </code> 
 
                                     <div class="flex-divider"></div>
 
@@ -356,6 +359,7 @@
 
     }
 
+    private ElementReference _sessionJoinCode; 
     public IList<ApplicationUser> instructorList { get; set; }
     public List<addInstructorItem> instructorElementList { get; set; } = new List<addInstructorItem>();
     public List<addInstructorItem> instructorElementSelectedList { get; set; } = new List<addInstructorItem>();
@@ -417,6 +421,10 @@
         await base.OnInitializedAsync();
     }
 
+    // Copy session join code to clipbard 
+    public async void CopySessionCode() {
+       await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", _sessionJoinCode);
+    }
 
     public async void CreateSession() {
 
