@@ -88,6 +88,14 @@
         }
 
 /* create lab button */
+    .equipment-checklist {
+        text-align: right;
+    }
+
+    .page1-create-lab-btn {
+        display: inline-block;
+        margin-left: 5px;
+    }
 
     #create-lab-button {
 
@@ -202,11 +210,21 @@
 
         width: 120px;
 
+        text-align: center; 
+
+        margin-right: 15px; 
+
+        max-width:100%;
+
+        max-height:100%;
+
         background: none;
 
         box-sizing: border-box;
 
         position: relative;
+
+        cursor: pointer; 
 
     }
 
@@ -314,7 +332,7 @@
 
     }
 
-    .create-lab-upload-image-preview-container {
+    #create-lab-upload-image-preview-container {
 
         max-height: 500px;
         
@@ -334,16 +352,17 @@
 
     .create-lab-upload-image-preview {
 
-        object-fit: cover;
+        object-fit: inherit;
 
         max-width: 100% !important;
 
-        height: auto;
-        width: auto;
+        max-height:100%;
 
         max-width: 100%;
 
-        border-radius: 8px;
+        border-radius: 15px;
+
+        margin: 2px; 
 
         background-color: rgba(0,0,0,0.1);
 
