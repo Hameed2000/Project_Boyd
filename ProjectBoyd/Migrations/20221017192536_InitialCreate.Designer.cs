@@ -12,7 +12,7 @@ using ProjectBoyd.Data;
 namespace ProjectBoyd.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220930142056_InitialCreate")]
+    [Migration("20221017192536_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
