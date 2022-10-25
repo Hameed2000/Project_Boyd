@@ -1,49 +1,53 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <UserSecretsId>aspnet-ProjectBoyd-31B34D1B-9898-4A91-906F-2656B4EFDFEA</UserSecretsId>
-    <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<UserSecretsId>aspnet-ProjectBoyd-31B34D1B-9898-4A91-906F-2656B4EFDFEA</UserSecretsId>
+		<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Data\Migrations\**" />
-    <Compile Remove="Models\HtmlModels\Instructor\**" />
-    <Content Remove="Data\Migrations\**" />
-    <Content Remove="Models\HtmlModels\Instructor\**" />
-    <EmbeddedResource Remove="Data\Migrations\**" />
-    <EmbeddedResource Remove="Models\HtmlModels\Instructor\**" />
-    <None Remove="Data\Migrations\**" />
-    <None Remove="Models\HtmlModels\Instructor\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Data\Migrations\**" />
+		<Compile Remove="Models\HtmlModels\Instructor\**" />
+		<Content Remove="Data\Migrations\**" />
+		<Content Remove="Models\HtmlModels\Instructor\**" />
+		<EmbeddedResource Remove="Data\Migrations\**" />
+		<EmbeddedResource Remove="Models\HtmlModels\Instructor\**" />
+		<None Remove="Data\Migrations\**" />
+		<None Remove="Models\HtmlModels\Instructor\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.0.0" />
-    <PackageReference Include="Azure.Identity" Version="1.6.0" />
-    <PackageReference Include="Blazored.SessionStorage" Version="2.2.0" />
-    <PackageReference Include="BlazorInputFile" Version="0.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="6.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Azure.SignalR" Version="1.4.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.5">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="6.0.4" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.0" />
-    <PackageReference Include="Westwind.AspNetCore.LiveReload" Version="0.3.5" />
-  </ItemGroup>
+	<ItemGroup>
+	  <_WebToolingArtifacts Remove="Properties\ServiceDependencies\IPEmerson\mssql1.arm.json" />
+	  <_WebToolingArtifacts Remove="Properties\ServiceDependencies\IPEmerson\signalr1.arm.json" />
+	  <_WebToolingArtifacts Remove="Properties\ServiceDependencies\ProjectBoyd20220506230611 - Web Deploy\mssql1.arm.json" />
+	  <_WebToolingArtifacts Remove="Properties\ServiceDependencies\ProjectBoyd20220506230611 - Web Deploy\signalr1.arm.json" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\Migrations\" />
-    <Folder Include="Migrations\" />
-    <Folder Include="wwwroot\Assets\Images\cds_imgs\" />
-    <Folder Include="wwwroot\Assets\Images\tag_icons\" />
-    <Folder Include="wwwroot\css\NewFolder\" />
-  </ItemGroup>
+	<ItemGroup>
+	  <Content Include="Properties\ServiceDependencies\IPEmerson\mssql1.arm.json" />
+	  <Content Include="Properties\ServiceDependencies\IPEmerson\signalr1.arm.json" />
+	  <Content Include="Properties\ServiceDependencies\ProjectBoyd20220506230611 - Web Deploy\mssql1.arm.json" />
+	  <Content Include="Properties\ServiceDependencies\ProjectBoyd20220506230611 - Web Deploy\signalr1.arm.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Blazored.SessionStorage" Version="2.2.0" />
+		<PackageReference Include="BlazorInputFile" Version="0.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="6.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.10" />
+		<PackageReference Include="Westwind.AspNetCore.LiveReload" Version="0.3.7" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Data\Migrations\" />
+		<Folder Include="Migrations\" />
+		<Folder Include="wwwroot\Assets\Images\cds_imgs\" />
+		<Folder Include="wwwroot\Assets\Images\tag_icons\" />
+		<Folder Include="wwwroot\css\NewFolder\" />
+	</ItemGroup>
 
 </Project>

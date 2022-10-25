@@ -17,6 +17,7 @@ using Microsoft.Extensions.Hosting;
 using ProjectBoyd.Data;
 using Westwind.AspNetCore.LiveReload;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -71,11 +72,11 @@ namespace ProjectBoyd {
                 microsoftOptions.ClientId = "b391d2c7-379b-4b18-896e-3e8211925fcf";
                 microsoftOptions.ClientSecret = "ylz8Q~WZGjp9J8SrnHpRyZixyQpcwiIaO-SkwbE3";
             });*/
-            string ClientId = "";
+/*            string ClientId = "";
             string ClientSecret = "";
 
             ClientId = Configuration.GetValue<string>("ClientId");
-            ClientSecret = Configuration.GetValue<string>("ClientSecret");
+            ClientSecret = Configuration.GetValue<string>("ClientSecret");*/
 
             /*
                         services.AddAuthentication().AddMicrosoftAccount(microsoftOptions => {
@@ -84,8 +85,14 @@ namespace ProjectBoyd {
                         });*/
 
             services.AddAuthentication().AddMicrosoftAccount(microsoftOptions => {
+                microsoftOptions.ClientId = "ac07f7f5-53a6-4f01-869a-de2f3ca768d6";
+                microsoftOptions.ClientSecret = "6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";
+                // "b6c5eac7-808a-4b24-a67e-c100cb9c1a4b";
+                // "Qnk8Q~NMqattEsAVQVJigoeA.TqCgeA5sVY4gato"
+
+               /* services.AddAuthentication().AddMicrosoftAccount(microsoftOptions => {
                 microsoftOptions.ClientId = ClientId; // "b6c5eac7-808a-4b24-a67e-c100cb9c1a4b";//"ac07f7f5-53a6-4f01-869a-de2f3ca768d6";//"c2ea8842-772a-4280-92a6-20db876b9e05";
-                microsoftOptions.ClientSecret = ClientSecret;// "Qnk8Q~NMqattEsAVQVJigoeA.TqCgeA5sVY4gato";//"6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";//"umm7Q~iuAjQ54lfEzTwjskiKpRekPMyhEef99";
+                microsoftOptions.ClientSecret = ClientSecret*/// "Qnk8Q~NMqattEsAVQVJigoeA.TqCgeA5sVY4gato";//"6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";//"umm7Q~iuAjQ54lfEzTwjskiKpRekPMyhEef99";
             });
 
             // Add any other services you'd like here
@@ -144,6 +151,9 @@ namespace ProjectBoyd {
 
         }
 
+        public void consoleLog() {
+            System.Diagnostics.Trace.TraceError(Environment.GetEnvironmentVariable("VaultUri"));
+        }
 
         // Function used to create roles
         // It loops through the roles that exist, if any of the roles are missing it will create them
@@ -153,6 +163,8 @@ namespace ProjectBoyd {
         // Eventually you'll need to create something that automatically aproves the TopAdmin account without needing to
         // restart the application
         private async Task CreateRoles(IServiceProvider serviceProvider) {
+
+            consoleLog();
 
             var dbContext = new ApplicationDbContext(serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());
             //dbContext.Database.MigrateAsync();
