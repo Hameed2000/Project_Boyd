@@ -72,31 +72,31 @@ namespace ProjectBoyd {
                 microsoftOptions.ClientId = "b391d2c7-379b-4b18-896e-3e8211925fcf";
                 microsoftOptions.ClientSecret = "ylz8Q~WZGjp9J8SrnHpRyZixyQpcwiIaO-SkwbE3";
             });*/
-/*            string ClientId = "";
-            string ClientSecret = "";
+            /*            string ClientId = "";
+                        string ClientSecret = "";
 
-            ClientId = Configuration.GetValue<string>("ClientId");
-            ClientSecret = Configuration.GetValue<string>("ClientSecret");*/
+                        ClientId = Configuration.GetValue<string>("ClientId");
+                        ClientSecret = Configuration.GetValue<string>("ClientSecret");*/
 
-            /*
-                        services.AddAuthentication().AddMicrosoftAccount(microsoftOptions => {
-                            microsoftOptions.ClientId = "b6c5eac7-808a-4b24-a67e-c100cb9c1a4b";//"ac07f7f5-53a6-4f01-869a-de2f3ca768d6";//"c2ea8842-772a-4280-92a6-20db876b9e05";
-                            microsoftOptions.ClientSecret = "Qnk8Q~NMqattEsAVQVJigoeA.TqCgeA5sVY4gato";//"6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";//"umm7Q~iuAjQ54lfEzTwjskiKpRekPMyhEef99";
-                        });*/
 
             services.AddAuthentication().AddMicrosoftAccount(microsoftOptions => {
-                microsoftOptions.ClientId = "ac07f7f5-53a6-4f01-869a-de2f3ca768d6";
-                microsoftOptions.ClientSecret = "6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";
-                // "b6c5eac7-808a-4b24-a67e-c100cb9c1a4b";
-                // "Qnk8Q~NMqattEsAVQVJigoeA.TqCgeA5sVY4gato"
-
-               /* services.AddAuthentication().AddMicrosoftAccount(microsoftOptions => {
-                microsoftOptions.ClientId = ClientId; // "b6c5eac7-808a-4b24-a67e-c100cb9c1a4b";//"ac07f7f5-53a6-4f01-869a-de2f3ca768d6";//"c2ea8842-772a-4280-92a6-20db876b9e05";
-                microsoftOptions.ClientSecret = ClientSecret*/// "Qnk8Q~NMqattEsAVQVJigoeA.TqCgeA5sVY4gato";//"6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";//"umm7Q~iuAjQ54lfEzTwjskiKpRekPMyhEef99";
+                microsoftOptions.ClientId = "b6c5eac7-808a-4b24-a67e-c100cb9c1a4b";//"ac07f7f5-53a6-4f01-869a-de2f3ca768d6";//"c2ea8842-772a-4280-92a6-20db876b9e05";
+                microsoftOptions.ClientSecret = "Qnk8Q~NMqattEsAVQVJigoeA.TqCgeA5sVY4gato";//"6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";//"umm7Q~iuAjQ54lfEzTwjskiKpRekPMyhEef99";
             });
 
-            // Add any other services you'd like here
-            services.AddControllersWithViews();
+            /*            services.AddAuthentication().AddMicrosoftAccount(microsoftOptions => {
+                            microsoftOptions.ClientId = "ac07f7f5-53a6-4f01-869a-de2f3ca768d6";
+                            microsoftOptions.ClientSecret = "6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";*/
+            // "b6c5eac7-808a-4b24-a67e-c100cb9c1a4b";
+            // "Qnk8Q~NMqattEsAVQVJigoeA.TqCgeA5sVY4gato"
+
+            /*services.AddAuthentication().AddMicrosoftAccount(microsoftOptions => {
+             microsoftOptions.ClientId = ClientId; // "b6c5eac7-808a-4b24-a67e-c100cb9c1a4b";//"ac07f7f5-53a6-4f01-869a-de2f3ca768d6";//"c2ea8842-772a-4280-92a6-20db876b9e05";
+             microsoftOptions.ClientSecret = ClientSecret*//*// "Qnk8Q~NMqattEsAVQVJigoeA.TqCgeA5sVY4gato";//"6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";//"umm7Q~iuAjQ54lfEzTwjskiKpRekPMyhEef99";*/
+        // });
+
+                // Add any other services you'd like here
+                services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddBlazoredSessionStorage();
