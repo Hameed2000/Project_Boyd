@@ -25,6 +25,8 @@ using ProjectBoyd.Models.EntityModels;
 using ProjectBoyd.Models.ObjectModels;
 using Blazored.SessionStorage;
 using ProjectBoyd.Models.EntityModels.LabEntities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace ProjectBoyd {
     public class Startup {
@@ -40,19 +42,45 @@ namespace ProjectBoyd {
             // This adds the database context as a service to the project that way we can access the database
             // It sets the Connection String to "DefaultConnection"
             // "DefaultConnection" can be found and configured to your machine in appsettings.json
-            //services.AddDbContext<ApplicationDbContext>(options =>
-            //    options.UseSqlServer(
-            //        Configuration.GetConnectionString("DefaultConnection")));
+/*           services.AddDbContext<ApplicationDbContext>(options =>
+              options.UseSqlServer(
+                  Configuration.GetConnectionString("DefaultConnection")));*/
 
-            services.AddDbContext<ApplicationDbContext>(
+/*            services.AddDbContext<ApplicationDbContext>(
+                optionsBuilder => optionsBuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
+                    options => options.EnableRetryOnFailure());
+            ServiceLifetime.Transient);*/
+            // optionsLifetime: ServiceLifetime.Singleton);
+
+            var connection = Configuration.GetConnectionString("DefaultConnection");
+
+/*            services.AddDbContext<ApplicationDbContext>(
                 options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
                 contextLifetime: ServiceLifetime.Transient,
-                optionsLifetime: ServiceLifetime.Singleton);
+                optionsLifetime: ServiceLifetime.Singleton);*/
 
-            // DB Factory
-            services.AddDbContextFactory<ApplicationDbContext>(
-                options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
-                ServiceLifetime.Scoped);
+            services.AddDbContext<ApplicationDbContext>(options => {
+                options.UseSqlServer(connection);
+                options.EnableSensitiveDataLogging(true);
+            });
+
+
+            /*            // DB Factory
+                        services.AddDbContextFactory<ApplicationDbContext>(
+                            options => options.UseSqlServer(connection),
+                            ServiceLifetime.Scoped);*/
+
+            /*            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+                           .AddRoles<IdentityRole>()
+                           .AddEntityFrameworkStores<ApplicationDbContext>();*/
+
+            /*            var userManagerServiceDescriptor =
+                            services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(UserManager<ApplicationUser>));
+                        services.Remove(userManagerServiceDescriptor);
+
+                        var userStoreServiceDescriptor =
+                            services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(IUserStore<ApplicationUser>));
+                        services.Remove(userStoreServiceDescriptor);*/
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -86,22 +114,28 @@ namespace ProjectBoyd {
 
             /*            services.AddAuthentication().AddMicrosoftAccount(microsoftOptions => {
                             microsoftOptions.ClientId = "ac07f7f5-53a6-4f01-869a-de2f3ca768d6";
-                            microsoftOptions.ClientSecret = "6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";*/
+                            microsoftOptions.ClientSecret = "6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";
+                        });*/
             // "b6c5eac7-808a-4b24-a67e-c100cb9c1a4b";
             // "Qnk8Q~NMqattEsAVQVJigoeA.TqCgeA5sVY4gato"
 
             /*services.AddAuthentication().AddMicrosoftAccount(microsoftOptions => {
              microsoftOptions.ClientId = ClientId; // "b6c5eac7-808a-4b24-a67e-c100cb9c1a4b";//"ac07f7f5-53a6-4f01-869a-de2f3ca768d6";//"c2ea8842-772a-4280-92a6-20db876b9e05";
              microsoftOptions.ClientSecret = ClientSecret*//*// "Qnk8Q~NMqattEsAVQVJigoeA.TqCgeA5sVY4gato";//"6pS8Q~fTSVxKKB73KRszZrAZch.Z5D47Mq-JJaP5";//"umm7Q~iuAjQ54lfEzTwjskiKpRekPMyhEef99";*/
-        // });
+            // });
 
-                // Add any other services you'd like here
-                services.AddControllersWithViews();
+            // Add any other services you'd like here
+            services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddBlazoredSessionStorage();
             services.AddLiveReload();
             services.AddScoped<ApplicationDbContext, ApplicationDbContext>();
+
+            // addTransient.. Test this out 11/3
+            //services.AddScoped<DbContext, ApplicationDbContext>();
+            //services.AddScoped<IUserStore<ApplicationUser>, UserStore<ApplicationUser>>();
+            //services.AddScoped<UserManager<ApplicationUser>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -151,7 +185,7 @@ namespace ProjectBoyd {
 
         }
 
-        public void consoleLog() {
+        public void ConsoleLog() {
             System.Diagnostics.Trace.TraceError(Environment.GetEnvironmentVariable("VaultUri"));
         }
 
@@ -164,7 +198,7 @@ namespace ProjectBoyd {
         // restart the application
         private async Task CreateRoles(IServiceProvider serviceProvider) {
 
-            consoleLog();
+            ConsoleLog();
 
             var dbContext = new ApplicationDbContext(serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());
             //dbContext.Database.MigrateAsync();

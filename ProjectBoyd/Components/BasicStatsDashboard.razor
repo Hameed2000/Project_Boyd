@@ -4,8 +4,9 @@
 @using Microsoft.EntityFrameworkCore;
 @using System.Timers;
 
-@inject IDbContextFactory<ApplicationDbContext> dbFactory
-@implements IAsyncDisposable
+@inject ApplicationDbContext dbContext
+@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable*@
 
 <div class="dashboard-grid-item item-2">
 
@@ -63,7 +64,7 @@
 @code {
     // Figure out a better format for the clock when it goes past one hour
 
-    ApplicationDbContext dbContext;
+    //ApplicationDbContext dbContext;
 
     [Parameter]
     public SessionEntity Session { get; set; }
@@ -82,7 +83,7 @@
     protected override async Task OnInitializedAsync()
     {
         // Db Factory
-        dbContext = await dbFactory.CreateDbContextAsync();
+        //dbContext = await dbFactory.CreateDbContextAsync();
 
         if (Session != null && Session.Active ) 
         {
@@ -149,10 +150,10 @@
         return;
     }
 
-    public async ValueTask DisposeAsync() {
-        if (dbContext != null) {
-            await dbContext.DisposeAsync();
-        }
-    }
+    //public async ValueTask DisposeAsync() {
+    //    if (dbContext != null) {
+    //        await dbContext.DisposeAsync();
+    //    }
+    //}
 
 }

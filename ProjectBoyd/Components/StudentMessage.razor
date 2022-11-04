@@ -14,9 +14,9 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavManager
-@*@inject ApplicationDbContext dbContext*@
-@inject IDbContextFactory<ApplicationDbContext> dbFactory
-@implements IAsyncDisposable
+@inject ApplicationDbContext dbContext
+@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable*@
 @inject NavigationManager NavManager
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined">
@@ -60,21 +60,24 @@
 
     </div>
 
-        }
+}
 
 
 
 
 @code {
-    ApplicationDbContext dbContext;
+    //  ApplicationDbContext dbContext;
     ApplicationUser currentUser;
     TeamEntity team;
     SessionTeam sessionTeamInfo;
 
-    public async void StateHasChangedWrapper(Object? source, System.Timers.ElapsedEventArgs e)
-    {
-        await InvokeAsync(() =>
-        {
+    public void logging(string loggedmessage) {
+        System.Diagnostics.Trace.TraceError(loggedmessage);
+    }
+    string message;
+
+    public async void StateHasChangedWrapper(Object? source, System.Timers.ElapsedEventArgs e) {
+        await InvokeAsync(() => {
             StateHasChanged();
         });
         return;
@@ -82,17 +85,36 @@
 
     protected override async Task OnInitializedAsync() {
         // Db Factory
-        dbContext = await dbFactory.CreateDbContextAsync();
+        //dbContext = await dbFactory.CreateDbContextAsync();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        message = "StudentMessage: authState: " + authState;
+        logging(message);
         var user = authState.User;
-        currentUser = await userManager.FindByNameAsync(user.Identity.Name);
-        team = dbContext.Teams.Where(t => t.AccountId == currentUser.Id).FirstOrDefault();
+        message = "user: " + user;
+        logging(message);
+        try {
+            currentUser = await userManager.FindByNameAsync(user.Identity.Name);
+            message = "StudentMessage: currentUser: " + currentUser + " User.Identity.Name " + user.Identity.Name;
+            logging(message);
+        }
+        catch (Exception err) {
+            message = "err: " + err;
+            logging(message);
+        }
+        team = await dbContext.Teams.Where(t => t.AccountId == currentUser.Id).FirstOrDefaultAsync();
+        message = "team: " + team;
+        logging(message);
+
         try {
             sessionTeamInfo = SessionInfo.SessionInfoList.GetValueOrDefault(team.SessionId).GetValueOrDefault(team.TeamId.ToString());
+            message = "StudentMessage: sessionID: " + team.SessionId + " TeamID: " + team.TeamId.ToString();
+            logging(message);
             sessionTeamInfo.StateHasChangedDelegate = InvokeChange;
-        } catch(Exception e) {
-
+        }
+        catch (Exception e) {
+            message = "Exception Logged Error: " + e;
+            logging(message);
         }
 
         // Checks for a message every 15 seconds
@@ -103,32 +125,31 @@
         timer.Enabled = true;
     }
 
-    public void InvokeChange()
-    {
+    public void InvokeChange() {
         StateHasChanged();
     }
 
     // Navigate from here // multiple functions
 
     public void CloseMessage() {
-        if(sessionTeamInfo.Message == "Congratulations! Your lab was approved.")
-        {
+        if (sessionTeamInfo.Message == "Congratulations! Your lab was approved.") {
             sessionTeamInfo.Message = "";
             NavManager.NavigateTo("/Student/StudentInstructions", true);
         }
         sessionTeamInfo.Message = "";
         //if(sessionTeamInfo.MessageAction != null)
         //{
-        //    sessionTeamInfo.MessageAction.Invoke(sessionTeamInfo); 
+        //    sessionTeamInfo.MessageAction.Invoke(sessionTeamInfo);
         //}
-        
+
         StateHasChanged();
     }
 
-    public async ValueTask DisposeAsync() {
-        if (dbContext != null) {
-            await dbContext.DisposeAsync();
-        }
-    }
+    //public async ValueTask DisposeAsync() {
+    //    if (dbContext != null) {
+    //        await dbContext.DisposeAsync();
+    //    }
+    //}
 
 }
+

@@ -15,16 +15,17 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavManager
-@*@inject ApplicationDbContext dbContext*@
-@inject IDbContextFactory<ApplicationDbContext> dbFactory
-@implements IAsyncDisposable
+@inject ApplicationDbContext dbContext
+@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable*@
 
 
 <div id="body-main">
 
     <!-- MODALS GO HERE -->
-  
-    <StudentMessage>  </StudentMessage>
+    @*@if (UserFactoryDone) {*@
+        <StudentMessage>  </StudentMessage>
+    @*}*@
 
     <!-- the main body container-->
     <div class="nav-bar">
@@ -319,25 +320,55 @@
 @code {
 
     string page = "Waiting";
+    // bool UserFactoryDone = false;
 
-    ApplicationDbContext dbContext;
+    //ApplicationDbContext dbContext;
     ApplicationUser currentUser;
     TeamEntity team;
     SessionTeam sessionTeamInfo;
     Timer timer = new Timer();
-    bool labAssigned = false;
+    //bool UserFactoryDone = false;
+
+
+    public void logging(string loggedmessage) {
+        System.Diagnostics.Trace.TraceError(loggedmessage);
+    }
+    string message;
 
 
 
     protected override async Task OnInitializedAsync() {
-        // Db Factory
-        dbContext = await dbFactory.CreateDbContextAsync();
 
+        // Db Factory
+        //dbContext = await dbFactory.CreateDbContextAsync();
+        dbContext.Teams.AsNoTracking(); 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        currentUser = await userManager.FindByNameAsync(user.Identity.Name);
-        team = dbContext.Teams.Where(t => t.AccountId == currentUser.Id).FirstOrDefault();
+        try {
+            currentUser = await userManager.FindByNameAsync(user.Identity.Name);
+            message = "Student Instruction: currentUser: " + currentUser + " User.Identity.Name " + user.Identity.Name;
+            logging(message);
+        }
+        catch (Exception err) {
+            // A second operation was started on this context instance before a previous operation completed.
+            message = "err: " + err;
+            logging(message);
+        }
+        try {
+            team = await dbContext.Teams.Where(t => t.AccountId == currentUser.Id).FirstOrDefaultAsync();
+            message = "Student Instruction: team: " + team;
+            logging(message);
+        }
+        catch (Exception err) {
+            message = "err: " + err;
+            logging(message);
+        }
+        
+         //student message wouldn't have access to user manager until the current page is done
+         //UserFactoryDone = true;
         sessionTeamInfo = SessionInfo.SessionInfoList.GetValueOrDefault(team.SessionId).GetValueOrDefault(team.TeamId.ToString());
+        message = "Student Instruction: SessionTeamInfo" + sessionTeamInfo + "sessionID: " + team.SessionId + " TeamID: " + team.TeamId.ToString();
+        logging(message);
 
         if (sessionTeamInfo.LabQueue.Count == 0) {
             page = "Waiting";
@@ -350,12 +381,13 @@
             page = "AssignedPopUp";
         }
 
-        timer.Interval = 10000;
+        timer.Interval = 1000;
         timer.Elapsed += OnTimedEvent;
         timer.AutoReset = true;
         timer.Enabled = true;
 
         await base.OnInitializedAsync();
+
     }
 
 
@@ -375,7 +407,7 @@
             timer.Enabled = false;
             await InvokeAsync(() => StateHasChanged()); 
         }
-        return;
+        return; 
     }
 
 
@@ -429,10 +461,10 @@
         sessionTeamInfo.EquipmentList[taskKey] = (bool)val;
     }
 
-    public async ValueTask DisposeAsync() {
-        if (dbContext != null) {
-            await dbContext.DisposeAsync();
-        }
-    }
+    //public async ValueTask DisposeAsync() {
+    //    if (dbContext != null) {
+    //        await dbContext.DisposeAsync();
+    //    }
+    //}
 
 }

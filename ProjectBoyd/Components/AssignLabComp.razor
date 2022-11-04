@@ -12,9 +12,9 @@
 @using ProjectBoyd.Models.ObjectModels;
 @using ProjectBoyd.Models.EntityModels.LabEntities;
 
-@*@inject ApplicationDbContext dbContext*@
-@inject IDbContextFactory<ApplicationDbContext> dbFactory
-@implements IAsyncDisposable
+@inject ApplicationDbContext dbContext
+@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable*@
 
 
 <div id="student-assign-lab-team-info-modal" class="basic-modal-item active">
@@ -278,7 +278,7 @@
 
     // Check parameters and the actual code base for any bugs
 
-    ApplicationDbContext dbContext;
+    //ApplicationDbContext dbContext;
 
     [Parameter]
     public EventCallback HideAssignLab { get; set; }
@@ -297,7 +297,7 @@
     public List<TeamEntity> UnSelectedTeams = new List<TeamEntity>();
 
     protected override async Task OnInitializedAsync() {
-        dbContext = await dbFactory.CreateDbContextAsync();
+        //dbContext = await dbFactory.CreateDbContextAsync();
 
         UnSelectedModules = dbContext.Modules.Include(m => m.WorkOrder).Include(m => m.Tags).Include(m => m.Tips).ToList();
 
@@ -375,11 +375,11 @@
     //    await HideAssignLab.InvokeAsync();
     //}
 
-    public async ValueTask DisposeAsync() {
-        if (dbContext != null) {
-            await dbContext.DisposeAsync();
-        }
-    }
+    //public async ValueTask DisposeAsync() {
+    //    if (dbContext != null) {
+    //        await dbContext.DisposeAsync();
+    //    }
+    //}
 
 
 }

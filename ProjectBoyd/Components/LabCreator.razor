@@ -20,9 +20,9 @@
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
-@*@inject ApplicationDbContext dbContext*@
-@inject IDbContextFactory<ApplicationDbContext> dbFactory
-@implements IAsyncDisposable
+@inject ApplicationDbContext dbContext
+@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable*@
 
 
 
@@ -618,7 +618,7 @@
 
 @code {
 
-    ApplicationDbContext dbContext;
+    //ApplicationDbContext dbContext;
     int pageDisplay = 1;
 
     public void Next() {
@@ -664,7 +664,7 @@
 
     protected override async Task OnInitializedAsync() {
         // Db Factory
-        dbContext = await dbFactory.CreateDbContextAsync();
+        //dbContext = await dbFactory.CreateDbContextAsync();
         ModulesList = dbContext.Modules.Include(m => m.WorkOrder).Include(m => m.Tags).Include(m => m.Tips).ToList<ModuleEntity>();
 
         await base.OnInitializedAsync();
@@ -837,7 +837,7 @@
     //public bool showTagsConfirmation = false;
     public async Task HandleImageUpload(InputFileChangeEventArgs e, bool overRide) {
         // Db Factory
-        dbContext = await dbFactory.CreateDbContextAsync();
+        //dbContext = await dbFactory.CreateDbContextAsync();
 
         var file = e.File;
 
@@ -1059,7 +1059,7 @@
     // Create Lab Module and Enter into DB
     public async void CreateLabModule() {
         // Db Factory
-        dbContext = await dbFactory.CreateDbContextAsync();
+        //dbContext = await dbFactory.CreateDbContextAsync();
 
         // Create Entities and Enter Into DB
         ModuleEntity lab;// = new ModuleEntity();
@@ -1137,11 +1137,11 @@
         StateHasChanged();
     }
 
-    public async ValueTask DisposeAsync() {
-        if (dbContext != null) {
-            await dbContext.DisposeAsync();
-        }
-    }
+    //public async ValueTask DisposeAsync() {
+    //    if (dbContext != null) {
+    //        await dbContext.DisposeAsync();
+    //    }
+    //}
 
 }
 }

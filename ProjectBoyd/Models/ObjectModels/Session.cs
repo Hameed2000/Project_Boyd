@@ -12,6 +12,7 @@ using ProjectBoyd.Data;
 using ProjectBoyd.Models.ObjectModels;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.Configuration;
 
 namespace ProjectBoyd.Models.ObjectModels {
     public class Session {
@@ -46,6 +47,8 @@ namespace ProjectBoyd.Models.ObjectModels {
 
         }
 
+        public IConfiguration Configuration { get; }
+
         private string generateJoinCode() {
 
             Random rnd = new Random();
@@ -62,14 +65,18 @@ namespace ProjectBoyd.Models.ObjectModels {
             await Task.Delay(28800000); // Delays for 8 hours (in milliseconds)
             EndSession(dbContext);
         }*/
+        public void logging(string loggedmessage) {
+            System.Diagnostics.Trace.TraceError(loggedmessage);
+        }
+        string msg;
 
         public async void EndSession(UserManager<ApplicationUser> userManager) {
-
             SessionInfo.SessionInfoList.Remove(this.sessionEntity.SessionId.ToString());
-
-            string ConnectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=aspnet-ProjectBoyd-31B34D1B-9898-4A91-906F-2656B4EFDFEA;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            msg = "Session Connection String: " + Configuration.GetConnectionString("DefaultConnection");
+            logging(msg);
+           //string ConnectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=aspnet-ProjectBoyd-31B34D1B-9898-4A91-906F-2656B4EFDFEA;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
             var contextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseSqlServer(ConnectionString)
+            .UseSqlServer(Configuration.GetConnectionString("DefaultConnection")) // Configuration.GetConnectionString("DefaultConnection"
             .Options;
 
             using (var dbContext = new ApplicationDbContext(contextOptions)) {
@@ -99,7 +106,7 @@ namespace ProjectBoyd.Models.ObjectModels {
                             team.InSession = false;
                             dbContext.SaveChanges();
                             ApplicationUser account = await userManager.FindByIdAsync(accountId);
-                            //ApplicationUser account = dbContext.Users.Where(u => u.Id.ToString() == accountId).FirstOrDefault<ApplicationUser>();
+                            //ApplicationUser account = dbContex t.Users.Where(u => u.Id.ToString() == accountId).FirstOrDefault<ApplicationUser>();
                             if (account != null) {
                                 await userManager.FindByIdAsync(account.Id);
                                 await userManager.DeleteAsync(account);
@@ -117,9 +124,11 @@ namespace ProjectBoyd.Models.ObjectModels {
             
             List<ApplicationUser> teamAccounts = new List<ApplicationUser>();
 
-            string ConnectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=aspnet-ProjectBoyd-31B34D1B-9898-4A91-906F-2656B4EFDFEA;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            msg = "Session Connection String: " + Configuration.GetConnectionString("DefaultConnection");
+            logging(msg);
+            //string ConnectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=aspnet-ProjectBoyd-31B34D1B-9898-4A91-906F-2656B4EFDFEA;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
             var contextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseSqlServer(ConnectionString)
+            .UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
             .Options;
 
             using (var dbContext = new ApplicationDbContext(contextOptions)) {

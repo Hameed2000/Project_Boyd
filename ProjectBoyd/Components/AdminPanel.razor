@@ -14,9 +14,9 @@
 @inject UserManager<ApplicationUser> userManager
 @inject RoleManager<IdentityRole> roleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@*@inject ApplicationDbContext dbContext*@
-@inject IDbContextFactory<ApplicationDbContext> dbFactory
-@implements IAsyncDisposable
+@inject ApplicationDbContext dbContext
+@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable*@
 
 @if (pageModel != null) {
 
@@ -250,13 +250,13 @@
 
     AdminPanelViewModel pageModel;
     ApplicationUser currentUser;
-    ApplicationDbContext dbContext;
+    //ApplicationDbContext dbContext;
 
 
     // Initialized Function
 
     protected override async Task OnInitializedAsync() {
-        dbContext = await dbFactory.CreateDbContextAsync();
+        //dbContext = await dbFactory.CreateDbContextAsync();
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         currentUser = await userManager.FindByNameAsync(user.Identity.Name);
@@ -287,11 +287,11 @@
 
     }
 
-    public async ValueTask DisposeAsync() {
-        if (dbContext != null) {
-            await dbContext.DisposeAsync();
-        }
-    }
+   //public async ValueTask DisposeAsync() {
+   //     if (dbContext != null) {
+   //         await dbContext.DisposeAsync();
+   //     }
+   // }
 
 
 }
