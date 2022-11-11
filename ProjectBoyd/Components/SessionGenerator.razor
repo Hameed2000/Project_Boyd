@@ -16,9 +16,9 @@
 @inject RoleManager<IdentityRole> roleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
-@inject ApplicationDbContext dbContext
-@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
-@implements IAsyncDisposable*@
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 @* To-Do: Create a page model for it *@
 
@@ -322,7 +322,7 @@
 
 
 @code {
-    //ApplicationDbContext dbContext;
+    ApplicationDbContext dbContext;
     public static int counter = 0;
 
     public class addInstructorItem {
@@ -385,7 +385,7 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         // Db Factory
-        //dbContext = await dbFactory.CreateDbContextAsync();
+        dbContext = await dbFactory.CreateDbContextAsync();
 
         currentUser = await userManager.FindByNameAsync(user.Identity.Name);
 
@@ -513,11 +513,11 @@
 
     }
 
-    //public async ValueTask DisposeAsync() {
-    //    if (dbContext != null) {
-    //        await dbContext.DisposeAsync();
-    //    }
-    //}
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
+    }
 
     @*
 

@@ -12,14 +12,14 @@ using ProjectBoyd.Data;
 namespace ProjectBoyd.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20221017192536_InitialCreate")]
+    [Migration("20221110190658_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.1")
+                .HasAnnotation("ProductVersion", "6.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);

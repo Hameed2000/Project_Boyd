@@ -15,9 +15,9 @@
 @inject RoleManager<IdentityRole> roleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
-@inject ApplicationDbContext dbContext
-@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
-@implements IAsyncDisposable*@
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 @inject NavigationManager NavManager
 
 <div id="body-main">
@@ -423,7 +423,7 @@
 
     DashboardNavigation NavRef;
     BasicStatsDashboard StatsRef;
-    //ApplicationDbContext dbContext;
+    ApplicationDbContext dbContext;
 
     string DashboardView = "Main";
 
@@ -466,7 +466,7 @@
 
     protected override async Task OnInitializedAsync() {
         // Db Factory
-        //dbContext = await dbFactory.CreateDbContextAsync();
+        dbContext = await dbFactory.CreateDbContextAsync();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -706,10 +706,10 @@
         SendMessageComponent = false;
     }
 
-    //public async ValueTask DisposeAsync() {
-    //    if (dbContext != null) {
-    //        await dbContext.DisposeAsync();
-    //    }
-    //}
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
+    }
 
 }

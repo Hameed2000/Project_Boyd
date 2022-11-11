@@ -17,9 +17,9 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ProtectedLocalStorage LocalStorage
 @inject IJSRuntime JSRuntime
-@inject ApplicationDbContext dbContext
-@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
-@implements IAsyncDisposable*@
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 @if (DisplayLeaveConfirmation) {
 
@@ -180,7 +180,7 @@
 </div>
 
 @code {
-    //ApplicationDbContext dbContext;
+    ApplicationDbContext dbContext;
 
     [Parameter]
     public string PageName { get; set; } = "StudentInstructions";
@@ -197,7 +197,7 @@
 
     protected override async Task OnInitializedAsync() {
         // Db Factory
-        //dbContext = await dbFactory.CreateDbContextAsync();
+        dbContext = await dbFactory.CreateDbContextAsync();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;

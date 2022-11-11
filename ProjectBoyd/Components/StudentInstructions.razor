@@ -15,9 +15,9 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavManager
-@inject ApplicationDbContext dbContext
-@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
-@implements IAsyncDisposable*@
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 
 <div id="body-main">
@@ -322,7 +322,7 @@
     string page = "Waiting";
     // bool UserFactoryDone = false;
 
-    //ApplicationDbContext dbContext;
+    ApplicationDbContext dbContext;
     ApplicationUser currentUser;
     TeamEntity team;
     SessionTeam sessionTeamInfo;
@@ -340,29 +340,13 @@
     protected override async Task OnInitializedAsync() {
 
         // Db Factory
-        //dbContext = await dbFactory.CreateDbContextAsync();
-        dbContext.Teams.AsNoTracking(); 
+        dbContext = await dbFactory.CreateDbContextAsync();
+
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        try {
             currentUser = await userManager.FindByNameAsync(user.Identity.Name);
-            message = "Student Instruction: currentUser: " + currentUser + " User.Identity.Name " + user.Identity.Name;
-            logging(message);
-        }
-        catch (Exception err) {
             // A second operation was started on this context instance before a previous operation completed.
-            message = "err: " + err;
-            logging(message);
-        }
-        try {
             team = await dbContext.Teams.Where(t => t.AccountId == currentUser.Id).FirstOrDefaultAsync();
-            message = "Student Instruction: team: " + team;
-            logging(message);
-        }
-        catch (Exception err) {
-            message = "err: " + err;
-            logging(message);
-        }
         
          //student message wouldn't have access to user manager until the current page is done
          //UserFactoryDone = true;
@@ -461,10 +445,10 @@
         sessionTeamInfo.EquipmentList[taskKey] = (bool)val;
     }
 
-    //public async ValueTask DisposeAsync() {
-    //    if (dbContext != null) {
-    //        await dbContext.DisposeAsync();
-    //    }
-    //}
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
+    }
 
 }

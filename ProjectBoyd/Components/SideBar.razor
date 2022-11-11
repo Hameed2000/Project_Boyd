@@ -17,9 +17,9 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ProtectedLocalStorage LocalStorage
 @inject IJSRuntime JSRuntime
-@inject ApplicationDbContext dbContext
-@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
-@implements IAsyncDisposable*@
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 <div id="side-container">
     <!-- the side container -->
@@ -108,7 +108,7 @@
 
 @code {
 
-    //ApplicationDbContext dbContext;
+    ApplicationDbContext dbContext;
     [Parameter]
     public string PageName { get; set; } = "AdminPanel";
 
@@ -119,7 +119,7 @@
 
     protected override async Task OnInitializedAsync() {
         // Db Factory
-        //dbContext = await dbFactory.CreateDbContextAsync();
+        dbContext = await dbFactory.CreateDbContextAsync();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -162,10 +162,10 @@
 
     }
 
-    //public async ValueTask DisposeAsync() {
-    //    if (dbContext != null) {
-    //        await dbContext.DisposeAsync();
-    //    }
-    //}
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
+    }
 
 }

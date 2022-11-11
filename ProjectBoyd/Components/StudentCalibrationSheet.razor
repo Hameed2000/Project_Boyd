@@ -11,9 +11,9 @@
 
 @inject UserManager<ApplicationUser> userManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject ApplicationDbContext dbContext
-@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
-@implements IAsyncDisposable*@
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 <div id="body-main">
 
@@ -91,7 +91,7 @@
 </div>
 
 @code {
-    //ApplicationDbContext dbContext;
+    ApplicationDbContext dbContext;
     ApplicationUser currentUser;
     TeamEntity team;
     SessionTeam sessionTeamInfo;
@@ -100,7 +100,7 @@
 
     protected override async Task OnInitializedAsync() {
         // Db Factory
-        //dbContext = await dbFactory.CreateDbContextAsync();
+        dbContext = await dbFactory.CreateDbContextAsync();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -112,10 +112,10 @@
 
     }
 
-    //public async ValueTask DisposeAsync() {
-    //    if (dbContext != null) {
-    //        await dbContext.DisposeAsync();
-    //    }
-    //}
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
+    }
 
 }

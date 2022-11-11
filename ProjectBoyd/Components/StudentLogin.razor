@@ -18,8 +18,8 @@
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavManager
 @inject ApplicationDbContext dbContext
-@*@inject IDbContextFactory<ApplicationDbContext> dbFactory*@
-@*@implements IAsyncDisposable*@
+@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable*@
 
 <div id="body-main" class="full-width">
 
@@ -275,13 +275,13 @@
     protected override async Task OnInitializedAsync() {
         // Db Factory
         //dbContext = await dbFactory.CreateDbContextAsync();
-        Team newteam = new Team(sessionSelected, teamName);
+        //Team newteam = new Team(sessionSelected, teamName);
 
         sessionList = dbContext.Sessions.Where(s => s.Active == true).ToList<SessionEntity>();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        logging("accountId: " + newteam.teamEntity.AccountId); 
+        //logging("accountId: " + newteam.teamEntity.AccountId); 
 
         if (user != null && user.Identity.Name != null) {
             var isInRole = user.IsInRole("Student");
@@ -458,7 +458,6 @@
 
     public async void JoinSession() {
 
-        dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         Team team = new Team(sessionSelected, teamName);
         await dbContext.Teams.AddAsync(team.teamEntity);
         await dbContext.SaveChangesAsync();
@@ -510,19 +509,17 @@
         var userStore = new UserStore<ApplicationUser>(dbContext);
         var result = await userStore.CreateAsync(user);
 
-        // logging("teamname: " + team.teamEntity.TeamName); 
-        logging("result" + result.ToString());
-
-        // Figure this out
-        logging("AccountID 0 : " + team.teamEntity.AccountId + "userId " + user.Id);
-                                //var entity = await userManager.FindByIdAsync(user.Id); //To Avoid tracking error
-                                //dbContext.Entry(entity).State = EntityState.Detached;
-        logging("AccountID 1 : " + team.teamEntity.AccountId + "userId " + user.Id);
-
+                   // Figure this out
+            logging("AccountID 0 : " + team.teamEntity.AccountId + "userId " + user.Id);
+                // logging output 
+            // team.teamEntity { ProjectBoyd.Models.EntityModels.TeamEntity}
+                // AccountId = null 
+                logging("userStore: " + userStore); 
+                logging("userStore: " + user); 
+        
+       // maybe user is already assigned to the student role? 
         await userManager.AddToRoleAsync(user, "Student");
-                        logging("AccountID 3 : " + team.teamEntity.AccountId + "userId " + user.Id);
         team.teamEntity.AccountId = user.Id;
-                        logging("AccountID 4 : " + team.teamEntity.AccountId + "userId " + user.Id); 
         await dbContext.SaveChangesAsync();
 
         SessionInfo.SessionInfoList.FirstOrDefault(s => s.Key == sessionSelected).Value.Add(team.teamEntity.TeamId.ToString(), new SessionTeam());
@@ -533,11 +530,11 @@
     
     }
 
-    //public async ValueTask DisposeAsync() {
-    //    if (dbContext != null) {
-    //        await dbContext.DisposeAsync();
-    //    }
-    //}
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
+    }
 
 }
 

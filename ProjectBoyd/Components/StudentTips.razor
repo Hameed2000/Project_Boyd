@@ -14,9 +14,9 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavManager
-@inject ApplicationDbContext dbContext
-@*@inject IDbContextFactory<ApplicationDbContext> dbFactory
-@implements IAsyncDisposable*@
+@*@inject ApplicationDbContext dbContext*@
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IAsyncDisposable
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined">
 
@@ -205,7 +205,7 @@
 
 
 @code {
-    //ApplicationDbContext dbContext;
+    ApplicationDbContext dbContext;
     ApplicationUser currentUser;
     TeamEntity team;
     SessionTeam sessionTeamInfo;
@@ -214,7 +214,7 @@
 
     protected override async Task OnInitializedAsync() {
         // Db Factory
-        //dbContext = await dbFactory.CreateDbContextAsync();
+        dbContext = await dbFactory.CreateDbContextAsync();
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -269,10 +269,10 @@
         await dbContext.SaveChangesAsync();
     }
 
-    //public async ValueTask DisposeAsync() {
-    //    if (dbContext != null) {
-    //        await dbContext.DisposeAsync();
-    //    }
-    //}
+    public async ValueTask DisposeAsync() {
+        if (dbContext != null) {
+            await dbContext.DisposeAsync();
+        }
+    }
 
 }
